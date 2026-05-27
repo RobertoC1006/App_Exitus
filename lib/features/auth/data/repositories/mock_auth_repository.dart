@@ -1,37 +1,40 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:app_exitus/core/mock/mock_data.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class MockAuthRepository implements AuthRepository {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
-  // Datos mock del profesor de prueba
-  final User _mockTeacher = const User(
-    id: 'teacher_01',
-    username: 'profesor123',
-    fullName: 'Prof. Roberto Carlos',
-    email: 'roberto.carlos@exitus.edu.pe',
-    role: 'teacher',
-    avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
-    subjects: ['Matemática - 5to A', 'Matemática - 5to B', 'Física - 4to A'],
-  );
 
   @override
   Future<User> login(String username, String password) async {
     // Simula retraso de red
     await Future.delayed(const Duration(milliseconds: 1500));
 
-    if (username.trim() == 'profesor123' && password == '12345678') {
-      // Guardar sesión en almacenamiento seguro
-      await _storage.write(key: 'auth_token', value: 'mock_jwt_token_xyz');
-      await _storage.write(key: 'user_data', value: jsonEncode(_mockTeacher.toJson()));
-      return _mockTeacher;
-    } else if (username.isEmpty || password.isEmpty) {
+    final trimmedUser = username.trim();
+    if (username.isEmpty || password.isEmpty) {
       throw Exception('Por favor, completa todos los campos.');
-    } else {
-      throw Exception('Usuario o contraseña incorrectos.');
     }
+
+    final db = MockDatabase();
+    // Buscar en la lista de usuarios de MockDatabase
+    final userIndex = db.users.indexWhere(
+      (u) => u.username.toLowerCase() == trimmedUser.toLowerCase(),
+    );
+
+    if (userIndex != -1) {
+      final user = db.users[userIndex];
+      final correctPassword = db.userPasswords[user.username];
+      if (correctPassword == password) {
+        // Guardar sesión en almacenamiento seguro
+        await _storage.write(key: 'auth_token', value: 'mock_jwt_token_${user.id}');
+        await _storage.write(key: 'user_data', value: jsonEncode(user.toJson()));
+        return user;
+      }
+    }
+
+    throw Exception('Usuario o contraseña incorrectos.');
   }
 
   @override

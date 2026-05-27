@@ -1,3 +1,5 @@
+import 'package:app_exitus/features/auth/domain/entities/user.dart';
+
 // Modelos de datos locales rápidos
 class Student {
   final String id;
@@ -56,6 +58,39 @@ class MockDatabase {
   static final MockDatabase _instance = MockDatabase._internal();
   factory MockDatabase() => _instance;
   MockDatabase._internal();
+
+  // Lista de usuarios registrados (Profesores y Administradores)
+  final List<User> users = [
+    const User(
+      id: 'teacher_01',
+      username: 'profesor123',
+      fullName: 'Prof. Roberto Carlos',
+      email: 'roberto.carlos@exitus.edu.pe',
+      role: 'teacher',
+      avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
+      subjects: ['Matemática - 5to A', 'Matemática - 5to B', 'Física - 4to A'],
+    ),
+    const User(
+      id: 'admin_01',
+      username: 'admin123',
+      fullName: 'Ing. Carlos Mendoza',
+      email: 'carlos.mendoza@exitus.edu.pe',
+      role: 'admin',
+      avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150',
+      subjects: [],
+    ),
+  ];
+
+  // Contraseñas de usuarios (para simplificar el mock de login)
+  final Map<String, String> userPasswords = {
+    'profesor123': '12345678',
+    'admin123': '12345678',
+  };
+
+  void registerUser(User newUser, String password) {
+    users.add(newUser);
+    userPasswords[newUser.username] = password;
+  }
 
   // Lista de alumnos de Matemática 5to A
   final List<Student> students5toA = [
