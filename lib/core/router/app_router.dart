@@ -4,6 +4,7 @@ import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/dashboard/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/dashboard/presentation/screens/student_dashboard_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
@@ -38,6 +39,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           if (currentAuthState is AuthAuthenticated) {
             if (currentAuthState.user.role == 'admin') {
               return const AdminDashboardScreen();
+            } else if (currentAuthState.user.role == 'student') {
+              return const StudentDashboardScreen();
             }
           }
           return const DashboardScreen();

@@ -1,5 +1,7 @@
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 
+import 'package:app_exitus/features/auth/domain/entities/user.dart';
+
 // Modelos de datos locales rápidos
 class Student {
   final String id;
@@ -45,11 +47,171 @@ class ClassScheduleItem {
   final String time;
   final String subject;
   final String classroom;
+  final String? teacher;
+  final String? avatar;
+  final String? status; // 'completed', 'active', 'pending'
+  final bool? isLive;
+  final double? progress;
 
   const ClassScheduleItem({
     required this.time,
     required this.subject,
     required this.classroom,
+    this.teacher,
+    this.avatar,
+    this.status,
+    this.isLive,
+    this.progress,
+  });
+}
+
+class DojoStudent {
+  final int id;
+  final String name;
+  int points;
+  bool present;
+  final String dragonType; // 'glaciar', 'lava', 'rayo', 'brasa'
+
+  DojoStudent({
+    required this.id,
+    required this.name,
+    required this.points,
+    required this.present,
+    required this.dragonType,
+  });
+}
+
+class SocialComment {
+  final String author;
+  final String avatar;
+  final String text;
+
+  SocialComment({
+    required this.author,
+    required this.avatar,
+    required this.text,
+  });
+}
+
+class SocialPost {
+  final int id;
+  final String publisher;
+  final String avatar;
+  final String time;
+  final String tag;
+  final String content;
+  final String? img;
+  int likes;
+  int loves;
+  int bravos;
+  int insights;
+  int haha;
+  int sad;
+  final Map<String, bool> userReactions;
+  final List<SocialComment> comments;
+
+  SocialPost({
+    required this.id,
+    required this.publisher,
+    required this.avatar,
+    required this.time,
+    required this.tag,
+    required this.content,
+    this.img,
+    this.likes = 0,
+    this.loves = 0,
+    this.bravos = 0,
+    this.insights = 0,
+    this.haha = 0,
+    this.sad = 0,
+    required this.userReactions,
+    required this.comments,
+  });
+}
+
+class InboxMessage {
+  final String id;
+  final String sender;
+  final String subject;
+  final String date;
+  final String snippet;
+  final String content;
+  bool unread;
+  final bool urgent;
+
+  InboxMessage({
+    required this.id,
+    required this.sender,
+    required this.subject,
+    required this.date,
+    required this.snippet,
+    required this.content,
+    this.unread = true,
+    this.urgent = false,
+  });
+}
+
+class PensionItem {
+  final String id;
+  final String month;
+  String status; // 'paid', 'pending'
+  final double price;
+  String? paymentDate;
+  String? dueDate;
+
+  PensionItem({
+    required this.id,
+    required this.month,
+    required this.status,
+    required this.price,
+    this.paymentDate,
+    this.dueDate,
+  });
+}
+
+class StudentTask {
+  final String id;
+  final String course;
+  final String courseName;
+  final String title;
+  final String desc;
+  final String due;
+  String status; // 'pending', 'completed'
+  int files;
+
+  StudentTask({
+    required this.id,
+    required this.course,
+    required this.courseName,
+    required this.title,
+    required this.desc,
+    required this.due,
+    required this.status,
+    this.files = 0,
+  });
+}
+
+class StudentGrade {
+  final String course;
+  final String code;
+  final double val;
+  final List<GradeDetail> details;
+
+  StudentGrade({
+    required this.course,
+    required this.code,
+    required this.val,
+    required this.details,
+  });
+}
+
+class GradeDetail {
+  final String type;
+  final double val;
+
+  GradeDetail({
+    required this.type,
+    required this.val,
   });
 }
 
@@ -57,9 +219,16 @@ class ClassScheduleItem {
 class MockDatabase {
   static final MockDatabase _instance = MockDatabase._internal();
   factory MockDatabase() => _instance;
-  MockDatabase._internal();
+  MockDatabase._internal() {
+    _initDojoStudents();
+    _initSocialPosts();
+    _initInboxMessages();
+    _initPensions();
+    _initTasks();
+    _initGrades();
+  }
 
-  // Lista de usuarios registrados (Profesores y Administradores)
+  // Lista de usuarios registrados (Profesores, Administradores y Estudiantes)
   final List<User> users = [
     const User(
       id: 'teacher_01',
@@ -79,12 +248,42 @@ class MockDatabase {
       avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150',
       subjects: [],
     ),
+    const User(
+      id: 'admin_02',
+      username: 'luis123',
+      fullName: 'Prof. Luis Gonzaga Neira Ayala',
+      email: 'luis.gonzaga@exitus.edu.pe',
+      role: 'admin',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+      subjects: [],
+    ),
+    const User(
+      id: 'student_mateo',
+      username: 'mateo123',
+      fullName: 'Mateo Guerrero C.',
+      email: 'mateo.guerrero@exitus.edu.pe',
+      role: 'student',
+      avatarUrl: 'https://images.unsplash.com/photo-1597586124394-fbd6ef244026?w=150',
+      subjects: ['Matemática', 'Ciencias', 'Literatura', 'Historia', 'Inglés'],
+    ),
+    const User(
+      id: 'student_sofia',
+      username: 'sofia123',
+      fullName: 'Sofía Guerrero C.',
+      email: 'sofia.guerrero@exitus.edu.pe',
+      role: 'student',
+      avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
+      subjects: ['Matemática', 'Ciencias', 'Literatura', 'Inglés'],
+    ),
   ];
 
   // Contraseñas de usuarios (para simplificar el mock de login)
   final Map<String, String> userPasswords = {
     'profesor123': '12345678',
     'admin123': '12345678',
+    'luis123': '12345678',
+    'mateo123': '12345678',
+    'sofia123': '12345678',
   };
 
   void registerUser(User newUser, String password) {
@@ -153,7 +352,7 @@ class MockDatabase {
     ),
   ];
 
-  // Horario de clases del Profesor por día de la semana
+  // Horario del docente
   final Map<String, List<ClassScheduleItem>> teacherSchedule = {
     'Lunes': [
       ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemática - 5to A', classroom: 'Aula 301'),
@@ -174,7 +373,419 @@ class MockDatabase {
     ],
   };
 
-  // Obtener alumnos por curso
+  // Horarios para Estudiantes (Mateo y Sofía)
+  final Map<String, List<ClassScheduleItem>> mateoSchedule = {
+    'Lunes': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemáticas', classroom: 'Aula 5° A', teacher: 'Prof. Roberto Carlos', avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', status: 'completed'),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Física', classroom: 'Lab. Ciencias', teacher: 'Ing. Carlos Mendoza', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', status: 'completed'),
+      ClassScheduleItem(time: '11:30 AM - 01:00 PM', subject: 'Literatura', classroom: 'Aula 5° A', teacher: 'Dra. Julia Mendoza', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', status: 'pending'),
+    ],
+    'Martes': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Historia', classroom: 'Aula 5° A', teacher: 'Prof. Carlos Fuentes', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100', status: 'completed'),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Inglés', classroom: 'Lab. Idiomas', teacher: 'Miss Sara Conner', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', status: 'completed'),
+    ],
+    'Miércoles': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemáticas', classroom: 'Aula 5° A', teacher: 'Prof. Roberto Carlos', avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', status: 'active', isLive: true, progress: 0.65),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Ciencias', classroom: 'Lab. Química', teacher: 'Dr. Alberto Rossi', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=100', status: 'pending'),
+      ClassScheduleItem(time: '11:30 AM - 01:00 PM', subject: 'Literatura', classroom: 'Aula 5° A', teacher: 'Dra. Julia Mendoza', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', status: 'pending'),
+    ],
+    'Jueves': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Historia', classroom: 'Aula 5° A', teacher: 'Prof. Carlos Fuentes', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100', status: 'pending'),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Inglés', classroom: 'Lab. Idiomas', teacher: 'Miss Sara Conner', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', status: 'pending'),
+    ],
+    'Viernes': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemáticas', classroom: 'Aula 5° A', teacher: 'Prof. Roberto Carlos', avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', status: 'pending'),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Taller Computación', classroom: 'Lab. Cómputo', teacher: 'Ing. Sandro Silva', avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100', status: 'pending'),
+    ],
+  };
+
+  final Map<String, List<ClassScheduleItem>> sofiaSchedule = {
+    'Lunes': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemáticas', classroom: 'Aula 2° B', teacher: 'Prof. Carlos Oliva', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', status: 'completed'),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Literatura', classroom: 'Aula 2° B', teacher: 'Miss Ana María', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', status: 'completed'),
+    ],
+    'Miércoles': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Matemáticas', classroom: 'Aula 2° B', teacher: 'Prof. Carlos Oliva', avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', status: 'active', isLive: true, progress: 0.4),
+      ClassScheduleItem(time: '09:45 AM - 11:15 AM', subject: 'Ciencias', classroom: 'Aula 2° B', teacher: 'Miss Ana María', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', status: 'pending'),
+    ],
+    'Viernes': [
+      ClassScheduleItem(time: '08:00 AM - 09:30 AM', subject: 'Inglés', classroom: 'Lab. Primaria', teacher: 'Miss Sara Conner', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', status: 'pending'),
+    ],
+  };
+
+  // Listas de datos dinámicos inyectables
+  final List<DojoStudent> dojoStudents = [];
+  final List<SocialPost> socialPosts = [];
+  final List<InboxMessage> mateoMessages = [];
+  final List<InboxMessage> sofiaMessages = [];
+  final List<InboxMessage> adminMessages = [];
+  final List<PensionItem> mateoPensions = [];
+  final List<PensionItem> sofiaPensions = [];
+  final List<StudentTask> mateoTasks = [];
+  final List<StudentTask> sofiaTasks = [];
+  final List<StudentGrade> mateoGrades = [];
+  final List<StudentGrade> sofiaGrades = [];
+
+  void _initDojoStudents() {
+    final List<Map<String, dynamic>> raw = [
+      {'id': 1, 'name': 'ACHA ABAD Jazin Alexander', 'points': 15, 'present': true, 'dragonType': 'brasa'},
+      {'id': 2, 'name': 'AREVALO OTERO Paola Elizabeth', 'points': 7, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 3, 'name': 'CAMPOVERDE TEMOCHE Cesar Adriano', 'points': 10, 'present': true, 'dragonType': 'lava'},
+      {'id': 4, 'name': 'CORONADO CHOZO Donna Beatriz', 'points': 10, 'present': true, 'dragonType': 'lava'},
+      {'id': 5, 'name': 'COVEÑAS PEDRERA Vasco Alejandro', 'points': 8, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 6, 'name': 'CUEVA MORALES Elver Adriano', 'points': 15, 'present': true, 'dragonType': 'lava'},
+      {'id': 7, 'name': 'De la cruz Alcantara Salvador', 'points': 9, 'present': true, 'dragonType': 'rayo'},
+      {'id': 8, 'name': 'FIESTAS MORALES Angle De Los Angeles', 'points': 10, 'present': true, 'dragonType': 'rayo'},
+      {'id': 9, 'name': 'GOMEZ BECERRA Mario Rafaelito', 'points': 8, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 10, 'name': 'GONZALEZ YARLEQUE Heinz Veintemilla', 'points': 13, 'present': false, 'dragonType': 'rayo'},
+      {'id': 11, 'name': 'GUERRERO YARLEQUE May Farlan', 'points': 8, 'present': true, 'dragonType': 'rayo'},
+      {'id': 12, 'name': 'HUAYAMA CHASQUERO Elmer Junior', 'points': 7, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 13, 'name': 'IPANAQUE GARCIA Jesus Emanuel', 'points': 9, 'present': true, 'dragonType': 'lava'},
+      {'id': 14, 'name': 'IPANAQUE IPANAQUE Carlita Lisbeth', 'points': 8, 'present': true, 'dragonType': 'lava'},
+      {'id': 15, 'name': 'JARAMILLO CHUMACERO Ana Belen', 'points': 5, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 16, 'name': 'JULCA FACUNDO Marycielo', 'points': 10, 'present': true, 'dragonType': 'rayo'},
+      {'id': 17, 'name': 'LOZANO ARCA Richard Agustin', 'points': 12, 'present': true, 'dragonType': 'brasa'},
+      {'id': 18, 'name': 'LUDEÑA CUBAS Pedro Sebastián', 'points': 17, 'present': true, 'dragonType': 'brasa'},
+      {'id': 19, 'name': 'MORE ANCAJIMA Josue', 'points': 8, 'present': true, 'dragonType': 'rayo'},
+      {'id': 20, 'name': 'MULATILLO UMBO Luciana', 'points': 10, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 21, 'name': 'NUÑEZ GUTIERREZ Xiomara Caroline', 'points': 10, 'present': true, 'dragonType': 'lava'},
+      {'id': 22, 'name': 'OJEDA CASTRO Luis Enrique', 'points': 8, 'present': true, 'dragonType': 'lava'},
+      {'id': 23, 'name': 'PEÑA HUACCHILLO Matheo Said', 'points': 7, 'present': true, 'dragonType': 'rayo'},
+      {'id': 24, 'name': 'PUELLES ABAD Jair Arlevi', 'points': 4, 'present': false, 'dragonType': 'glaciar'},
+      {'id': 25, 'name': 'ROJAS CUBAS Milagros Nataniel', 'points': 8, 'present': false, 'dragonType': 'glaciar'},
+      {'id': 26, 'name': 'RUBIO MONTENEGRO Miguel Ignacio', 'points': 13, 'present': true, 'dragonType': 'rayo'},
+      {'id': 27, 'name': 'RUEDA CARRION Luis Roberto', 'points': 10, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 28, 'name': 'SANCHEZ PACHERRES Jesus Gabriel', 'points': 8, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 29, 'name': 'SANDOVAL ROSAS Fabian Jesus', 'points': 12, 'present': true, 'dragonType': 'brasa'},
+      {'id': 30, 'name': 'TUESTA PEÑA Christian Leonel', 'points': 9, 'present': true, 'dragonType': 'lava'},
+      {'id': 31, 'name': 'YANGUA BENITES Ana Fabiana', 'points': 9, 'present': true, 'dragonType': 'glaciar'},
+      {'id': 32, 'name': 'YOVERA SANDOVAL Jorge David', 'points': 8, 'present': false, 'dragonType': 'glaciar'},
+      {'id': 33, 'name': 'YOVERA SILUPU Becky Lizbeth', 'points': 12, 'present': true, 'dragonType': 'brasa'},
+    ];
+    for (var s in raw) {
+      dojoStudents.add(DojoStudent(
+        id: s['id'],
+        name: s['name'],
+        points: s['points'],
+        present: s['present'],
+        dragonType: s['dragonType'],
+      ));
+    }
+  }
+
+  void _initSocialPosts() {
+    socialPosts.addAll([
+      SocialPost(
+        id: 1,
+        publisher: 'Dirección Académica',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80',
+        time: 'Hace 2 horas',
+        tag: 'Comunicado',
+        content: 'Estimada comunidad educativa Exitus, les recordamos que este viernes 29 de mayo se llevará a cabo la primera reunión general de padres de familia para el reporte trimestral de progreso. Agradecemos su puntual asistencia en sus respectivas aulas.',
+        img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400',
+        likes: 24,
+        loves: 12,
+        bravos: 8,
+        insights: 3,
+        userReactions: {'likes': true, 'loves': false, 'bravos': false, 'insights': false, 'haha': false, 'sad': false},
+        comments: [
+          SocialComment(author: 'Prof. Roberto Carlos', avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=80', text: 'Entendido, estaré listo para recibir a los padres de 5to Sec.'),
+          SocialComment(author: 'Ana Delgado Flores', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80', text: 'Muchas gracias por la información.'),
+        ],
+      ),
+      SocialPost(
+        id: 2,
+        publisher: 'Coordinación de Ciencias',
+        avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=80',
+        time: 'Ayer',
+        tag: 'Actividades',
+        content: 'Felicitaciones a nuestros estudiantes de nivel secundaria que participaron en la feria de ciencias institucional. Los proyectos presentados demuestran un alto nivel de innovación tecnológica. ¡Orgullo Exitus!',
+        img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400',
+        likes: 45,
+        loves: 20,
+        bravos: 15,
+        insights: 10,
+        userReactions: {'likes': false, 'loves': false, 'bravos': false, 'insights': false, 'haha': false, 'sad': false},
+        comments: [
+          SocialComment(author: 'Dr. Alberto Rossi', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=80', text: 'Excelente nivel de proyectos este año. ¡Felicitaciones a todos!'),
+        ],
+      ),
+    ]);
+  }
+
+  void _initInboxMessages() {
+    mateoMessages.addAll([
+      InboxMessage(
+        id: 'msg_m1',
+        sender: 'Dirección Exitus',
+        subject: 'SIMULACRO ACADÉMICO UNP 2026',
+        date: '27 Mayo',
+        snippet: 'Estimado Mateo, se te convoca a rendir el simulacro tipo admisión UNP...',
+        content: 'Estimado Mateo, te informamos que este sábado 30 de mayo a las 8:00 AM se realizará el simulacro general tipo examen de admisión. Tu aula asignada es el Pabellón A - 204. No olvides traer tu credencial digital y lápiz 2B. Atentamente, Dirección Académica Exitus.',
+        unread: true,
+        urgent: true,
+      ),
+      InboxMessage(
+        id: 'msg_m2',
+        sender: 'Dra. Julia Mendoza (Tutora)',
+        subject: 'Material de Apoyo: Taller de Convivencia',
+        date: '26 Mayo',
+        snippet: 'Hola Mateo, adjunto las lecturas seleccionadas para la sesión de...',
+        content: 'Hola Mateo, te adjunto el material de lectura y el cuestionario reflexivo para el taller de tutoría y convivencia de esta semana. Por favor revísalo antes del viernes para participar activamente en clase. Saludos.',
+        unread: true,
+      ),
+      InboxMessage(
+        id: 'msg_m3',
+        sender: 'Auxiliaría de Secundaria',
+        subject: 'Justificación Aceptada - Inasistencia 20/05',
+        date: '21 Mayo',
+        snippet: 'Se ha registrado la justificación médica enviada por tus padres...',
+        content: 'Estimado estudiante, te confirmamos que la solicitud de justificación por tu inasistencia del día 20 de mayo por motivos de salud ha sido aprobada por la dirección auxiliar de secundaria. Las tareas pendientes de esa fecha se prorrogan hasta el lunes.',
+        unread: false,
+      ),
+    ]);
+
+    sofiaMessages.addAll([
+      InboxMessage(
+        id: 'msg_s1',
+        sender: 'Miss Ana María (Tutoría)',
+        subject: 'Materiales para clase de Arte del viernes',
+        date: '27 Mayo',
+        snippet: 'Estimada Sofía, recuerda traer témperas, pinceles y una cartulina...',
+        content: 'Hola Sofía, recuerda pedirle a tus papitos que te consigan témperas de colores primarios, pinceles delgados y una cartulina blanca de tamaño A4 para nuestro taller creativo de arte de este viernes. ¡Vamos a pintar mucho! Cariños.',
+        unread: true,
+      ),
+      InboxMessage(
+        id: 'msg_s2',
+        sender: 'Auxiliaría de Primaria',
+        subject: 'Control de Ingreso - Tarjeta QR Activada',
+        date: '24 Mayo',
+        snippet: 'Tu pase digital ha sido renovado correctamente para el mes de...',
+        content: 'Hola Sofía, te informamos que tu código QR para el pase digital de ingreso a la portería del colegio ya está listo y actualizado en tu cuenta. Recuerda llevar tu credencial cargada en el celular de tus papitos al ingresar al colegio.',
+        unread: false,
+      ),
+    ]);
+
+    adminMessages.addAll([
+      InboxMessage(
+        id: 'msg_a1',
+        sender: 'Auxiliaría General',
+        subject: 'Reporte Diario de Incidencias y Asistencias',
+        date: '27 Mayo',
+        snippet: 'Se consolidó la asistencia de hoy. Nivel Inicial: 98%, Primaria: 95%...',
+        content: 'Estimado Director, adjunto el reporte de asistencia general y las incidencias menores en portería de la fecha de hoy. Se registró un 96.4% de asistencia. Se derivaron 2 casos justificados de inasistencias en 5to de Secundaria.',
+        unread: true,
+        urgent: true,
+      ),
+      InboxMessage(
+        id: 'msg_a2',
+        sender: 'Departamento de Psicología',
+        subject: 'Solicitudes de Derivación del Docente',
+        date: '26 Mayo',
+        snippet: 'Se registraron 3 nuevas derivaciones para seguimiento emocional...',
+        content: 'Estimado Director, le informamos que a través del sistema Dojo los docentes han derivado 3 alumnos para evaluación de conducta y acompañamiento psicológico esta semana. Ya se están agendando las citas con los respectivos apoderados.',
+        unread: false,
+      ),
+    ]);
+  }
+
+  void _initPensions() {
+    mateoPensions.addAll([
+      PensionItem(id: 'p_m1', month: 'Mayo 2026', status: 'pending', price: 420.00, dueDate: '31/05/2026'),
+      PensionItem(id: 'p_m2', month: 'Abril 2026', status: 'paid', price: 420.00, paymentDate: '28/04/2026', dueDate: '30/04/2026'),
+      PensionItem(id: 'p_m3', month: 'Marzo 2026', status: 'paid', price: 420.00, paymentDate: '27/03/2026', dueDate: '31/03/2026'),
+    ]);
+
+    sofiaPensions.addAll([
+      PensionItem(id: 'p_s1', month: 'Mayo 2026', status: 'pending', price: 420.00, dueDate: '31/05/2026'),
+      PensionItem(id: 'p_s2', month: 'Abril 2026', status: 'paid', price: 420.00, paymentDate: '29/04/2026', dueDate: '30/04/2026'),
+      PensionItem(id: 'p_s3', month: 'Marzo 2026', status: 'paid', price: 420.00, paymentDate: '26/03/2026', dueDate: '31/03/2026'),
+    ]);
+  }
+
+  void _initTasks() {
+    mateoTasks.addAll([
+      StudentTask(id: 't_m1', course: 'math', courseName: 'Matemáticas', title: 'Ejercicios de Trigonometría', desc: 'Desarrollar los problemas de identidades trigonométricas de la página 52 del libro de texto.', due: '29 de Mayo', status: 'pending'),
+      StudentTask(id: 't_m2', course: 'science', courseName: 'Ciencias', title: 'Informe de Laboratorio - Célula', desc: 'Dibujar la estructura celular e identificar las partes del núcleo observadas en el microscopio.', due: '30 de Mayo', status: 'pending'),
+      StudentTask(id: 't_m3', course: 'literature', courseName: 'Literatura', title: 'Ensayo Crítico sobre el Vanguardismo', desc: 'Escribir un ensayo de máximo 2 páginas analizando la obra de César Vallejo (Trilce).', due: '02 de Junio', status: 'pending'),
+      StudentTask(id: 't_m4', course: 'history', courseName: 'Historia', title: 'Línea de Tiempo: Independencia del Perú', desc: 'Crear una infografía interactiva que muestre las corrientes libertadoras del sur y del norte.', due: '25 de Mayo', status: 'completed', files: 1),
+    ]);
+
+    sofiaTasks.addAll([
+      StudentTask(id: 't_s1', course: 'math', courseName: 'Matemáticas', title: 'Sumas de Tres Cifras con Llevadas', desc: 'Completar la ficha de ejercicios prácticos enviada al cuaderno de trabajo.', due: '29 de Mayo', status: 'pending'),
+      StudentTask(id: 't_s2', course: 'literature', courseName: 'Literatura', title: 'Lectura Comprensiva: El Principito', desc: 'Leer el capítulo 5 y responder las 3 preguntas impresas sobre los baobabs.', due: '22 de Mayo', status: 'completed', files: 1),
+    ]);
+  }
+
+  void _initGrades() {
+    mateoGrades.addAll([
+      StudentGrade(course: 'Matemáticas', code: 'MAT-5', val: 18.0, details: [
+        GradeDetail(type: 'Práctica 1', val: 17),
+        GradeDetail(type: 'Práctica 2', val: 19),
+        GradeDetail(type: 'Examen Trimestral', val: 18),
+      ]),
+      StudentGrade(course: 'Ciencias', code: 'CIE-5', val: 16.0, details: [
+        GradeDetail(type: 'Laboratorio', val: 18),
+        GradeDetail(type: 'Exposición', val: 14),
+        GradeDetail(type: 'Prueba Escrita', val: 16),
+      ]),
+      StudentGrade(course: 'Literatura', code: 'LIT-5', val: 19.0, details: [
+        GradeDetail(type: 'Ensayo', val: 19),
+        GradeDetail(type: 'Control Lectura', val: 20),
+        GradeDetail(type: 'Participación', val: 18),
+      ]),
+      StudentGrade(course: 'Historia', code: 'HIS-5', val: 17.0, details: [
+        GradeDetail(type: 'Infografía', val: 16),
+        GradeDetail(type: 'Participación', val: 18),
+      ]),
+      StudentGrade(course: 'Inglés', code: 'ING-5', val: 19.0, details: [
+        GradeDetail(type: 'Speaking Test', val: 20),
+        GradeDetail(type: 'Writing Test', val: 18),
+      ]),
+    ]);
+
+    sofiaGrades.addAll([
+      StudentGrade(course: 'Matemáticas', code: 'MAT-2', val: 19.0, details: [
+        GradeDetail(type: 'Ficha de Sumas', val: 20),
+        GradeDetail(type: 'Cálculo Mental', val: 18),
+      ]),
+      StudentGrade(course: 'Ciencias', code: 'CIE-2', val: 20.0, details: [
+        GradeDetail(type: 'Planta de Porotos', val: 20),
+        GradeDetail(type: 'Exposición', val: 20),
+      ]),
+      StudentGrade(course: 'Literatura', code: 'LIT-2', val: 18.0, details: [
+        GradeDetail(type: 'Ficha El Principito', val: 18),
+        GradeDetail(type: 'Dictado de Palabras', val: 18),
+      ]),
+      StudentGrade(course: 'Inglés', code: 'ING-2', val: 20.0, details: [
+        GradeDetail(type: 'Vocabulary Game', val: 20),
+      ]),
+    ]);
+  }
+
+  // Métodos de consulta y mutación
+  List<DojoStudent> getDojoStudents() => dojoStudents;
+
+  bool addDojoPoint(int id) {
+    final idx = dojoStudents.indexWhere((s) => s.id == id);
+    if (idx != -1) {
+      final currentPoints = dojoStudents[idx].points;
+      dojoStudents[idx].points += 1;
+      final newPoints = dojoStudents[idx].points;
+
+      // Verificar si evolucionó de nivel (Huevo a Elemental, Elemental a Cachorro, Cachorro a Adulto)
+      bool evolved = false;
+      if (currentPoints < 5 && newPoints >= 5) evolved = true;
+      if (currentPoints < 9 && newPoints >= 9) evolved = true;
+      if (currentPoints < 12 && newPoints >= 12) evolved = true;
+      return evolved;
+    }
+    return false;
+  }
+
+  void toggleDojoPresence(int id) {
+    final idx = dojoStudents.indexWhere((s) => s.id == id);
+    if (idx != -1) {
+      dojoStudents[idx].present = !dojoStudents[idx].present;
+    }
+  }
+
+  void deductDojoPoints(int studentId, String category) {
+    final idx = dojoStudents.indexWhere((s) => s.id == studentId);
+    if (idx != -1) {
+      int penalty = 0;
+      if (category == 'indisciplina') penalty = 2;
+      if (category == 'tareas' || category == 'tardanza') penalty = 1;
+      
+      final current = dojoStudents[idx].points;
+      dojoStudents[idx].points = (current - penalty).clamp(0, 999);
+    }
+  }
+
+  List<SocialPost> getSocialPosts() => socialPosts;
+
+  void addSocialComment(int postId, SocialComment comment) {
+    final idx = socialPosts.indexWhere((p) => p.id == postId);
+    if (idx != -1) {
+      socialPosts[idx].comments.add(comment);
+    }
+  }
+
+  void toggleReaction(int postId, String type) {
+    final idx = socialPosts.indexWhere((p) => p.id == postId);
+    if (idx != -1) {
+      final post = socialPosts[idx];
+      final currentReaction = post.userReactions[type] ?? false;
+      
+      // Limpiar otras reacciones para simplificar
+      post.userReactions.keys.forEach((key) {
+        if (key == type) {
+          post.userReactions[key] = !currentReaction;
+        } else {
+          post.userReactions[key] = false;
+        }
+      });
+
+      // Recalcular contadores simulados
+      if (type == 'likes') post.likes += currentReaction ? -1 : 1;
+      if (type == 'loves') post.loves += currentReaction ? -1 : 1;
+      if (type == 'bravos') post.bravos += currentReaction ? -1 : 1;
+      if (type == 'insights') post.insights += currentReaction ? -1 : 1;
+      if (type == 'haha') post.haha += currentReaction ? -1 : 1;
+      if (type == 'sad') post.sad += currentReaction ? -1 : 1;
+    }
+  }
+
+  List<InboxMessage> getMessagesForUser(String userId) {
+    if (userId.contains('mateo')) return mateoMessages;
+    if (userId.contains('sofia')) return sofiaMessages;
+    return adminMessages;
+  }
+
+  void markMessageAsRead(String userId, String messageId) {
+    final list = getMessagesForUser(userId);
+    final idx = list.indexWhere((m) => m.id == messageId);
+    if (idx != -1) {
+      list[idx].unread = false;
+    }
+  }
+
+  List<PensionItem> getPensionsForUser(String userId) {
+    if (userId.contains('mateo')) return mateoPensions;
+    if (userId.contains('sofia')) return sofiaPensions;
+    return [];
+  }
+
+  void payPension(String userId, String pensionId) {
+    final list = getPensionsForUser(userId);
+    final idx = list.indexWhere((p) => p.id == pensionId);
+    if (idx != -1) {
+      list[idx].status = 'paid';
+      list[idx].paymentDate = 'Pagado vía ExitusPay';
+    }
+  }
+
+  List<StudentTask> getTasksForUser(String userId) {
+    if (userId.contains('mateo')) return mateoTasks;
+    if (userId.contains('sofia')) return sofiaTasks;
+    return [];
+  }
+
+  void submitTask(String userId, String taskId) {
+    final list = getTasksForUser(userId);
+    final idx = list.indexWhere((t) => t.id == taskId);
+    if (idx != -1) {
+      list[idx].status = 'completed';
+      list[idx].files = 1;
+    }
+  }
+
+  List<StudentGrade> getGradesForUser(String userId) {
+    if (userId.contains('mateo')) return mateoGrades;
+    if (userId.contains('sofia')) return sofiaGrades;
+    return [];
+  }
+
   List<Student> getStudentsForCourse(String courseName) {
     if (courseName.contains('5to A')) {
       return students5toA;
@@ -183,7 +794,6 @@ class MockDatabase {
     }
   }
 
-  // Guardar asistencia
   void saveAttendance(String courseName, List<Student> updatedStudents) {
     if (courseName.contains('5to A')) {
       students5toA.clear();
@@ -194,7 +804,6 @@ class MockDatabase {
     }
   }
 
-  // Calificar una entrega de tarea
   void gradeSubmission(String submissionId, String grade, String feedback) {
     final idx = submissions.indexWhere((element) => element.id == submissionId);
     if (idx != -1) {
@@ -214,3 +823,4 @@ class MockDatabase {
     }
   }
 }
+
