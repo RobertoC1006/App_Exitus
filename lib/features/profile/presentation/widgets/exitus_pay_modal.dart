@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 
@@ -18,15 +19,26 @@ class ExitusPayModal extends StatefulWidget {
   State<ExitusPayModal> createState() => _ExitusPayModalState();
 }
 
-class _ExitusPayModalState extends State<ExitusPayModal> {
+class _ExitusPayModalState extends State<ExitusPayModal> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _cvvController = TextEditingController();
   bool _isProcessing = false;
   bool _isCompleted = false;
+  late AnimationController _shimmerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+  }
 
   @override
   void dispose() {
     _cvvController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -35,6 +47,7 @@ class _ExitusPayModalState extends State<ExitusPayModal> {
       setState(() {
         _isProcessing = true;
       });
+      _shimmerController.repeat();
 
       // Simular retraso de procesamiento del banco
       await Future.delayed(const Duration(milliseconds: 1600));
@@ -42,10 +55,13 @@ class _ExitusPayModalState extends State<ExitusPayModal> {
       // Guardar el estado de pagado en la base de datos simulada
       MockDatabase().payPension(widget.userId, widget.pension.id);
 
-      setState(() {
-        _isProcessing = false;
-        _isCompleted = true;
-      });
+      if (mounted) {
+        _shimmerController.stop();
+        setState(() {
+          _isProcessing = false;
+          _isCompleted = true;
+        });
+      }
 
       // Simular éxito visual y cerrar
       await Future.delayed(const Duration(milliseconds: 1200));
@@ -205,13 +221,7 @@ class _ExitusPayModalState extends State<ExitusPayModal> {
 
                     // Tarjeta Simulada
                     Container(
-                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF283A63), Color(0xFF1D2848)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -221,57 +231,97 @@ class _ExitusPayModalState extends State<ExitusPayModal> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text(
-                                "EXITUS PREMIUM CARD",
-                                style: TextStyle(
-                                  color: Color(0xFFEDC620),
-                                  fontSize: 8.5,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFF283A63), Color(0xFF1D2848)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
                               ),
-                              Icon(LucideIcons.lock, color: const Color(0xBFFFFFFF), size: 12),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "••••  ••••  ••••  9430",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: const [
+                                      Text(
+                                        "EXITUS PREMIUM CARD",
+                                        style: TextStyle(
+                                          color: Color(0xFFEDC620),
+                                          fontSize: 8.5,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                      Icon(LucideIcons.lock, color: Color(0xBFFFFFFF), size: 12),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    "••••  ••••  ••••  9430",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 2.0,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: const [
+                                      Text(
+                                        "MATEO GUERRERO C.",
+                                        style: TextStyle(
+                                          color: Color(0xBFFFFFFF),
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "EXP: 12/29",
+                                        style: TextStyle(
+                                          color: Color(0xBFFFFFFF),
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 14),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text(
-                                "MATEO GUERRERO C.",
-                                style: TextStyle(
-                                  color: const Color(0xBFFFFFFF),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
+                            if (_isProcessing)
+                              Positioned.fill(
+                                child: AnimatedBuilder(
+                                  animation: _shimmerController,
+                                  builder: (context, child) {
+                                    return FractionallySizedBox(
+                                      widthFactor: 0.25,
+                                      alignment: Alignment(-2.0 + (_shimmerController.value * 4.0), 0.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withOpacity(0.0),
+                                              Colors.white.withOpacity(0.25),
+                                              Colors.white.withOpacity(0.0),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                              Text(
-                                "EXP: 12/29",
-                                style: TextStyle(
-                                  color: const Color(0xBFFFFFFF),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -289,6 +339,7 @@ class _ExitusPayModalState extends State<ExitusPayModal> {
                     TextFormField(
                       controller: _cvvController,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       obscureText: true,
                       maxLength: 3,
                       enabled: !_isProcessing,

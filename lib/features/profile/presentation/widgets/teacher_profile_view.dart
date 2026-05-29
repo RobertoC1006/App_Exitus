@@ -5,21 +5,21 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/core/network/api_endpoints.dart';
 import 'package:app_exitus/core/network/api_logger.dart';
 
-class StudentProfileView extends StatefulWidget {
+class TeacherProfileView extends StatefulWidget {
   final User currentUser;
   final VoidCallback onLogout;
 
-  const StudentProfileView({
+  const TeacherProfileView({
     super.key,
     required this.currentUser,
     required this.onLogout,
   });
 
   @override
-  State<StudentProfileView> createState() => _StudentProfileViewState();
+  State<TeacherProfileView> createState() => _TeacherProfileViewState();
 }
 
-class _StudentProfileViewState extends State<StudentProfileView> {
+class _TeacherProfileViewState extends State<TeacherProfileView> {
   String _activeFormTab = 'personal'; // 'personal' o 'security'
 
   late TextEditingController _firstNameController;
@@ -61,9 +61,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
     _lastNamePController = TextEditingController(text: lastNameP);
     _lastNameMController = TextEditingController(text: lastNameM);
     _emailController = TextEditingController(text: widget.currentUser.email);
-    _phoneController = TextEditingController(
-      text: widget.currentUser.username.contains('mateo') ? "987654321" : "918924237"
-    );
+    _phoneController = TextEditingController(text: "918924237");
 
     _currentPasswordController = TextEditingController();
     _newPasswordController = TextEditingController();
@@ -110,7 +108,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "Pase Digital de Ingreso",
+                      "Pase de Acceso Docente",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -167,9 +165,9 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  "Código: ${widget.currentUser.username.toUpperCase() == 'mateo123' ? 'EX-20260943' : 'EX-20261125'}",
-                  style: const TextStyle(
+                const Text(
+                  "Código de Empleado: EX-09432",
+                  style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFFE5A93B),
@@ -189,7 +187,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                       Icon(LucideIcons.check, size: 12, color: Color(0xFF2E7D32)),
                       SizedBox(width: 4),
                       Text(
-                        "Pase Autorizado • Portería",
+                        "Acceso Autorizado",
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -248,9 +246,6 @@ class _StudentProfileViewState extends State<StudentProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final String userCode = widget.currentUser.username.contains('mateo') ? 'EX-20260943' : 'EX-20261125';
-    final String memberSince = widget.currentUser.username.contains('mateo') ? '10 Mar, 2023' : '15 Apr, 2026';
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -390,13 +385,13 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2196F3).withOpacity(0.1),
+                      color: const Color(0xFFEDC620).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      "Estudiante",
+                      "Docente Tutor",
                       style: GoogleFonts.outfit(
-                        color: const Color(0xFF2196F3),
+                        color: const Color(0xFFD3B121),
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.3,
@@ -412,9 +407,9 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                     children: [
                       _buildMetadataRow("Usuario", widget.currentUser.username),
                       const SizedBox(height: 12),
-                      _buildMetadataRow("Código", userCode),
+                      _buildMetadataRow("Código", "EX-09432"),
                       const SizedBox(height: 12),
-                      _buildMetadataRow("Miembro Desde", memberSince),
+                      _buildMetadataRow("Miembro Desde", "12 May, 2021"),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -516,6 +511,52 @@ class _StudentProfileViewState extends State<StudentProfileView> {
           ),
           const SizedBox(height: 16),
 
+          // Tarjeta 3: Carga Académica Asignada
+          const Text(
+            "Carga Académica Asignada",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
+          ),
+          const SizedBox(height: 12),
+
+          Card(
+            color: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0x0F1D2848)),
+            ),
+            child: Column(
+              children: widget.currentUser.subjects.map((sub) {
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1D2848).withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(LucideIcons.bookOpen, color: Color(0xFF1D2848), size: 16),
+                      ),
+                      title: Text(
+                        sub,
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
+                      ),
+                      subtitle: const Text("Dictado Semanal: 4 horas", style: TextStyle(fontSize: 10.5, color: Color(0xFF64748B))),
+                      trailing: const Text(
+                        "ACTIVO",
+                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+                      ),
+                    ),
+                    if (widget.currentUser.subjects.last != sub)
+                      const Divider(height: 1, indent: 56, endIndent: 16, color: Color(0x0D1D2848)),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Enlaces Rápidos: Ajustes / Cerrar Sesión
           Card(
             color: Colors.white,
@@ -536,13 +577,13 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                     child: const Icon(LucideIcons.settings, size: 16, color: Color(0xFF1D2848)),
                   ),
                   title: const Text(
-                    "Ajustes de la Aplicación",
+                    "Ajustes de Docente",
                     style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
                   ),
                   trailing: const Icon(LucideIcons.chevronRight, size: 14, color: Color(0xFF64748B)),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Ajustes generales del portal estudiantil.")),
+                      const SnackBar(content: Text("Ajustes generales del portal docente.")),
                     );
                   },
                 ),

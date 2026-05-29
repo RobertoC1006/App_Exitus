@@ -1,6 +1,6 @@
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
-
-import 'package:app_exitus/features/auth/domain/entities/user.dart';
+import 'package:app_exitus/core/network/api_endpoints.dart';
+import 'package:app_exitus/core/network/api_logger.dart';
 
 // Modelos de datos locales rápidos
 class Student {
@@ -213,6 +213,88 @@ class GradeDetail {
     required this.type,
     required this.val,
   });
+}class PrintClassroomTarget {
+  final String name;
+  final int copies;
+  const PrintClassroomTarget({required this.name, required this.copies});
+}
+
+class PrintRequest {
+  final int id;
+  final String ticketNumber;
+  final String title;
+  final String description;
+  final String requester;
+  final String date;
+  final String colorMode;
+  final String paperSize;
+  String status; // 'pending', 'processing', 'ready', 'completed'
+  final List<PrintClassroomTarget> classrooms;
+  final String file;
+  final String limitDate;
+  final String instructions;
+
+  PrintRequest({
+    required this.id,
+    required this.ticketNumber,
+    required this.title,
+    required this.description,
+    required this.requester,
+    required this.date,
+    required this.colorMode,
+    required this.paperSize,
+    required this.status,
+    required this.classrooms,
+    required this.file,
+    required this.limitDate,
+    required this.instructions,
+  });
+
+  String get documentName => title;
+  int get pages => 1;
+  int get copies => classrooms.fold<int>(0, (sum, c) => sum + c.copies);
+  String get role => 'teacher';
+  String get userName => requester;
+}
+
+class Rubrica {
+  final int id;
+  String title;
+  final String type; // 'Sesión Alineada', 'Creación Libre'
+  final String description;
+  final String date;
+
+  Rubrica({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.description,
+    required this.date,
+  });
+}
+
+class AttendanceLog {
+  final String dayNum;
+  final String dayName;
+  final String month;
+  final String schedule;
+  final String tolerance;
+  final String entry;
+  final String exit;
+  final String status; // 'PUNTUAL', 'TARDANZA', 'FALTA', 'SIN_REGISTRO'
+  final String obs;
+
+  const AttendanceLog({
+    required this.dayNum,
+    required this.dayName,
+    required this.month,
+    required this.schedule,
+    required this.tolerance,
+    required this.entry,
+    required this.exit,
+    required this.status,
+    required this.obs,
+  });
 }
 
 // Base de datos simulada en memoria (Singleton para persistencia en sesión)
@@ -226,6 +308,9 @@ class MockDatabase {
     _initPensions();
     _initTasks();
     _initGrades();
+    _initDigitacionJobs();
+    _initRubricas();
+    _initAttendanceLogs();
   }
 
   // Lista de usuarios registrados (Profesores, Administradores y Estudiantes)
@@ -233,19 +318,19 @@ class MockDatabase {
     const User(
       id: 'teacher_01',
       username: 'profesor123',
-      fullName: 'Prof. Roberto Carlos',
-      email: 'roberto.carlos@exitus.edu.pe',
+      fullName: 'Nicole Sulay A.',
+      email: 'nicole.sulay@exitus.edu.pe',
       role: 'teacher',
-      avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
-      subjects: ['Matemática - 5to A', 'Matemática - 5to B', 'Física - 4to A'],
+      avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150', // Nicole avatar
+      subjects: ['Tutoría - 4to B', 'Tech Savvy - 2do A', 'Tech Savvy - 5to A'],
     ),
     const User(
       id: 'admin_01',
       username: 'admin123',
-      fullName: 'Ing. Carlos Mendoza',
-      email: 'carlos.mendoza@exitus.edu.pe',
+      fullName: 'Franco Alexis B.',
+      email: 'franco.alexis@exitus.edu.pe',
       role: 'admin',
-      avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150',
+      avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150', // Franco avatar
       subjects: [],
     ),
     const User(
@@ -275,6 +360,15 @@ class MockDatabase {
       avatarUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=150',
       subjects: ['Matemática', 'Ciencias', 'Literatura', 'Inglés'],
     ),
+    const User(
+      id: 'parent_marco',
+      username: 'marco123',
+      fullName: 'Marco Guerrero',
+      email: 'marco.guerrero@exitus.edu.pe',
+      role: 'parent',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+      subjects: [],
+    ),
   ];
 
   // Contraseñas de usuarios (para simplificar el mock de login)
@@ -284,6 +378,7 @@ class MockDatabase {
     'luis123': '12345678',
     'mateo123': '12345678',
     'sofia123': '12345678',
+    'marco123': '12345678',
   };
 
   void registerUser(User newUser, String password) {
@@ -425,6 +520,11 @@ class MockDatabase {
   final List<StudentTask> sofiaTasks = [];
   final List<StudentGrade> mateoGrades = [];
   final List<StudentGrade> sofiaGrades = [];
+  final List<PrintRequest> digitacionJobs = [];
+  final List<Rubrica> rubricasList = [];
+  final List<AttendanceLog> mateoAttendanceLogs = [];
+  final List<AttendanceLog> sofiaAttendanceLogs = [];
+  final List<AttendanceLog> teacherAttendanceLogs = [];
 
   void _initDojoStudents() {
     final List<Map<String, dynamic>> raw = [
@@ -461,6 +561,8 @@ class MockDatabase {
       {'id': 31, 'name': 'YANGUA BENITES Ana Fabiana', 'points': 9, 'present': true, 'dragonType': 'glaciar'},
       {'id': 32, 'name': 'YOVERA SANDOVAL Jorge David', 'points': 8, 'present': false, 'dragonType': 'glaciar'},
       {'id': 33, 'name': 'YOVERA SILUPU Becky Lizbeth', 'points': 12, 'present': true, 'dragonType': 'brasa'},
+      {'id': 34, 'name': 'GUERRERO C. Mateo', 'points': 14, 'present': true, 'dragonType': 'rayo'},
+      {'id': 35, 'name': 'GUERRERO C. Sofía', 'points': 8, 'present': true, 'dragonType': 'glaciar'},
     ];
     for (var s in raw) {
       dojoStudents.add(DojoStudent(
@@ -663,6 +765,101 @@ class MockDatabase {
     ]);
   }
 
+  void _initDigitacionJobs() {
+    digitacionJobs.addAll([
+      PrintRequest(
+        id: 10,
+        ticketNumber: "00010",
+        title: "Examen Parcial Matemáticas",
+        description: "Impresión de exámenes para evaluación del segundo bimestre.",
+        requester: "Nicole Sulay Alburqueque Arevalo",
+        date: "16/05/2026",
+        colorMode: "b/n",
+        paperSize: "A4",
+        status: "completed",
+        classrooms: [const PrintClassroomTarget(name: "4 B", copies: 32)],
+        file: "Examen_Mate_4B.pdf",
+        limitDate: "2026-05-29",
+        instructions: "Por favor, engrapar y cortar en dos partes.",
+      ),
+      PrintRequest(
+        id: 11,
+        ticketNumber: "00011",
+        title: "Ficha de Práctica Álgebra",
+        description: "Ejercicios de reforzamiento sobre ecuaciones de segundo grado.",
+        requester: "Nicole Sulay Alburqueque Arevalo",
+        date: "27/05/2026",
+        colorMode: "b/n",
+        paperSize: "A4",
+        status: "ready",
+        classrooms: [const PrintClassroomTarget(name: "2 A", copies: 28)],
+        file: "Practica_Algebra_2A.pdf",
+        limitDate: "2026-05-29",
+        instructions: "Imprimir en hojas recicladas si es posible.",
+      ),
+      PrintRequest(
+        id: 12,
+        ticketNumber: "00012",
+        title: "Material de Lectura Comunicación",
+        description: "Lectura complementaria: El Vanguardismo en el Perú.",
+        requester: "Nicole Sulay Alburqueque Arevalo",
+        date: "28/05/2026",
+        colorMode: "b/n",
+        paperSize: "A4",
+        status: "processing",
+        classrooms: [const PrintClassroomTarget(name: "5 A", copies: 30)],
+        file: "Lectura_Comunicacion_5A.pdf",
+        limitDate: "2026-05-29",
+        instructions: "Ninguna en particular.",
+      ),
+    ]);
+  }
+
+  void _initRubricas() {
+    rubricasList.addAll([
+      Rubrica(id: 1, title: "Rúbrica: Test", type: "Sesión Alineada", description: "Sin descripción", date: "27/05/2026"),
+      Rubrica(id: 2, title: "Rúbrica: Conociendo CSS en desarrollo web", type: "Creación Libre", description: "Evaluación formativa alineada a las competencias clave.", date: "26/05/2026"),
+      Rubrica(id: 3, title: "Rúbrica: Test", type: "Sesión Alineada", description: "Sin descripción", date: "24/05/2026"),
+      Rubrica(id: 4, title: "Test", type: "Creación Libre", description: "Sin descripción", date: "20/05/2026"),
+    ]);
+  }
+
+  void _initAttendanceLogs() {
+    mateoAttendanceLogs.addAll([
+      const AttendanceLog(dayNum: "27", dayName: "Miércoles", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "07:54", exit: "--:--", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "26", dayName: "Martes", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "08:18", exit: "13:07", status: "TARDANZA", obs: ""),
+      const AttendanceLog(dayNum: "25", dayName: "Lunes", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "07:40", exit: "13:02", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "24", dayName: "Domingo", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: ""),
+      const AttendanceLog(dayNum: "23", dayName: "Sábado", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: "Sin incidencias"),
+      const AttendanceLog(dayNum: "22", dayName: "Viernes", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "FALTA", obs: ""),
+      const AttendanceLog(dayNum: "21", dayName: "Jueves", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "09:11", exit: "13:05", status: "TARDANZA", obs: ""),
+      const AttendanceLog(dayNum: "20", dayName: "Miércoles", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "08:45", exit: "13:08", status: "TARDANZA", obs: ""),
+      const AttendanceLog(dayNum: "19", dayName: "Martes", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "08:37", exit: "13:00", status: "TARDANZA", obs: ""),
+      const AttendanceLog(dayNum: "18", dayName: "Lunes", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "FALTA", obs: ""),
+      const AttendanceLog(dayNum: "17", dayName: "Domingo", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: ""),
+      const AttendanceLog(dayNum: "16", dayName: "Sábado", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: "Sin incidencias"),
+    ]);
+
+    sofiaAttendanceLogs.addAll([
+      const AttendanceLog(dayNum: "27", dayName: "Miércoles", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "07:49", exit: "13:00", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "26", dayName: "Martes", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "07:51", exit: "13:00", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "25", dayName: "Lunes", month: "May 2026", schedule: "08:00 - 13:00", tolerance: "0 min. tolerancia", entry: "07:45", exit: "13:02", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "24", dayName: "Domingo", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: ""),
+      const AttendanceLog(dayNum: "23", dayName: "Sábado", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: "Sin incidencias"),
+      const AttendanceLog(dayNum: "22", dayName: "Viernes", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "PUNTUAL", obs: ""),
+    ]);
+
+    teacherAttendanceLogs.addAll([
+      const AttendanceLog(dayNum: "27", dayName: "Miércoles", month: "May 2026", schedule: "07:30 - 14:30", tolerance: "10 min. tolerancia", entry: "07:22", exit: "--:--", status: "PUNTUAL", obs: "Docente del día"),
+      const AttendanceLog(dayNum: "26", dayName: "Martes", month: "May 2026", schedule: "07:30 - 14:30", tolerance: "10 min. tolerancia", entry: "07:39", exit: "14:35", status: "TARDANZA", obs: ""),
+      const AttendanceLog(dayNum: "25", dayName: "Lunes", month: "May 2026", schedule: "07:30 - 14:30", tolerance: "10 min. tolerancia", entry: "07:25", exit: "14:30", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "24", dayName: "Domingo", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: ""),
+      const AttendanceLog(dayNum: "23", dayName: "Sábado", month: "May 2026", schedule: "Sin horario asignado", tolerance: "", entry: "--:--", exit: "--:--", status: "SIN_REGISTRO", obs: ""),
+      const AttendanceLog(dayNum: "22", dayName: "Viernes", month: "May 2026", schedule: "07:30 - 14:30", tolerance: "10 min. tolerancia", entry: "07:28", exit: "14:32", status: "PUNTUAL", obs: ""),
+      const AttendanceLog(dayNum: "21", dayName: "Jueves", month: "May 2026", schedule: "07:30 - 14:30", tolerance: "10 min. tolerancia", entry: "07:24", exit: "14:31", status: "PUNTUAL", obs: ""),
+    ]);
+  }
+
   // Métodos de consulta y mutación
   List<DojoStudent> getDojoStudents() => dojoStudents;
 
@@ -737,12 +934,22 @@ class MockDatabase {
   }
 
   List<InboxMessage> getMessagesForUser(String userId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.messagesInbox,
+      queryParameters: {"userId": userId},
+    );
     if (userId.contains('mateo')) return mateoMessages;
     if (userId.contains('sofia')) return sofiaMessages;
     return adminMessages;
   }
 
   void markMessageAsRead(String userId, String messageId) {
+    ApiLogger.logCall(
+      method: "PATCH",
+      endpoint: ApiEndpoints.markMessageRead.replaceAll("{messageId}", messageId),
+      body: {"userId": userId},
+    );
     final list = getMessagesForUser(userId);
     final idx = list.indexWhere((m) => m.id == messageId);
     if (idx != -1) {
@@ -751,12 +958,22 @@ class MockDatabase {
   }
 
   List<PensionItem> getPensionsForUser(String userId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.pendingPensions,
+      queryParameters: {"userId": userId},
+    );
     if (userId.contains('mateo')) return mateoPensions;
     if (userId.contains('sofia')) return sofiaPensions;
     return [];
   }
 
   void payPension(String userId, String pensionId) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.processPayment,
+      body: {"userId": userId, "pensionId": pensionId},
+    );
     final list = getPensionsForUser(userId);
     final idx = list.indexWhere((p) => p.id == pensionId);
     if (idx != -1) {
@@ -766,12 +983,22 @@ class MockDatabase {
   }
 
   List<StudentTask> getTasksForUser(String userId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: "${ApiEndpoints.baseUrl}/classroom/tasks",
+      queryParameters: {"userId": userId},
+    );
     if (userId.contains('mateo')) return mateoTasks;
     if (userId.contains('sofia')) return sofiaTasks;
     return [];
   }
 
   void submitTask(String userId, String taskId) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: "${ApiEndpoints.baseUrl}/classroom/tasks/$taskId/submit",
+      body: {"userId": userId},
+    );
     final list = getTasksForUser(userId);
     final idx = list.indexWhere((t) => t.id == taskId);
     if (idx != -1) {
@@ -781,12 +1008,21 @@ class MockDatabase {
   }
 
   List<StudentGrade> getGradesForUser(String userId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: "${ApiEndpoints.baseUrl}/classroom/grades",
+      queryParameters: {"userId": userId},
+    );
     if (userId.contains('mateo')) return mateoGrades;
     if (userId.contains('sofia')) return sofiaGrades;
     return [];
   }
 
   List<Student> getStudentsForCourse(String courseName) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.courseDetails.replaceAll("{courseId}", courseName.replaceAll(' ', '_')),
+    );
     if (courseName.contains('5to A')) {
       return students5toA;
     } else {
@@ -795,6 +1031,14 @@ class MockDatabase {
   }
 
   void saveAttendance(String courseName, List<Student> updatedStudents) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.submitAttendance,
+      body: {
+        "course": courseName,
+        "students": updatedStudents.map((s) => {"id": s.id, "status": s.attendanceStatus}).toList(),
+      },
+    );
     if (courseName.contains('5to A')) {
       students5toA.clear();
       students5toA.addAll(updatedStudents);
@@ -805,6 +1049,11 @@ class MockDatabase {
   }
 
   void gradeSubmission(String submissionId, String grade, String feedback) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: "${ApiEndpoints.baseUrl}/classroom/submissions/$submissionId/grade",
+      body: {"grade": grade, "feedback": feedback},
+    );
     final idx = submissions.indexWhere((element) => element.id == submissionId);
     if (idx != -1) {
       final current = submissions[idx];
@@ -821,6 +1070,132 @@ class MockDatabase {
         feedback: feedback,
       );
     }
+  }
+
+  // --- V2 METODOS CENTRO DE PRODUCCIÓN (DIGITACIÓN) ---
+  List<PrintRequest> getPrintRequests() {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.printJobsList,
+    );
+    return digitacionJobs;
+  }
+
+  void addPrintRequest(PrintRequest request) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.submitPrintRequest,
+      body: {
+        "id": request.id,
+        "documentName": request.documentName,
+        "pages": request.pages,
+        "copies": request.copies,
+        "role": request.role,
+        "userName": request.userName,
+      },
+    );
+    digitacionJobs.insert(0, request);
+  }
+
+  void updatePrintRequest(PrintRequest updated) {
+    ApiLogger.logCall(
+      method: "PATCH",
+      endpoint: ApiEndpoints.printJobStatusUpdate.replaceAll("{jobId}", updated.id.toString()),
+      body: {"status": updated.status},
+    );
+    final idx = digitacionJobs.indexWhere((j) => j.id == updated.id);
+    if (idx != -1) {
+      digitacionJobs[idx] = updated;
+    }
+  }
+
+  void deletePrintRequest(int id) {
+    ApiLogger.logCall(
+      method: "DELETE",
+      endpoint: "${ApiEndpoints.baseUrl}/digitacion/request/$id",
+    );
+    digitacionJobs.removeWhere((j) => j.id == id);
+  }
+
+  // --- V2 METODOS GESTIÓN DE RÚBRICAS ---
+  List<Rubrica> getRubricas() {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.rubricasList,
+    );
+    return rubricasList;
+  }
+
+  void addRubrica(Rubrica rubrica) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.rubricasList,
+      body: {
+        "id": rubrica.id,
+        "title": rubrica.title,
+        "type": rubrica.type,
+        "description": rubrica.description,
+        "date": rubrica.date,
+      },
+    );
+    rubricasList.insert(0, rubrica);
+  }
+
+  void editRubrica(int id, String title) {
+    ApiLogger.logCall(
+      method: "PUT",
+      endpoint: ApiEndpoints.rubricasList,
+      body: {"id": id, "title": title},
+    );
+    final idx = rubricasList.indexWhere((r) => r.id == id);
+    if (idx != -1) {
+      rubricasList[idx].title = title;
+    }
+  }
+
+  void deleteRubrica(int id) {
+    ApiLogger.logCall(
+      method: "DELETE",
+      endpoint: ApiEndpoints.rubricasList,
+      body: {"id": id},
+    );
+    rubricasList.removeWhere((r) => r.id == id);
+  }
+
+  // --- V2 METODOS ASISTENCIA MENSUAL ALUMNO ---
+  List<AttendanceLog> getAttendanceLogsForUser(String userId) {
+    final bool isTeacher = userId.contains('profesor') || userId.contains('teacher') || userId.contains('nicole');
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: isTeacher ? ApiEndpoints.teacherAttendance : ApiEndpoints.studentAttendance,
+      queryParameters: {"userId": userId},
+    );
+    if (userId.contains('mateo')) return mateoAttendanceLogs;
+    if (userId.contains('sofia')) return sofiaAttendanceLogs;
+    if (isTeacher) return teacherAttendanceLogs;
+    return [];
+  }
+
+  // --- V2 METODOS DOJO CONDUCTA ---
+  int derivarDojoStudent(int studentId, String category, String comment) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.addDojoPoints,
+      body: {"studentId": studentId, "category": category, "comment": comment},
+    );
+    final idx = dojoStudents.indexWhere((s) => s.id == studentId);
+    if (idx != -1) {
+      final student = dojoStudents[idx];
+      int penalty = 0;
+      if (category == 'indisciplina') {
+        penalty = 2;
+      } else if (category == 'tardanza' || category == 'tareas') {
+        penalty = 1;
+      }
+      student.points = (student.points - penalty).clamp(0, 999);
+      return penalty;
+    }
+    return 0;
   }
 }
 

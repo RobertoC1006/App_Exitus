@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class FABMenuOverlay extends StatefulWidget {
   final Map<String, dynamic> user; // Rol e info de usuario
@@ -23,17 +22,24 @@ class _FABMenuOverlayState extends State<FABMenuOverlay> with SingleTickerProvid
   late AnimationController _controller;
   late List<Animation<double>> _staggeredAnimations;
 
-  final List<Map<String, dynamic>> _actions = [
+  final List<Map<String, dynamic>> _allActions = [
     {'id': 'post', 'label': 'Crear Publicación', 'icon': LucideIcons.edit3, 'color': const Color(0xFF3B82F6)},
     {'id': 'schedule', 'label': 'Ver Agenda / Horario', 'icon': LucideIcons.calendar, 'color': const Color(0xFFF59E0B)},
     {'id': 'portal', 'label': 'Portal Exitus', 'icon': LucideIcons.compass, 'color': const Color(0xFF8B5CF6)},
     {'id': 'topico', 'label': 'Tópico / Enfermería', 'icon': LucideIcons.activity, 'color': const Color(0xFFEF4444)},
     {'id': 'psicologia', 'label': 'Psicología', 'icon': LucideIcons.heart, 'color': const Color(0xFFEC4899)},
-    {'id': 'tesoreria', 'label': 'Tesorería / Pagos', 'icon': LucideIcons.landmark, 'color': const Color(0xFF10B981)},
+    {'id': 'tesoreria', 'label': 'Pensiones y Pagos', 'icon': LucideIcons.landmark, 'color': const Color(0xFF10B981)},
     {'id': 'firma', 'label': 'Firma Rápida', 'icon': LucideIcons.penTool, 'color': const Color(0xFF6B7280)},
     {'id': 'qr_attendance', 'label': 'Asistencia / QR', 'icon': LucideIcons.userCheck, 'color': const Color(0xFF06B6D4)},
     {'id': 'actia', 'label': 'Sesiones ActIA', 'icon': LucideIcons.cpu, 'color': const Color(0xFF6366F1)},
+    {'id': 'digitacion', 'label': 'Área de Digitación', 'icon': LucideIcons.printer, 'color': const Color(0xFF7C3AED)},
+    {'id': 'dojo_shop', 'label': 'Tienda Dojo', 'icon': LucideIcons.shoppingBag, 'color': const Color(0xFFFF7043)},
+    {'id': 'curr', 'label': 'Plan Curricular', 'icon': LucideIcons.briefcase, 'color': const Color(0xFF26C6DA)},
+    {'id': 'diary', 'label': 'Bitácoras / Diario', 'icon': LucideIcons.book, 'color': const Color(0xFFAB47BC)},
+    {'id': 'my_attendance', 'label': 'Mi Asistencia', 'icon': LucideIcons.calendarCheck2, 'color': const Color(0xFF66BB6A)},
   ];
+
+  late final List<Map<String, dynamic>> _actions;
 
   @override
   void initState() {
@@ -43,7 +49,22 @@ class _FABMenuOverlayState extends State<FABMenuOverlay> with SingleTickerProvid
       duration: const Duration(milliseconds: 400),
     );
 
-    // Animación escalonada para los 9 botones
+    // Filtrar según el rol del usuario
+    final role = widget.user['role'] ?? 'student';
+    List<String> allowedIds;
+    if (role == 'teacher') {
+      allowedIds = ['schedule', 'qr_attendance', 'actia', 'dojo_shop', 'curr', 'diary', 'digitacion', 'post'];
+    } else if (role == 'student') {
+      allowedIds = ['schedule', 'topico', 'psicologia', 'tesoreria', 'my_attendance', 'actia'];
+    } else if (role == 'admin') {
+      allowedIds = ['post', 'schedule', 'topico', 'psicologia', 'tesoreria', 'qr_attendance', 'actia'];
+    } else {
+      allowedIds = ['schedule', 'portal'];
+    }
+
+    _actions = _allActions.where((act) => allowedIds.contains(act['id'])).toList();
+
+    // Animación escalonada para los botones filtrados
     _staggeredAnimations = List.generate(_actions.length, (index) {
       final double start = (index * 0.05).clamp(0.0, 0.4);
       final double end = (start + 0.5).clamp(0.0, 1.0);
@@ -93,9 +114,6 @@ class _FABMenuOverlayState extends State<FABMenuOverlay> with SingleTickerProvid
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: List.generate(_actions.length, (index) {
-                  final action = _actions[index];
-                  final anim = _staggeredAnimations[index];
-
                   // Invertir orden visual para que las primeras estén más cerca del botón FAB
                   final reverseIndex = _actions.length - 1 - index;
                   final revAction = _actions[reverseIndex];

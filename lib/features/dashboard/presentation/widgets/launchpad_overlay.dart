@@ -76,6 +76,7 @@ class _LaunchpadOverlayState extends State<LaunchpadOverlay> {
       'name': 'Servicios & Admin',
       'color': const Color(0xFF37474F),
       'modules': [
+        {'id': 'digitacion', 'name': 'Área de Digitación', 'icon': LucideIcons.printer, 'route': 'digitacion'},
         {'id': 'cafetin', 'name': 'Cafetín', 'icon': LucideIcons.coffee, 'submenu': true},
         {'id': 'forms', 'name': 'Formularios', 'icon': LucideIcons.listTodo},
         {'id': 'master_qr', 'name': 'QR Maestro', 'icon': LucideIcons.qrCode},
@@ -93,13 +94,27 @@ class _LaunchpadOverlayState extends State<LaunchpadOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final role = widget.user['role'] ?? 'student';
+
     // Filtrar categorías y módulos reactivamente
     List<Map<String, dynamic>> filteredCategories = [];
 
     for (var cat in _categories) {
       final List<Map<String, dynamic>> modules = List<Map<String, dynamic>>.from(cat['modules']);
       final filteredModules = modules.where((mod) {
-        return mod['name'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+        final matchesSearch = mod['name'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+        if (!matchesSearch) return false;
+
+        // Filtrar por rol
+        final modId = mod['id'];
+        if (role == 'student') {
+          if (modId == 'curr' || modId == 'diary' || modId == 'eval' || 
+              modId == 'quick_sign' || modId == 'attendance_report' || 
+              modId == 'dojo_admin' || modId == 'digitacion') {
+            return false;
+          }
+        }
+        return true;
       }).toList();
 
       if (filteredModules.isNotEmpty) {

@@ -25,6 +25,29 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
   int _currentIndex = 0;
   final MockDatabase _db = MockDatabase();
 
+  final List<LinearGradient> _courseGradients = const [
+    LinearGradient(
+      colors: [Color(0xFFFF7043), Color(0xFFFFA726)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    LinearGradient(
+      colors: [Color(0xFF42A5F5), Color(0xFF26C6DA)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    LinearGradient(
+      colors: [Color(0xFFAB47BC), Color(0xFFEC407A)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    LinearGradient(
+      colors: [Color(0xFF66BB6A), Color(0xFF9CCC65)],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+  ];
+
   // Estados de overlays
   bool _isFABMenuOpen = false;
   bool _isLaunchpadOpen = false;
@@ -74,6 +97,10 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
   }
 
   void _openCourseDetails(Map<String, dynamic> course) {
+    final currentAuthState = ref.read(authControllerProvider);
+    if (currentAuthState is! AuthAuthenticated) return;
+    final studentUser = currentAuthState.user;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -81,7 +108,11 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
       builder: (context) {
         return FractionallySizedBox(
           heightFactor: 0.85,
-          child: InnerClassroomDrawer(course: course),
+          child: InnerClassroomDrawer(
+            course: course,
+            isTeacher: false,
+            currentUser: studentUser,
+          ),
         );
       },
     );
@@ -481,6 +512,437 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     );
   }
 
+  bool _showAllAttendance = false;
+
+  void _showUserSwitcherDialog(User currentUser) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "CAMBIAR DE USUARIO",
+                  style: GoogleFonts.outfit(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF94A3B8),
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                
+                // Franco Alexis B. (Admin)
+                _buildUserOptionItem(
+                  context,
+                  name: "Franco Alexis B.",
+                  role: "Administrador (Práctante)",
+                  avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150",
+                  isSelected: currentUser.role == 'admin',
+                  onTap: () => _switchUser('admin123'),
+                ),
+                
+                // Nicole Sulay A. (Profesor)
+                _buildUserOptionItem(
+                  context,
+                  name: "Nicole Sulay A.",
+                  role: "Profesor",
+                  avatar: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150",
+                  isSelected: currentUser.role == 'teacher',
+                  onTap: () => _switchUser('profesor123'),
+                ),
+                
+                // Mateo Guerrero (Estudiante)
+                _buildUserOptionItem(
+                  context,
+                  name: "Mateo Guerrero",
+                  role: "Estudiante (5° Sec.)",
+                  avatar: "https://images.unsplash.com/photo-1597586124394-fbd6ef244026?w=150",
+                  isSelected: currentUser.role == 'student' && currentUser.username == 'mateo123',
+                  onTap: () => _switchUser('mateo123'),
+                ),
+                
+                // Marco Guerrero (Padre / Apoderado)
+                _buildUserOptionItem(
+                  context,
+                  name: "Marco Guerrero",
+                  role: "Padre / Apoderado",
+                  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
+                  isSelected: false,
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("El rol de Apoderado está en simulación. Seleccione Estudiante o Profesor."),
+                        backgroundColor: Color(0xFF1D2848),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUserOptionItem(
+    BuildContext context, {
+    required String name,
+    required String role,
+    required String avatar,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFFEDC620).withOpacity(0.08) : Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected ? const Color(0xFFEDC620).withOpacity(0.2) : Colors.transparent,
+        ),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        leading: CircleAvatar(
+          radius: 18,
+          backgroundImage: NetworkImage(avatar),
+        ),
+        title: Text(
+          name,
+          style: GoogleFonts.outfit(
+            fontSize: 12.5,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF1D2848),
+          ),
+        ),
+        subtitle: Text(
+          role,
+          style: const TextStyle(
+            fontSize: 10.5,
+            color: Color(0xFF64748B),
+          ),
+        ),
+        trailing: isSelected
+            ? const Icon(LucideIcons.check, color: Color(0xFFE5A93B), size: 16)
+            : null,
+        onTap: onTap,
+      ),
+    );
+  }
+
+  void _switchUser(String username) async {
+    Navigator.pop(context); // Cerrar diálogo switcher
+    
+    // Mostrar diálogo de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848))),
+                SizedBox(height: 12),
+                Text("Iniciando sesión...", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final success = await ref.read(authControllerProvider.notifier).login(username, '12345678');
+    
+    if (mounted) {
+      Navigator.pop(context); // Quitar diálogo de carga
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Sesión iniciada con éxito."),
+            backgroundColor: Color(0xFF2E7D32),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error al cambiar de sesión."),
+            backgroundColor: Color(0xFFD32F2F),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildStudentAttendanceTab(User studentUser) {
+    final attendanceLogs = _db.getAttendanceLogsForUser(studentUser.id);
+    final validLogs = attendanceLogs.where((log) => log.status != 'SIN_REGISTRO').toList();
+    final totalDays = validLogs.length;
+    final punctualDays = validLogs.where((log) => log.status == 'PUNTUAL').length;
+    final tardanzaDays = validLogs.where((log) => log.status == 'TARDANZA').length;
+    final faltaDays = validLogs.where((log) => log.status == 'FALTA').length;
+    final double punctualRate = totalDays > 0 ? (punctualDays / totalDays) * 100 : 0.0;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            "Control de Asistencia",
+            style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            "Visualiza tus registros diarios de ingreso y salida escolar.",
+            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildAttendanceKpi(
+                          "Puntualidad",
+                          "${punctualRate.toStringAsFixed(0)}%",
+                          const Color(0xFF2E7D32),
+                          const Color(0xFFE8F5E9),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildAttendanceKpi(
+                          "Tardanzas",
+                          "$tardanzaDays",
+                          const Color(0xFFC09F00),
+                          const Color(0xFFFFFDE7),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildAttendanceKpi(
+                          "Faltas",
+                          "$faltaDays",
+                          const Color(0xFFD32F2F),
+                          const Color(0xFFFFEBEE),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  const SizedBox(height: 12),
+                  const Text(
+                    "Registro de Asistencia Reciente (Mayo 2026)",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 12),
+                  Column(
+                    children: List.generate(
+                      _showAllAttendance ? attendanceLogs.length : 5.clamp(0, attendanceLogs.length),
+                      (index) {
+                        final log = attendanceLogs[index];
+                        return _buildAttendanceTimelineItem(log);
+                      },
+                    ),
+                  ),
+                  if (attendanceLogs.length > 5) ...[
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _showAllAttendance = !_showAllAttendance;
+                        });
+                      },
+                      child: Text(
+                        _showAllAttendance ? "VER MENOS" : "VER DETALLE MENSUAL COMPLETO",
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1D2848),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttendanceKpi(String label, String value, Color color, Color bg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: GoogleFonts.outfit(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 8.5,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttendanceTimelineItem(AttendanceLog log) {
+    Color bg;
+    Color fg;
+    String statusText;
+    IconData icon;
+
+    switch (log.status) {
+      case 'PUNTUAL':
+        bg = const Color(0xFFE8F5E9);
+        fg = const Color(0xFF2E7D32);
+        statusText = "Puntual";
+        icon = LucideIcons.checkCircle;
+        break;
+      case 'TARDANZA':
+        bg = const Color(0xFFFFFDE7);
+        fg = const Color(0xFFC09F00);
+        statusText = "Tardanza";
+        icon = LucideIcons.clock;
+        break;
+      case 'FALTA':
+        bg = const Color(0xFFFFEBEE);
+        fg = const Color(0xFFD32F2F);
+        statusText = "Falta";
+        icon = LucideIcons.xCircle;
+        break;
+      case 'SIN_REGISTRO':
+      default:
+        bg = const Color(0xFFF1F5F9);
+        fg = const Color(0xFF64748B);
+        statusText = "Sin Registro";
+        icon = LucideIcons.minusCircle;
+        break;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: bg,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 12, color: fg),
+              ),
+              Container(
+                width: 1.5,
+                height: 32,
+                color: const Color(0xFFE2E8F0),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${log.dayName} ${log.dayNum} de ${log.month.split(' ')[0]}",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1D2848),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        log.status == 'SIN_REGISTRO'
+                            ? "Fin de semana / Feriado"
+                            : "Entrada: ${log.entry} • Salida: ${log.exit}",
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      statusText.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: fg,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentAuthState = ref.watch(authControllerProvider);
@@ -489,27 +951,27 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     }
     final studentUser = currentAuthState.user;
 
-    // Configurar los 5 cursos del alumno
+    // Configurar los cursos del alumno
     final List<Map<String, dynamic>> studentCourses = studentUser.username.contains('sofia')
         ? [
-            {'id': 'c1', 'title': 'Matemáticas', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', 'teacher': 'Prof. Carlos Oliva'},
-            {'id': 'c2', 'title': 'Ciencias', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María'},
-            {'id': 'c3', 'title': 'Literatura', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María'},
-            {'id': 'c4', 'title': 'Inglés', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Lab. Primaria', 'avatar': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', 'teacher': 'Miss Sara Conner'},
+            {'id': 'c1', 'title': 'Matemáticas', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', 'teacher': 'Prof. Carlos Oliva', 'tag': 'CIENCIA Y TECNOLOGÍA'},
+            {'id': 'c2', 'title': 'Ciencias', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María', 'tag': 'CIENCIA Y TECNOLOGÍA'},
+            {'id': 'c3', 'title': 'Literatura', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María', 'tag': 'COMUNICACIÓN'},
+            {'id': 'c4', 'title': 'Inglés', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Lab. Primaria', 'avatar': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', 'teacher': 'Miss Sara Conner', 'tag': 'INGLÉS'},
           ]
         : [
-            {'id': 'c1', 'title': 'Matemáticas', 'level': 'SECUNDARIA', 'levelNum': '5°', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', 'teacher': 'Prof. Roberto Carlos'},
-            {'id': 'c2', 'title': 'Física', 'level': 'SECUNDARIA', 'levelNum': '5°', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', 'teacher': 'Ing. Carlos Mendoza'},
-            {'id': 'c3', 'title': 'Ciencias', 'level': 'SECUNDARIA', 'levelNum': '5°', 'room': 'Lab. Química', 'avatar': 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=100', 'teacher': 'Dr. Alberto Rossi'},
-            {'id': 'c4', 'title': 'Literatura', 'level': 'SECUNDARIA', 'levelNum': '5°', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Dra. Julia Mendoza'},
-            {'id': 'c5', 'title': 'Inglés', 'level': 'SECUNDARIA', 'levelNum': '5°', 'room': 'Lab. Idiomas', 'avatar': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', 'teacher': 'Miss Sara Conner'},
+            {'id': 'c1', 'title': 'Tutoría', 'level': 'SECUNDARIA', 'levelNum': '4° B', 'room': 'Secundaria', 'avatar': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', 'teacher': 'Nicole Sulay A.', 'tag': 'PLATAFORMA EDUCATIVA EXITUS'},
+            {'id': 'c2', 'title': 'Tech Savvy', 'level': 'SECUNDARIA', 'levelNum': '2° A', 'room': 'Aula 201', 'avatar': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', 'teacher': 'Nicole Sulay A.', 'tag': 'EDUCACIÓN PARA EL TRABAJO'},
+            {'id': 'c3', 'title': 'Biología', 'level': 'SECUNDARIA', 'levelNum': '5° A', 'room': 'Lab. Química', 'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100', 'teacher': 'Prof. Luis Gonzaga', 'tag': 'CIENCIA Y TECNOLOGÍA'},
+            {'id': 'c4', 'title': 'Literatura', 'level': 'SECUNDARIA', 'levelNum': '5° A', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Dra. Julia Mendoza', 'tag': 'COMUNICACIÓN'},
           ];
 
-    // Vistas asociadas a las 4 pestañas
+    // Vistas asociadas a las 5 pestañas
     final List<Widget> views = [
       SocialFeedView(currentUser: studentUser),
       _buildClassroomTabContent(studentCourses, studentUser),
       InboxMessagesView(currentUser: studentUser, onMessageRead: () => setState(() {})),
+      _buildStudentAttendanceTab(studentUser),
       StudentProfileView(currentUser: studentUser, onLogout: _handleLogout),
     ];
 
@@ -518,7 +980,8 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
       "Muro Institucional",
       "Aula Virtual",
       "Bandeja de Entrada",
-      "Mi Cuenta Exitus",
+      "Control de Asistencia",
+      "Mi Perfil Exitus",
     ];
 
     // Mensajes no leídos para la cabecera
@@ -546,7 +1009,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             ),
           ),
 
-          // Botón Flotante Central FAB Docked
+          // Botón Flotante Central FAB ahora reubicado a la esquina inferior derecha
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
@@ -558,12 +1021,10 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             shape: const CircleBorder(),
             child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
           // Barra de navegación inferior
           bottomNavigationBar: BottomAppBar(
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 8,
             color: Colors.white,
             elevation: 16,
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -573,10 +1034,10 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildBottomNavItem(0, LucideIcons.home, "INICIO"),
-                  _buildBottomNavItem(1, LucideIcons.bookOpen, "AULA"),
-                  const SizedBox(width: 48), // Espacio para el FAB central
+                  _buildBottomNavItem(1, LucideIcons.bookOpen, "AULAS"),
                   _buildBottomNavItem(2, LucideIcons.mail, "MENSAJES", badgeCount: unreadMessages),
-                  _buildBottomNavItem(3, LucideIcons.user, "PERFIL"),
+                  _buildBottomNavItem(3, LucideIcons.userCheck, "ASISTENCIAS"),
+                  _buildBottomNavItem(4, LucideIcons.user, "MI PERFIL"),
                 ],
               ),
             ),
@@ -655,7 +1116,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
           Row(
             children: [
               GestureDetector(
-                onTap: () => setState(() => _currentIndex = 3),
+                onTap: () => _showUserSwitcherDialog(student),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
@@ -771,7 +1232,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final course = courses[index];
-                    return _buildCourseCard(course);
+                    return _buildCourseCard(course, index);
                   },
                 )
               : Padding(
@@ -876,51 +1337,166 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     );
   }
 
-  Widget _buildCourseCard(Map<String, dynamic> course) {
+  Widget _buildCourseCard(Map<String, dynamic> course, int index) {
+    final gradient = _courseGradients[index % _courseGradients.length];
+
     return Card(
       color: Colors.white,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFE8EAF0)),
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Color(0xFFE8EAF0), width: 1),
       ),
-      child: InkWell(
-        onTap: () => _openCourseDetails(course),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundImage: NetworkImage(course['avatar']),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      course['title'],
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1D2848),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      course['teacher'],
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () => _openCourseDetails(course),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 6,
+                  decoration: BoxDecoration(
+                    gradient: gradient,
+                  ),
                 ),
-              ),
-              const Icon(LucideIcons.chevronRight, size: 14, color: Color(0xFF64748B)),
-            ],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Fila superior: Badge de nivel e icono de libro
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1D2848).withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(LucideIcons.book, size: 14, color: Color(0xFF1D2848)),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF00B0FF),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    "${course['level']} ${course['levelNum']}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Título del curso
+                        Text(
+                          course['title'],
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1D2848),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        
+                        // Tag/Cápsula de área académica
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            course['tag'] ?? 'CURSO GENERAL',
+                            style: const TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Fila del docente (Avatar + info)
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundImage: NetworkImage(course['avatar']),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "DOCENTE",
+                                    style: TextStyle(
+                                      color: Color(0xFF94A3B8),
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  Text(
+                                    course['teacher'],
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1D2848),
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        
+                        // Footer: Ver Aula ->
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Ver Aula",
+                              style: GoogleFonts.outfit(
+                                color: const Color(0xFFE5A93B),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              LucideIcons.arrowRight,
+                              color: Color(0xFFE5A93B),
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

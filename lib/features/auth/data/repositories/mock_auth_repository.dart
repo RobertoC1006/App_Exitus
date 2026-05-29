@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
+import 'package:app_exitus/core/network/api_endpoints.dart';
+import 'package:app_exitus/core/network/api_logger.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -9,6 +11,12 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<User> login(String username, String password) async {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.login,
+      body: {"username": username, "password": "••••••••"},
+    );
+
     // Simula retraso de red
     await Future.delayed(const Duration(milliseconds: 1500));
 
@@ -39,6 +47,11 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<User?> getCurrentUser() async {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: "${ApiEndpoints.baseUrl}/auth/me",
+    );
+
     await Future.delayed(const Duration(milliseconds: 500));
     final userData = await _storage.read(key: 'user_data');
     if (userData != null) {
@@ -49,6 +62,11 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.logout,
+    );
+
     await Future.delayed(const Duration(milliseconds: 500));
     await _storage.delete(key: 'auth_token');
     await _storage.delete(key: 'user_data');
