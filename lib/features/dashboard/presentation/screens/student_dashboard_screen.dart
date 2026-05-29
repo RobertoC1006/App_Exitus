@@ -24,6 +24,14 @@ class StudentDashboardScreen extends ConsumerStatefulWidget {
 class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen> {
   int _currentIndex = 0;
   final MockDatabase _db = MockDatabase();
+  StateSetter? _modalStateSetter;
+
+  void _updateState(VoidCallback fn) {
+    setState(fn);
+    if (_modalStateSetter != null) {
+      _modalStateSetter!(() {});
+    }
+  }
 
   final List<LinearGradient> _courseGradients = const [
     LinearGradient(
@@ -59,6 +67,9 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
   void _onTabChanged(int index) {
     setState(() {
       _currentIndex = index;
+      if (index == 2) {
+        _classroomTab = 1; // Default to Tareas tab when clicked from bottom bar
+      }
     });
   }
 
@@ -297,7 +308,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                       _db.getSocialPosts().insert(0, newPost);
                       Navigator.pop(context);
                       setState(() {
-                        _currentIndex = 0; // Redirigir a muro
+                        _currentIndex = 1; // Redirigir a Avisos (muro)
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Publicado en el muro con éxito.")),
@@ -453,6 +464,84 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
         );
       },
     );
+  }
+
+  void _showClassroomBottomSheet(User studentUser, List<Map<String, dynamic>> studentCourses, int initialTab) {
+    setState(() {
+      _classroomTab = initialTab;
+    });
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            _modalStateSetter = setModalState;
+            return FractionallySizedBox(
+              heightFactor: 0.85,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFF9E6),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              LucideIcons.bookOpen,
+                              color: Color(0xFFE5A93B),
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            "AULA VIRTUAL",
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1D2848),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: _buildClassroomTabContent(studentCourses, studentUser),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      _modalStateSetter = null;
+    });
   }
 
   void _showQRModal() {
@@ -943,6 +1032,1080 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     );
   }
 
+  void _showMessagesBottomSheet(User studentUser) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.85,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: InboxMessagesView(
+              currentUser: studentUser,
+              onMessageRead: () => setState(() {}),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAttendanceBottomSheet(User studentUser) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.85,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: _buildStudentAttendanceTab(studentUser),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showGradesBottomSheet(User studentUser) {
+    final grades = _db.getGradesForUser(studentUser.id);
+    double totalSum = 0;
+    for (var g in grades) {
+      totalSum += g.val;
+    }
+    final average = grades.isNotEmpty ? (totalSum / grades.length) : 0.0;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return FractionallySizedBox(
+              heightFactor: 0.8,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "MIS CALIFICACIONES",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1D2848).withOpacity(0.04),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF1D2848).withOpacity(0.1)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Promedio General",
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF1D2848),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                "Segundo Trimestre Escolar",
+                                style: TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1D2848),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              average.toStringAsFixed(1),
+                              style: GoogleFonts.outfit(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFFEDC620),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: grades.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No hay calificaciones registradas.",
+                                style: TextStyle(color: Color(0xFF94A3B8)),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: grades.length,
+                              separatorBuilder: (context, index) => const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final grade = grades[index];
+                                final isLow = grade.val < 11;
+                                
+                                return Theme(
+                                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                                    ),
+                                    child: ExpansionTile(
+                                      leading: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: isLow ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          grade.code,
+                                          style: TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                            color: isLow ? const Color(0xFFD32F2F) : const Color(0xFF2E7D32),
+                                          ),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        grade.course,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF1D2848),
+                                        ),
+                                      ),
+                                      trailing: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: isLow ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          grade.val.toStringAsFixed(0),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: isLow ? const Color(0xFFD32F2F) : const Color(0xFF2E7D32),
+                                          ),
+                                        ),
+                                      ),
+                                      children: grade.details.map((d) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                d.type,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFF64748B),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                d.val.toStringAsFixed(0),
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF1D2848),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showDojoStoreBottomSheet(User studentUser) {
+    final studentDojoList = _db.getDojoStudents();
+    final studentIndex = studentDojoList.indexWhere(
+      (s) => s.name.toLowerCase().contains(studentUser.fullName.split(' ').first.toLowerCase()),
+    );
+    
+    DojoStudent dojoStudent;
+    if (studentIndex != -1) {
+      dojoStudent = studentDojoList[studentIndex];
+    } else {
+      dojoStudent = DojoStudent(
+        id: 99,
+        name: studentUser.fullName,
+        points: 15,
+        present: true,
+        dragonType: 'rayo',
+      );
+      _db.getDojoStudents().add(dojoStudent);
+    }
+
+    final List<Map<String, dynamic>> prizes = [
+      {'name': 'Stickers Dojo Exitus', 'cost': 3, 'desc': 'Colección de pegatinas de tus dragones favoritos.', 'icon': LucideIcons.smile},
+      {'name': 'Lapicero Exitus Pro', 'cost': 5, 'desc': 'Lapicero de tinta gel con luz LED.', 'icon': LucideIcons.penTool},
+      {'name': 'Cuaderno Exitus 2026', 'cost': 10, 'desc': 'Cuaderno de apuntes anillado con hojas cuadriculadas.', 'icon': LucideIcons.book},
+      {'name': 'Pase Libre de Tarea', 'cost': 15, 'desc': 'Exonérate de una tarea escolar a tu elección.', 'icon': LucideIcons.checkSquare},
+      {'name': 'Polera Exitus Hoodie', 'cost': 30, 'desc': 'Polera oficial con capucha del colegio Exitus.', 'icon': LucideIcons.shirt},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return FractionallySizedBox(
+              heightFactor: 0.8,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "TIENDA DOJO",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE5A93B), Color(0xFFEDC620)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFE5A93B).withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  LucideIcons.star,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Mis Puntos Dojo",
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    dojoStudent.name,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "${dojoStudent.points} PTS",
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Premios Disponibles",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: prizes.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final prize = prizes[index];
+                          final canBuy = dojoStudent.points >= prize['cost'];
+                          
+                          return Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF9E6),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      prize['icon'],
+                                      color: const Color(0xFFE5A93B),
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          prize['name'],
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 13.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF1D2848),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          prize['desc'],
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "Costo: ${prize['cost']} Puntos",
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: canBuy ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: !canBuy
+                                        ? null
+                                        : () {
+                                            setModalState(() {
+                                              dojoStudent.points -= prize['cost'] as int;
+                                            });
+                                            setState(() {}); // Actualizar
+                                            
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Row(
+                                                  children: [
+                                                    const Icon(LucideIcons.checkCircle, color: Colors.white),
+                                                    const SizedBox(width: 8),
+                                                    Text("¡Canjeaste ${prize['name']} con éxito!"),
+                                                  ],
+                                                ),
+                                                backgroundColor: const Color(0xFF2E7D32),
+                                                behavior: SnackBarBehavior.floating,
+                                              ),
+                                            );
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF1D2848),
+                                      foregroundColor: Colors.white,
+                                      disabledBackgroundColor: const Color(0xFFCBD5E1),
+                                      disabledForegroundColor: const Color(0xFF94A3B8),
+                                      minimumSize: const Size(60, 32),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      "CANJEAR",
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildStudentHomeView(User studentUser, List<Map<String, dynamic>> studentCourses) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerHeight = 250 + statusBarHeight;
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Header Banner Card (Full-Bleed, taller, status-bar aware)
+          Container(
+            height: headerHeight,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE9F3FF), Color(0xFFF5F9FF)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -20,
+                  bottom: -20,
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  top: 24 + statusBarHeight,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(),
+                    child: OverflowBox(
+                      maxWidth: 140,
+                      maxHeight: 36,
+                      alignment: Alignment.centerLeft,
+                      child: Image.asset(
+                        'assets/images/school_logo.png',
+                        height: 36,
+                        fit: BoxFit.fitHeight,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 68,
+                  top: 22 + statusBarHeight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "EXITUS",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1D2848),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                          height: 1.1,
+                        ),
+                      ),
+                      Text(
+                        "COLEGIO",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFEDC620),
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  right: 12,
+                  bottom: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 40),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(
+                                    "Hola, ",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1D2848),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    studentUser.fullName.split(' ').first,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFEDC620),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                width: 100,
+                                height: 1,
+                                color: const Color(0xFFCBD5E1),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Text(
+                                    "ROL: ",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF64748B),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Estudiante",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1D2848),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _showUserSwitcherDialog(studentUser),
+                        child: Image.asset(
+                          'assets/images/student_avatar.png',
+                          height: 230,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 120,
+                            height: 140,
+                            alignment: Alignment.bottomCenter,
+                            child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 2. Tarjeta Cursos
+          GestureDetector(
+            onTap: () => _showClassroomBottomSheet(studentUser, studentCourses, 0),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              height: 160,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 15,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: 8,
+                      child: Container(color: const Color(0xFFF9C824)),
+                    ),
+                    Positioned(
+                      top: 16,
+                      left: 24,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFF9E6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          LucideIcons.bookOpen,
+                          color: Color(0xFFE5A93B),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 58,
+                      left: 24,
+                      right: 125,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Cursos",
+                            style: GoogleFonts.outfit(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1D2848),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Accede a tus cursos, materiales y actividades.",
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              color: const Color(0xFF64748B),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 16,
+                      left: 24,
+                      child: Icon(
+                        LucideIcons.arrowRight,
+                        color: Color(0xFFF9C824),
+                        size: 18,
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      top: 0,
+                      child: Image.asset(
+                        'assets/images/mascot_cursos.png',
+                        width: 120,
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomRight,
+                        errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 3. Fila Notas y Horario
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _showGradesBottomSheet(studentUser),
+                    child: Container(
+                      height: 220,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 15,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: 16,
+                              left: 20,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFE3F2FD),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  LucideIcons.fileText,
+                                  color: Color(0xFF1E88E5),
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 56,
+                              left: 20,
+                              right: 32,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Notas",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1D2848),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Revisa tus calificaciones y tu progreso.",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      color: const Color(0xFF64748B),
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Positioned(
+                              bottom: 16,
+                              left: 20,
+                              child: Icon(
+                                LucideIcons.arrowRight,
+                                color: Color(0xFF1E88E5),
+                                size: 16,
+                              ),
+                            ),
+                            Positioned(
+                              right: -5,
+                              bottom: -5,
+                              child: Image.asset(
+                                'assets/images/mascot_notas.png',
+                                width: 75,
+                                height: 95,
+                                fit: BoxFit.contain,
+                                alignment: Alignment.bottomRight,
+                                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _showScheduleSheet,
+                    child: Container(
+                      height: 220,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 15,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: 16,
+                              left: 20,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFF3E0),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  LucideIcons.calendar,
+                                  color: Color(0xFFF57C00),
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 56,
+                              left: 20,
+                              right: 32,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Horario",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1D2848),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Consulta tu horario de clases semanal.",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      color: const Color(0xFF64748B),
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Positioned(
+                              bottom: 16,
+                              left: 20,
+                              child: Icon(
+                                LucideIcons.arrowRight,
+                                color: Color(0xFFF57C00),
+                                size: 16,
+                              ),
+                            ),
+                            Positioned(
+                              right: -5,
+                              bottom: -5,
+                              child: Image.asset(
+                                'assets/images/mascot_horario.png',
+                                width: 75,
+                                height: 95,
+                                fit: BoxFit.contain,
+                                alignment: Alignment.bottomRight,
+                                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 4. Tarjeta Tienda Dojo
+          GestureDetector(
+            onTap: () => _showDojoStoreBottomSheet(studentUser),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              height: 170,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 15,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 16,
+                      left: 24,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE1F5FE),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          LucideIcons.shoppingBag,
+                          color: Color(0xFF0288D1),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 58,
+                      left: 24,
+                      right: 120,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Tienda Dojo",
+                            style: GoogleFonts.outfit(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1D2848),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Canjea tus puntos por premios increíbles.",
+                            style: GoogleFonts.outfit(
+                              fontSize: 12,
+                              color: const Color(0xFF64748B),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 16,
+                      left: 24,
+                      child: Icon(
+                        LucideIcons.arrowRight,
+                        color: Color(0xFF0288D1),
+                        size: 18,
+                      ),
+                    ),
+                    Positioned(
+                      right: 12,
+                      bottom: 0,
+                      top: 10,
+                      child: Image.asset(
+                        'assets/images/mascot_tienda.png',
+                        width: 110,
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomRight,
+                        errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentAuthState = ref.watch(authControllerProvider);
@@ -951,7 +2114,6 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     }
     final studentUser = currentAuthState.user;
 
-    // Configurar los cursos del alumno
     final List<Map<String, dynamic>> studentCourses = studentUser.username.contains('sofia')
         ? [
             {'id': 'c1', 'title': 'Matemáticas', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', 'teacher': 'Prof. Carlos Oliva', 'tag': 'CIENCIA Y TECNOLOGÍA'},
@@ -966,25 +2128,23 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             {'id': 'c4', 'title': 'Literatura', 'level': 'SECUNDARIA', 'levelNum': '5° A', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Dra. Julia Mendoza', 'tag': 'COMUNICACIÓN'},
           ];
 
-    // Vistas asociadas a las 5 pestañas
     final List<Widget> views = [
+      _buildStudentHomeView(studentUser, studentCourses),
       SocialFeedView(currentUser: studentUser),
-      _buildClassroomTabContent(studentCourses, studentUser),
-      InboxMessagesView(currentUser: studentUser, onMessageRead: () => setState(() {})),
-      _buildStudentAttendanceTab(studentUser),
+      InboxMessagesView(
+        currentUser: studentUser,
+        onMessageRead: () => setState(() {}),
+      ),
       StudentProfileView(currentUser: studentUser, onLogout: _handleLogout),
     ];
 
-    // Títulos de la cabecera
     final List<String> titles = [
+      "Inicio",
       "Muro Institucional",
-      "Aula Virtual",
-      "Bandeja de Entrada",
-      "Control de Asistencia",
+      "Mensajes",
       "Mi Perfil Exitus",
     ];
 
-    // Mensajes no leídos para la cabecera
     final unreadMessages = _db.getMessagesForUser(studentUser.id).where((m) => m.unread).length;
 
     return Stack(
@@ -992,13 +2152,14 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
         Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
           body: SafeArea(
+            top: _currentIndex != 0,
             child: Column(
               children: [
-                // Cabecera premium del estudiante
-                _buildStudentHeader(studentUser, titles[_currentIndex], unreadMessages),
-                Container(height: 1, color: const Color(0xFFE2E8F0)),
+                if (_currentIndex != 0) ...[
+                  _buildStudentHeader(studentUser, titles[_currentIndex], unreadMessages),
+                  Container(height: 1, color: const Color(0xFFE2E8F0)),
+                ],
 
-                // Contenido de pestaña activa
                 Expanded(
                   child: IndexedStack(
                     index: _currentIndex,
@@ -1009,42 +2170,39 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             ),
           ),
 
-          // Botón Flotante Central FAB ahora reubicado a la esquina inferior derecha
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
                 _isFABMenuOpen = true;
               });
             },
-            backgroundColor: const Color(0xFF1D2848),
+            backgroundColor: const Color(0xFFF9C824),
             elevation: 8,
             shape: const CircleBorder(),
-            child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
+            child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-          // Barra de navegación inferior
           bottomNavigationBar: BottomAppBar(
             color: Colors.white,
             elevation: 16,
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: EdgeInsets.zero,
             child: SizedBox(
-              height: 60,
+              height: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildBottomNavItem(0, LucideIcons.home, "INICIO"),
-                  _buildBottomNavItem(1, LucideIcons.bookOpen, "AULAS"),
-                  _buildBottomNavItem(2, LucideIcons.mail, "MENSAJES", badgeCount: unreadMessages),
-                  _buildBottomNavItem(3, LucideIcons.userCheck, "ASISTENCIAS"),
-                  _buildBottomNavItem(4, LucideIcons.user, "MI PERFIL"),
+                  _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
+                  _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
+                  const SizedBox(width: 48),
+                  _buildBottomNavItem(2, LucideIcons.messageSquare, "Mensajes"),
+                  _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
                 ],
               ),
             ),
           ),
         ),
 
-        // 3. Superposición del Menú FAB
         if (_isFABMenuOpen)
           Positioned.fill(
             child: FABMenuOverlay(
@@ -1058,7 +2216,6 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             ),
           ),
 
-        // 4. Superposición del Launchpad
         if (_isLaunchpadOpen)
           Positioned.fill(
             child: LaunchpadOverlay(
@@ -1071,8 +2228,16 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
               onNavigate: (route) {
                 setState(() {
                   _isLaunchpadOpen = false;
-                  if (route == 'classroom') _currentIndex = 1;
                 });
+                if (route == 'classroom') {
+                  _showClassroomBottomSheet(studentUser, studentCourses, 0);
+                } else if (route == 'messages') {
+                  setState(() {
+                    _currentIndex = 2; // Switch to Messages tab
+                  });
+                } else if (route == 'attendance') {
+                  _showAttendanceBottomSheet(studentUser);
+                }
               },
               onSubmenuTap: (submenuId) {
                 setState(() {
@@ -1131,7 +2296,11 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: () => setState(() => _currentIndex = 2),
+                onTap: () {
+                  setState(() {
+                    _currentIndex = 2;
+                  });
+                },
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -1160,9 +2329,33 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     );
   }
 
-  Widget _buildBottomNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
+  Widget _buildBottomNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
-    final color = isSelected ? const Color(0xFF1D2848) : const Color(0xFF94A3B8);
+    
+    if (isSelected) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1D2848),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: const Color(0xFFEDC620), size: 18),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return InkWell(
       onTap: () => _onTabChanged(index),
@@ -1173,29 +2366,14 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(icon, color: color, size: 20),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(color: Color(0xFFEDC620), shape: BoxShape.circle),
-                      child: Text("$badgeCount", style: const TextStyle(color: Color(0xFF1D2848), fontSize: 7, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-              ],
-            ),
+            Icon(icon, color: const Color(0xFF94A3B8), size: 20),
             const SizedBox(height: 3),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 8.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: color,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF94A3B8),
                 letterSpacing: -0.2,
               ),
             ),
@@ -1274,7 +2452,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     final isSelected = _classroomTab == index;
     return Expanded(
       child: InkWell(
-        onTap: () => setState(() => _classroomTab = index),
+        onTap: () => _updateState(() => _classroomTab = index),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           alignment: Alignment.center,
@@ -1303,7 +2481,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     final isSelected = _taskFilter == filter;
     return Expanded(
       child: ElevatedButton(
-        onPressed: () => setState(() => _taskFilter = filter),
+        onPressed: () => _updateState(() => _taskFilter = filter),
         style: ElevatedButton.styleFrom(
           backgroundColor: isSelected ? const Color(0xFF1D2848) : const Color(0xFFE2E8F0),
           foregroundColor: isSelected ? Colors.white : const Color(0xFF64748B),
