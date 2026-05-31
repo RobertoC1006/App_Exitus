@@ -20,6 +20,9 @@ class ApiEndpoints {
   // --- AULAS VIRTUALES ---
   static const String coursesList = "$baseUrl/classroom/courses";
   static const String courseDetails = "$baseUrl/classroom/course/{courseId}";
+  static const String courseContent = "$baseUrl/classroom/course/{courseId}/content";
+  static const String courseRubrics = "$baseUrl/classroom/course/{courseId}/rubrics";
+  static const String courseDojo = "$baseUrl/classroom/course/{courseId}/dojo";
   static const String dojoBoard = "$baseUrl/classroom/dojo/{studentId}";
   static const String addDojoPoints = "$baseUrl/classroom/dojo/points";
   static const String sessionCreate = "$baseUrl/classroom/session/create";

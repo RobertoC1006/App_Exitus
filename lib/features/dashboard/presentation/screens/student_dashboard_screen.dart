@@ -13,6 +13,8 @@ import 'package:app_exitus/features/profile/presentation/widgets/student_profile
 import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_overlay.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
+import 'package:app_exitus/features/classroom/presentation/screens/student_courses_screen.dart';
+import 'package:app_exitus/features/classroom/presentation/screens/student_dojo_store_screen.dart';
 
 class StudentDashboardScreen extends ConsumerStatefulWidget {
   const StudentDashboardScreen({super.key});
@@ -130,6 +132,21 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
   }
 
   void _handleFABAction(String action) {
+    if (action == 'dojo_shop') {
+      final currentAuthState = ref.read(authControllerProvider);
+      if (currentAuthState is AuthAuthenticated) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentDojoStoreScreen(
+              studentUser: currentAuthState.user,
+              currentPoints: 4850,
+            ),
+          ),
+        );
+      }
+      return;
+    }
     if (action == 'portal') {
       setState(() {
         _isLaunchpadOpen = true;
@@ -1275,273 +1292,14 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
   }
 
   void _showDojoStoreBottomSheet(User studentUser) {
-    final studentDojoList = _db.getDojoStudents();
-    final studentIndex = studentDojoList.indexWhere(
-      (s) => s.name.toLowerCase().contains(studentUser.fullName.split(' ').first.toLowerCase()),
-    );
-    
-    DojoStudent dojoStudent;
-    if (studentIndex != -1) {
-      dojoStudent = studentDojoList[studentIndex];
-    } else {
-      dojoStudent = DojoStudent(
-        id: 99,
-        name: studentUser.fullName,
-        points: 15,
-        present: true,
-        dragonType: 'rayo',
-      );
-      _db.getDojoStudents().add(dojoStudent);
-    }
-
-    final List<Map<String, dynamic>> prizes = [
-      {'name': 'Stickers Dojo Exitus', 'cost': 3, 'desc': 'Colección de pegatinas de tus dragones favoritos.', 'icon': LucideIcons.smile},
-      {'name': 'Lapicero Exitus Pro', 'cost': 5, 'desc': 'Lapicero de tinta gel con luz LED.', 'icon': LucideIcons.penTool},
-      {'name': 'Cuaderno Exitus 2026', 'cost': 10, 'desc': 'Cuaderno de apuntes anillado con hojas cuadriculadas.', 'icon': LucideIcons.book},
-      {'name': 'Pase Libre de Tarea', 'cost': 15, 'desc': 'Exonérate de una tarea escolar a tu elección.', 'icon': LucideIcons.checkSquare},
-      {'name': 'Polera Exitus Hoodie', 'cost': 30, 'desc': 'Polera oficial con capucha del colegio Exitus.', 'icon': LucideIcons.shirt},
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return FractionallySizedBox(
-              heightFactor: 0.8,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFCBD5E1),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "TIENDA DOJO",
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1D2848),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE5A93B), Color(0xFFEDC620)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFE5A93B).withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  LucideIcons.star,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Mis Puntos Dojo",
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    dojoStudent.name,
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Text(
-                            "${dojoStudent.points} PTS",
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "Premios Disponibles",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: prizes.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          final prize = prizes[index];
-                          final canBuy = dojoStudent.points >= prize['cost'];
-                          
-                          return Card(
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: const BorderSide(color: Color(0xFFE2E8F0)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFF9E6),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      prize['icon'],
-                                      color: const Color(0xFFE5A93B),
-                                      size: 24,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          prize['name'],
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 13.5,
-                                            fontWeight: FontWeight.bold,
-                                            color: const Color(0xFF1D2848),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          prize['desc'],
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF64748B),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          "Costo: ${prize['cost']} Puntos",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: canBuy ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: !canBuy
-                                        ? null
-                                        : () {
-                                            setModalState(() {
-                                              dojoStudent.points -= prize['cost'] as int;
-                                            });
-                                            setState(() {}); // Actualizar
-                                            
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Row(
-                                                  children: [
-                                                    const Icon(LucideIcons.checkCircle, color: Colors.white),
-                                                    const SizedBox(width: 8),
-                                                    Text("¡Canjeaste ${prize['name']} con éxito!"),
-                                                  ],
-                                                ),
-                                                backgroundColor: const Color(0xFF2E7D32),
-                                                behavior: SnackBarBehavior.floating,
-                                              ),
-                                            );
-                                          },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF1D2848),
-                                      foregroundColor: Colors.white,
-                                      disabledBackgroundColor: const Color(0xFFCBD5E1),
-                                      disabledForegroundColor: const Color(0xFF94A3B8),
-                                      minimumSize: const Size(60, 32),
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: const Text(
-                                      "CANJEAR",
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudentDojoStoreScreen(
+          studentUser: studentUser,
+          currentPoints: 4850,
+        ),
+      ),
     );
   }
 
@@ -1723,7 +1481,26 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
 
           // 2. Tarjeta Cursos
           GestureDetector(
-            onTap: () => _showClassroomBottomSheet(studentUser, studentCourses, 0),
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentCoursesScreen(
+                    studentUser: studentUser,
+                    initialCourses: studentCourses,
+                  ),
+                ),
+              );
+              if (result != null && result is int) {
+                if (result == 99) {
+                  setState(() {
+                    _isFABMenuOpen = true;
+                  });
+                } else {
+                  _onTabChanged(result);
+                }
+              }
+            },
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               height: 160,
@@ -2131,17 +1908,14 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
     final List<Widget> views = [
       _buildStudentHomeView(studentUser, studentCourses),
       SocialFeedView(currentUser: studentUser),
-      InboxMessagesView(
-        currentUser: studentUser,
-        onMessageRead: () => setState(() {}),
-      ),
+      _buildStudentTasksView(studentUser),
       StudentProfileView(currentUser: studentUser, onLogout: _handleLogout),
     ];
 
     final List<String> titles = [
       "Inicio",
       "Muro Institucional",
-      "Mensajes",
+      "Mis Tareas",
       "Mi Perfil Exitus",
     ];
 
@@ -2195,7 +1969,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                   _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
                   _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
                   const SizedBox(width: 48),
-                  _buildBottomNavItem(2, LucideIcons.messageSquare, "Mensajes"),
+                  _buildBottomNavItem(2, LucideIcons.briefcase, "Tareas"),
                   _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
                 ],
               ),
@@ -2230,7 +2004,25 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                   _isLaunchpadOpen = false;
                 });
                 if (route == 'classroom') {
-                  _showClassroomBottomSheet(studentUser, studentCourses, 0);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StudentCoursesScreen(
+                        studentUser: studentUser,
+                        initialCourses: studentCourses,
+                      ),
+                    ),
+                  ).then((result) {
+                    if (result != null && result is int) {
+                      if (result == 99) {
+                        setState(() {
+                          _isFABMenuOpen = true;
+                        });
+                      } else {
+                        _onTabChanged(result);
+                      }
+                    }
+                  });
                 } else if (route == 'messages') {
                   setState(() {
                     _currentIndex = 2; // Switch to Messages tab
@@ -2379,6 +2171,79 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStudentTasksView(User user) {
+    final tasks = _db.getTasksForUser(user.id);
+    final filteredTasks = tasks.where((t) => t.status == _taskFilter).toList();
+
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF9E6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    LucideIcons.briefcase,
+                    color: Color(0xFFE5A93B),
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "MIS TAREAS Y ENTREGAS",
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D2848),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _buildTaskFilterButton('pending', "Pendientes", tasks.where((t) => t.status == 'pending').length),
+                const SizedBox(width: 10),
+                _buildTaskFilterButton('completed', "Entregadas", tasks.where((t) => t.status == 'completed').length),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: filteredTasks.isEmpty
+                ? const Center(
+                    child: Text(
+                      "No hay tareas en esta categoría.",
+                      style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+                    itemCount: filteredTasks.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final task = filteredTasks[index];
+                      return _buildTaskCard(task, user.id);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }

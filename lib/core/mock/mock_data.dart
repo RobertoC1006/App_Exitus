@@ -1197,5 +1197,157 @@ class MockDatabase {
     }
     return 0;
   }
+
+  // --- V2 METODOS ALUMNO CURSO DETALLE ---
+  List<Map<String, dynamic>> getCourseContent(String courseId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.courseContent.replaceAll("{courseId}", courseId),
+    );
+
+    // Contenido dinámico por curso
+    List<Map<String, dynamic>> items = [];
+    
+    if (courseId == 'c_chino') {
+      items = [
+        {'title': 'Saludos y presentaciones', 'type': 'pdf', 'info': 'PDF • 2.4 MB', 'url': 'saludos.pdf'},
+        {'title': 'Pinyin: Vocales y tonos', 'type': 'pdf', 'info': 'PDF • 1.8 MB', 'url': 'pinyin.pdf'},
+        {'title': 'Ejercicios de escritura', 'type': 'docx', 'info': 'DOCX • 3.1 MB', 'url': 'escritura.docx'},
+        {'title': 'Video: Pronunciación básica', 'type': 'video', 'info': 'YouTube • 8:45 min', 'url': 'pronunciacion.mp4'},
+        {'title': 'Intranet: Recursos adicionales', 'type': 'link', 'info': 'Enlace', 'url': 'https://intranet.exitus.edu.pe/cn'},
+        {'title': 'Evaluación 1: Conversaciones', 'type': 'pdf', 'info': 'PDF • 1.2 MB', 'url': 'evaluacion1.pdf'},
+      ];
+    } else if (courseId == 'c_ingles') {
+      items = [
+        {'title': 'Unit 1: Welcome & Introductions', 'type': 'pdf', 'info': 'PDF • 1.5 MB', 'url': 'welcome.pdf'},
+        {'title': 'Verb To Be: Grammar Guide', 'type': 'pdf', 'info': 'PDF • 1.2 MB', 'url': 'verb_to_be.pdf'},
+        {'title': 'Worksheets: Personal Pronouns', 'type': 'docx', 'info': 'DOCX • 2.1 MB', 'url': 'pronouns.docx'},
+        {'title': 'Speaking Challenge: Self-intro', 'type': 'video', 'info': 'YouTube • 5:30 min', 'url': 'speaking_intro.mp4'},
+        {'title': 'Interactive Game: Vocabulary Check', 'type': 'link', 'info': 'Enlace', 'url': 'https://quizlet.com/exitus_en'},
+        {'title': 'Unit 1 Exam: Writing Section', 'type': 'pdf', 'info': 'PDF • 1.0 MB', 'url': 'exam_u1.pdf'},
+      ];
+    } else if (courseId == 'c_algebra') {
+      items = [
+        {'title': 'Ficha 1: Ecuaciones lineales', 'type': 'pdf', 'info': 'PDF • 3.2 MB', 'url': 'ecuaciones.pdf'},
+        {'title': 'Métodos de resolución de sistemas', 'type': 'pdf', 'info': 'PDF • 2.0 MB', 'url': 'sistemas.pdf'},
+        {'title': 'Álgebra de Baldor: Ejercicios', 'type': 'docx', 'info': 'DOCX • 4.5 MB', 'url': 'baldor.docx'},
+        {'title': 'Video: Resolución paso a paso', 'type': 'video', 'info': 'YouTube • 12:15 min', 'url': 'algebra_video.mp4'},
+        {'title': 'Simulador de gráficas de funciones', 'type': 'link', 'info': 'Enlace', 'url': 'https://geogebra.org'},
+        {'title': 'Evaluación Trimestral de Álgebra', 'type': 'pdf', 'info': 'PDF • 1.8 MB', 'url': 'evaluacion_algebra.pdf'},
+      ];
+    } else if (courseId == 'c_fisica') {
+      items = [
+        {'title': 'Introducción a Vectores en 2D', 'type': 'pdf', 'info': 'PDF • 2.8 MB', 'url': 'vectores.pdf'},
+        {'title': 'Movimiento Rectilíneo Uniforme (MRU)', 'type': 'pdf', 'info': 'PDF • 1.5 MB', 'url': 'mru.pdf'},
+        {'title': 'Guía de laboratorio: Dinámica', 'type': 'docx', 'info': 'DOCX • 3.0 MB', 'url': 'dinamica.docx'},
+        {'title': 'Video: Experimento de caída libre', 'type': 'video', 'info': 'YouTube • 9:20 min', 'url': 'caida_libre.mp4'},
+        {'title': 'Simulador virtual de fuerzas', 'type': 'link', 'info': 'Enlace', 'url': 'https://phet.colorado.edu'},
+        {'title': 'Evaluación 1: Cinemática', 'type': 'pdf', 'info': 'PDF • 1.1 MB', 'url': 'eval_cinematica.pdf'},
+      ];
+    } else if (courseId == 'c_literatura') {
+      items = [
+        {'title': 'Lectura: El Vanguardismo en el Perú', 'type': 'pdf', 'info': 'PDF • 1.9 MB', 'url': 'vanguardismo.pdf'},
+        {'title': 'César Vallejo y la obra Trilce', 'type': 'pdf', 'info': 'PDF • 1.4 MB', 'url': 'vallejo.pdf'},
+        {'title': 'Ficha de Comprensión Lectora', 'type': 'docx', 'info': 'DOCX • 1.8 MB', 'url': 'comprension.docx'},
+        {'title': 'Video: Análisis literario de Trilce', 'type': 'video', 'info': 'YouTube • 15:40 min', 'url': 'analisis_trilce.mp4'},
+        {'title': 'Biblioteca Digital Exitus', 'type': 'link', 'info': 'Enlace', 'url': 'https://biblioteca.exitus.edu.pe'},
+        {'title': 'Control de Lectura 1: Vanguardismo', 'type': 'pdf', 'info': 'PDF • 1.2 MB', 'url': 'control_vanguardia.pdf'},
+      ];
+    } else if (courseId == 'c_tech') {
+      items = [
+        {'title': 'Introducción a la Programación con Scratch', 'type': 'pdf', 'info': 'PDF • 4.0 MB', 'url': 'scratch_intro.pdf'},
+        {'title': 'Algoritmos y pseudocódigo básico', 'type': 'pdf', 'info': 'PDF • 2.5 MB', 'url': 'algoritmos.pdf'},
+        {'title': 'Reto: Crea tu primer juego interactivo', 'type': 'docx', 'info': 'DOCX • 2.8 MB', 'url': 'reto_juego.docx'},
+        {'title': 'Video: ¿Qué es una variable y bucle?', 'type': 'video', 'info': 'YouTube • 10:10 min', 'url': 'concepts.mp4'},
+        {'title': 'Plataforma Scratch Exitus', 'type': 'link', 'info': 'Enlace', 'url': 'https://scratch.mit.edu'},
+        {'title': 'Evaluación 1: Lógica algorítmica', 'type': 'pdf', 'info': 'PDF • 1.3 MB', 'url': 'eval_logica.pdf'},
+      ];
+    } else if (courseId == 'c_trigo') {
+      items = [
+        {'title': 'Razones trigonométricas en triángulos', 'type': 'pdf', 'info': 'PDF • 2.5 MB', 'url': 'razones.pdf'},
+        {'title': 'Ficha: Ángulos notables y aplicaciones', 'type': 'pdf', 'info': 'PDF • 1.8 MB', 'url': 'angulos.pdf'},
+        {'title': 'Ejercicios resueltos de trigonometría', 'type': 'docx', 'info': 'DOCX • 3.2 MB', 'url': 'ejercicios.docx'},
+        {'title': 'Video: Resolución de triángulos', 'type': 'video', 'info': 'YouTube • 11:30 min', 'url': 'triangulos.mp4'},
+        {'title': 'Calculadora científica online', 'type': 'link', 'info': 'Enlace', 'url': 'https://desmos.com/scientific'},
+        {'title': 'Práctica Calificada: Identidades', 'type': 'pdf', 'info': 'PDF • 1.5 MB', 'url': 'practica_identidades.pdf'},
+      ];
+    } else {
+      // c_tutoria
+      items = [
+        {'title': 'Inteligencia emocional y autoconocimiento', 'type': 'pdf', 'info': 'PDF • 1.6 MB', 'url': 'inteligencia_emocional.pdf'},
+        {'title': 'Normas de convivencia del aula', 'type': 'pdf', 'info': 'PDF • 1.2 MB', 'url': 'normas.pdf'},
+        {'title': 'Taller: Mis metas personales este año', 'type': 'docx', 'info': 'DOCX • 2.0 MB', 'url': 'metas.docx'},
+        {'title': 'Video: Trabajo en equipo y empatía', 'type': 'video', 'info': 'YouTube • 7:15 min', 'url': 'teamwork.mp4'},
+        {'title': 'Portal Psicopedagógico Exitus', 'type': 'link', 'info': 'Enlace', 'url': 'https://psico.exitus.edu.pe'},
+        {'title': 'Bitácora de reflexiones personales', 'type': 'pdf', 'info': 'PDF • 1.0 MB', 'url': 'bitacora.pdf'},
+      ];
+    }
+
+    return [
+      {
+        'title': 'Primer Trimestre',
+        'date': '05 Mar - 20 Jun',
+        'status': 'En curso',
+        'items': items,
+      },
+      {
+        'title': 'Segundo Trimestre',
+        'date': '21 Jun - 10 Sep',
+        'status': 'Próximamente',
+        'items': <Map<String, dynamic>>[],
+      },
+      {
+        'title': 'Tercer Trimestre',
+        'date': '11 Sep - 15 Dic',
+        'status': 'Próximamente',
+        'items': <Map<String, dynamic>>[],
+      }
+    ];
+  }
+
+  List<Rubrica> getRubricasForCourse(String courseId) {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.courseRubrics.replaceAll("{courseId}", courseId),
+    );
+
+    if (courseId == 'c_chino') {
+      return [
+        Rubrica(id: 101, title: "Rúbrica: Exposición Oral en Chino Mandarín", type: "Sesión Alineada", description: "Evaluación de la correcta pronunciación de tonos y fluidez en el saludo formal.", date: "28/05/2026"),
+        Rubrica(id: 102, title: "Rúbrica: Caligrafía Hanzi", type: "Creación Libre", description: "Orden correcto de trazos y legibilidad en los caracteres básicos.", date: "22/05/2026"),
+      ];
+    } else if (courseId == 'c_ingles') {
+      return [
+        Rubrica(id: 201, title: "Rúbrica: Speaking Task - Introduce Yourself", type: "Sesión Alineada", description: "Evaluation of vocabulary, grammar accuracy (verb to be), and pronunciation.", date: "29/05/2026"),
+        Rubrica(id: 202, title: "Rúbrica: Reading & Writing Essay", type: "Creación Libre", description: "Structure, coherence, and correct use of personal pronouns in a short text.", date: "15/05/2026"),
+      ];
+    } else if (courseId == 'c_algebra' || courseId == 'c_trigo') {
+      return [
+        Rubrica(id: 301, title: "Rúbrica: Resolución de Problemas de Ecuaciones", type: "Sesión Alineada", description: "Evaluación del planteamiento paso a paso, despeje algebraico y verificación del resultado.", date: "27/05/2026"),
+        Rubrica(id: 302, title: "Rúbrica: Proyecto de Graficación de Funciones", type: "Creación Libre", description: "Uso de Geogebra para modelar situaciones reales e interpretación de puntos críticos.", date: "20/05/2026"),
+      ];
+    } else if (courseId == 'c_fisica') {
+      return [
+        Rubrica(id: 401, title: "Rúbrica: Informe de Laboratorio de Cinemática", type: "Sesión Alineada", description: "Estructura del informe, análisis de errores, tablas de datos y conclusiones experimentales.", date: "25/05/2026"),
+        Rubrica(id: 402, title: "Rúbrica: Exposición de Vectores en la Vida Real", type: "Creación Libre", description: "Uso de material didáctico, claridad y resolución de preguntas rápidas.", date: "18/05/2026"),
+      ];
+    } else if (courseId == 'c_literatura') {
+      return [
+        Rubrica(id: 501, title: "Rúbrica: Ensayo Crítico sobre el Vanguardismo", type: "Sesión Alineada", description: "Tesis definida, argumentos sólidos, citas del poemario Trilce y ortografía.", date: "29/05/2026"),
+        Rubrica(id: 502, title: "Rúbrica: Recital Poético y Declamación", type: "Creación Libre", description: "Expresividad, modulación de voz, postura corporal e interpretación emotiva.", date: "21/05/2026"),
+      ];
+    } else if (courseId == 'c_tech') {
+      return [
+        Rubrica(id: 601, title: "Rúbrica: Algoritmo y Lógica de Juego en Scratch", type: "Sesión Alineada", description: "Uso adecuado de variables, estructuras condicionales y bucles infinitos.", date: "29/05/2026"),
+        Rubrica(id: 602, title: "Rúbrica: Diseño e Interfaz UI/UX de Proyecto", type: "Creación Libre", description: "Estética limpia, paleta de colores coherente y facilidad de uso.", date: "23/05/2026"),
+      ];
+    } else {
+      // c_tutoria
+      return [
+        Rubrica(id: 701, title: "Rúbrica: Proyecto de Vida y Metas Anuales", type: "Sesión Alineada", description: "Claridad en las metas planteadas, plan de acción realista y autoevaluación sincera.", date: "26/05/2026"),
+        Rubrica(id: 702, title: "Rúbrica: Taller de Coexistencia y Empatía", type: "Creación Libre", description: "Nivel de participación, respeto por las opiniones ajenas y trabajo colaborativo.", date: "19/05/2026"),
+      ];
+    }
+  }
 }
 
