@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
-import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_course_details_screen.dart';
 
 class TeacherCoursesScreen extends ConsumerStatefulWidget {
@@ -89,7 +88,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
         ),
       ),
     ).then((value) {
-      if (value != null) {
+      if (value != null && mounted) {
         Navigator.pop(context, value);
       }
     });
@@ -159,7 +158,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -182,7 +181,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -274,7 +273,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 1.05,
+                childAspectRatio: 0.8,
                 crossAxisSpacing: 14,
                 mainAxisSpacing: 14,
               ),
@@ -371,7 +370,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -384,32 +383,32 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
           onTap: () => _openCourseDetails(course),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Icono del curso (Tutoría, Bandera China o Beaker de Ciencia)
                 _buildCourseIcon(course['iconType']),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 
                 // Nombre del curso (Negrita)
                 Text(
                   course['title'],
                   style: GoogleFonts.outfit(
-                    fontSize: 15.5,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF1D2848),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 
                 // Categoría/Área
                 Text(
                   course['category'],
                   style: GoogleFonts.outfit(
-                    fontSize: 11.5,
+                    fontSize: 11,
                     color: const Color(0xFF94A3B8),
                     fontWeight: FontWeight.w600,
                   ),
@@ -419,16 +418,16 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                 Text(
                   "${course['levelNum']} • ${course['level']}",
                   style: GoogleFonts.outfit(
-                    fontSize: 11.5,
+                    fontSize: 11,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const Spacer(),
                 
                 // Botón "Ver Aula" estilizado
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -441,7 +440,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                         "Ver Aula",
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1D2848),
-                          fontSize: 11.5,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

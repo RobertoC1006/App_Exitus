@@ -357,7 +357,7 @@ class _InboxMessagesViewState extends State<InboxMessagesView> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: msg.unread ? const Color(0xFFEDC620).withOpacity(0.3) : const Color(0xFFE8EAF0),
+          color: msg.unread ? const Color(0xFFEDC620).withValues(alpha: 0.3) : const Color(0xFFE8EAF0),
           width: msg.unread ? 1.5 : 1,
         ),
       ),

@@ -168,7 +168,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -205,9 +205,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                   width: 44,
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: themeColor.withOpacity(0.12),
+                                    color: themeColor.withValues(alpha: 0.12),
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: themeColor.withOpacity(0.2), width: 1.5),
+                                    border: Border.all(color: themeColor.withValues(alpha: 0.2), width: 1.5),
                                   ),
                                   alignment: Alignment.center,
                                   child: _buildHeaderIconWidget(courseId, themeColor),
@@ -233,7 +233,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: themeColor.withOpacity(0.1),
+                                          color: themeColor.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
@@ -357,7 +357,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -493,13 +493,13 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
                   ],
                   border: Border.all(
-                    color: isExpanded && isCurrent ? widget.course['themeColor'].withOpacity(0.3) : const Color(0xFFE2E8F0),
+                    color: isExpanded && isCurrent ? widget.course['themeColor'].withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
                     width: 1,
                   ),
                 ),
@@ -510,7 +510,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: isCurrent 
-                            ? (isExpanded ? widget.course['themeColor'].withOpacity(0.12) : const Color(0xFFF1F5F9))
+                            ? (isExpanded ? widget.course['themeColor'].withValues(alpha: 0.12) : const Color(0xFFF1F5F9))
                             : const Color(0xFFF8FAFC),
                         shape: BoxShape.circle,
                       ),
@@ -607,7 +607,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: _getLessonTypeColor(item['type']).withOpacity(0.08),
+                                  color: _getLessonTypeColor(item['type']).withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -661,7 +661,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.center,
@@ -681,7 +681,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.center,
@@ -693,7 +693,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.center,
@@ -755,7 +755,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                   border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.04),
+                      color: Colors.grey.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -897,7 +897,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                           border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.04),
+                              color: Colors.grey.withValues(alpha: 0.04),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -1025,7 +1025,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                           border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.04),
+                              color: Colors.grey.withValues(alpha: 0.04),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -1090,7 +1090,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                 border: Border.all(color: const Color(0xFFF8BBD0), width: 1.5),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFF8BBD0).withOpacity(0.15),
+                                    color: const Color(0xFFF8BBD0).withValues(alpha: 0.15),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   ),
@@ -1141,7 +1141,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.04),
+                color: Colors.grey.withValues(alpha: 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -1325,7 +1325,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
     );
   }
 
-  void _showDojoStoreDialog(BuildContext context) {
+  void showDojoStoreDialog(BuildContext context) {
     int currentWalletPoints = 4850;
     
     showDialog(
@@ -1825,12 +1825,12 @@ class CourseBackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = themeColor.withOpacity(0.06)
+      ..color = themeColor.withValues(alpha: 0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
     final fillPaint = Paint()
-      ..color = themeColor.withOpacity(0.035)
+      ..color = themeColor.withValues(alpha: 0.035)
       ..style = PaintingStyle.fill;
 
     if (courseId == 'c_chino') {
@@ -1844,7 +1844,7 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawPath(path, fillPaint);
       
       // Sun
-      canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.4), 28, Paint()..color = themeColor.withOpacity(0.08)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.4), 28, Paint()..color = themeColor.withValues(alpha: 0.08)..style = PaintingStyle.fill);
 
       // Cherry blossoms branches
       final branch = Path()
@@ -1852,10 +1852,10 @@ class CourseBackgroundPainter extends CustomPainter {
         ..lineTo(size.width * 0.75, size.height * 0.25);
       canvas.drawPath(branch, paint..strokeWidth = 1.5);
       
-      canvas.drawCircle(Offset(size.width * 0.75, size.height * 0.25), 4, Paint()..color = const Color(0xFFEC407A).withOpacity(0.4)..style = PaintingStyle.fill);
-      canvas.drawCircle(Offset(size.width * 0.79, size.height * 0.18), 3, Paint()..color = const Color(0xFFEC407A).withOpacity(0.3)..style = PaintingStyle.fill);
-      canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.14), 5, Paint()..color = const Color(0xFFEC407A).withOpacity(0.35)..style = PaintingStyle.fill);
-      canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.08), 4, Paint()..color = const Color(0xFFEC407A).withOpacity(0.45)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.75, size.height * 0.25), 4, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.4)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.79, size.height * 0.18), 3, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.3)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.14), 5, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.35)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.08), 4, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.45)..style = PaintingStyle.fill);
 
     } else if (courseId == 'c_ingles') {
       // Landmarks & clock outlines
@@ -1873,15 +1873,15 @@ class CourseBackgroundPainter extends CustomPainter {
       
       // London Eye
       final Offset wheelCenter = Offset(size.width * 0.78, size.height * 0.55);
-      canvas.drawCircle(wheelCenter, 22, Paint()..color = themeColor.withOpacity(0.06)..style = PaintingStyle.stroke..strokeWidth = 1.5);
-      canvas.drawCircle(wheelCenter, 2, Paint()..color = themeColor.withOpacity(0.12)..style = PaintingStyle.fill);
+      canvas.drawCircle(wheelCenter, 22, Paint()..color = themeColor.withValues(alpha: 0.06)..style = PaintingStyle.stroke..strokeWidth = 1.5);
+      canvas.drawCircle(wheelCenter, 2, Paint()..color = themeColor.withValues(alpha: 0.12)..style = PaintingStyle.fill);
       
       for (int i = 0; i < 8; i++) {
         final double angle = (i * math.pi) / 4;
         canvas.drawLine(
           wheelCenter,
           Offset(wheelCenter.dx + 22 * math.cos(angle), wheelCenter.dy + 22 * math.sin(angle)),
-          Paint()..color = themeColor.withOpacity(0.04)..strokeWidth = 1
+          Paint()..color = themeColor.withValues(alpha: 0.04)..strokeWidth = 1
         );
       }
 
@@ -1889,15 +1889,15 @@ class CourseBackgroundPainter extends CustomPainter {
       // Grid paper + sine wave
       const double spacing = 14.0;
       for (double x = 0; x < size.width; x += spacing) {
-        canvas.drawLine(Offset(x, 0), Offset(x, size.height), Paint()..color = themeColor.withOpacity(0.045)..strokeWidth = 0.5);
+        canvas.drawLine(Offset(x, 0), Offset(x, size.height), Paint()..color = themeColor.withValues(alpha: 0.045)..strokeWidth = 0.5);
       }
       for (double y = 0; y < size.height; y += spacing) {
-        canvas.drawLine(Offset(0, y), Offset(size.width, y), Paint()..color = themeColor.withOpacity(0.045)..strokeWidth = 0.5);
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), Paint()..color = themeColor.withValues(alpha: 0.045)..strokeWidth = 0.5);
       }
       
       // Axes
-      canvas.drawLine(Offset(0, size.height * 0.75), Offset(size.width, size.height * 0.75), Paint()..color = themeColor.withOpacity(0.15)..strokeWidth = 1.5);
-      canvas.drawLine(Offset(size.width * 0.3, 0), Offset(size.width * 0.3, size.height), Paint()..color = themeColor.withOpacity(0.15)..strokeWidth = 1.5);
+      canvas.drawLine(Offset(0, size.height * 0.75), Offset(size.width, size.height * 0.75), Paint()..color = themeColor.withValues(alpha: 0.15)..strokeWidth = 1.5);
+      canvas.drawLine(Offset(size.width * 0.3, 0), Offset(size.width * 0.3, size.height), Paint()..color = themeColor.withValues(alpha: 0.15)..strokeWidth = 1.5);
 
       // Sine Wave
       final wavePath = Path();
@@ -1909,18 +1909,18 @@ class CourseBackgroundPainter extends CustomPainter {
           wavePath.lineTo(x, y);
         }
       }
-      canvas.drawPath(wavePath, Paint()..color = themeColor.withOpacity(0.22)..style = PaintingStyle.stroke..strokeWidth = 1.8);
+      canvas.drawPath(wavePath, Paint()..color = themeColor.withValues(alpha: 0.22)..style = PaintingStyle.stroke..strokeWidth = 1.8);
 
     } else if (courseId == 'c_fisica') {
       // Atom orbits
       final Offset center = Offset(size.width * 0.8, size.height * 0.5);
-      canvas.drawCircle(center, 5, Paint()..color = themeColor.withOpacity(0.22)..style = PaintingStyle.fill);
+      canvas.drawCircle(center, 5, Paint()..color = themeColor.withValues(alpha: 0.22)..style = PaintingStyle.fill);
       
       canvas.save();
       canvas.translate(center.dx, center.dy);
       
       final orbitPaint = Paint()
-        ..color = themeColor.withOpacity(0.08)
+        ..color = themeColor.withValues(alpha: 0.08)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2;
 
@@ -1928,14 +1928,14 @@ class CourseBackgroundPainter extends CustomPainter {
         canvas.save();
         canvas.rotate((i * math.pi) / 3);
         canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 55, height: 16), orbitPaint);
-        canvas.drawCircle(const Offset(27, 0), 2.5, Paint()..color = themeColor.withOpacity(0.3)..style = PaintingStyle.fill);
+        canvas.drawCircle(const Offset(27, 0), 2.5, Paint()..color = themeColor.withValues(alpha: 0.3)..style = PaintingStyle.fill);
         canvas.restore();
       }
       canvas.restore();
       
       // Particle/Flask float
-      canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 12, Paint()..color = themeColor.withOpacity(0.04)..style = PaintingStyle.stroke..strokeWidth = 1.5);
-      canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 2, Paint()..color = themeColor.withOpacity(0.08)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 12, Paint()..color = themeColor.withValues(alpha: 0.04)..style = PaintingStyle.stroke..strokeWidth = 1.5);
+      canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 2, Paint()..color = themeColor.withValues(alpha: 0.08)..style = PaintingStyle.fill);
 
     } else if (courseId == 'c_literatura') {
       // Opened book silhouette
@@ -1952,7 +1952,7 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawPath(bookPath, fillPaint);
       canvas.drawPath(bookPath, paint..strokeWidth = 1.0);
       
-      canvas.drawLine(Offset(bookCenter.dx, bookCenter.dy - 4), Offset(bookCenter.dx, bookCenter.dy + 12), Paint()..color = themeColor.withOpacity(0.18)..strokeWidth = 1.5);
+      canvas.drawLine(Offset(bookCenter.dx, bookCenter.dy - 4), Offset(bookCenter.dx, bookCenter.dy + 12), Paint()..color = themeColor.withValues(alpha: 0.18)..strokeWidth = 1.5);
 
       final quill = Path()
         ..moveTo(bookCenter.dx + 4, bookCenter.dy - 8)
@@ -1968,8 +1968,8 @@ class CourseBackgroundPainter extends CustomPainter {
         ..lineTo(size.width * 0.78, size.height * 0.72);
       
       canvas.drawPath(trace, paint..strokeWidth = 1.2);
-      canvas.drawCircle(Offset(size.width * 0.42, size.height * 0.72), 3.5, Paint()..color = themeColor.withOpacity(0.2)..style = PaintingStyle.fill);
-      canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.72), 4.5, Paint()..color = themeColor.withOpacity(0.35)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.42, size.height * 0.72), 3.5, Paint()..color = themeColor.withValues(alpha: 0.2)..style = PaintingStyle.fill);
+      canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.72), 4.5, Paint()..color = themeColor.withValues(alpha: 0.35)..style = PaintingStyle.fill);
 
     } else {
       // c_tutoria / generic: Hearts

@@ -322,7 +322,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
                               const Text("Aula", style: TextStyle(fontSize: 9, color: Color(0xFF64748B))),
                               const SizedBox(height: 4),
                               DropdownButtonFormField<String>(
-                                value: target['classroom'] == '' ? null : target['classroom'],
+                                initialValue: target['classroom'] == '' ? null : target['classroom'],
                                 hint: const Text("Seleccionar"),
                                 style: const TextStyle(fontSize: 12, color: Colors.black),
                                 decoration: InputDecoration(
@@ -395,7 +395,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
                         const Text("Modo Color", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _colorMode,
+                          initialValue: _colorMode,
                           style: const TextStyle(fontSize: 12.5, color: Colors.black),
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -420,7 +420,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
                         const Text("Tamaño Papel", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _paperSize,
+                          initialValue: _paperSize,
                           style: const TextStyle(fontSize: 12.5, color: Colors.black),
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -454,7 +454,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
                     color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFF7B1FA2).withOpacity(_uploadedFileName.isNotEmpty ? 0.3 : 0.1),
+                      color: const Color(0xFF7B1FA2).withValues(alpha: _uploadedFileName.isNotEmpty ? 0.3 : 0.1),
                       style: BorderStyle.solid,
                       width: 1.5,
                     ),

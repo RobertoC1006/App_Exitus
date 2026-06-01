@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 
 class StudentDojoStoreScreen extends StatefulWidget {
@@ -233,7 +232,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -302,7 +301,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -380,7 +379,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -546,7 +545,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.04),
+            color: Colors.grey.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -720,7 +719,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
             border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.04),
+                color: Colors.grey.withValues(alpha: 0.04),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),
@@ -845,7 +844,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
             border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.04),
+                color: Colors.grey.withValues(alpha: 0.04),
                 blurRadius: 6,
                 offset: const Offset(0, 3),
               ),

@@ -234,7 +234,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
                     child: Icon(icon, color: color, size: 18),
                   ),
                   const SizedBox(width: 12),
@@ -407,7 +407,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                             child: ChoiceChip(
                               label: Text(day, style: TextStyle(fontSize: 11.5, fontWeight: isSel ? FontWeight.bold : FontWeight.w500, color: isSel ? const Color(0xFF1D2848) : const Color(0xFF64748B))),
                               selected: isSel,
-                              selectedColor: const Color(0xFFEDC620).withOpacity(0.2),
+                              selectedColor: const Color(0xFFEDC620).withValues(alpha: 0.2),
                               backgroundColor: const Color(0xFFF1F5F9),
                               onSelected: (val) {
                                 setModalState(() {
@@ -492,7 +492,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     );
   }
 
-  void _showClassroomBottomSheet(User studentUser, List<Map<String, dynamic>> studentCourses, int initialTab) {
+  void showClassroomBottomSheet(User studentUser, List<Map<String, dynamic>> studentCourses, int initialTab) {
     setState(() {
       _classroomTab = initialTab;
     });
@@ -720,10 +720,10 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEDC620).withOpacity(0.08) : Colors.transparent,
+        color: isSelected ? const Color(0xFFEDC620).withValues(alpha: 0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? const Color(0xFFEDC620).withOpacity(0.2) : Colors.transparent,
+          color: isSelected ? const Color(0xFFEDC620).withValues(alpha: 0.2) : Colors.transparent,
         ),
       ),
       child: ListTile(
@@ -1058,7 +1058,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     );
   }
 
-  void _showMessagesBottomSheet(User studentUser) {
+  void showMessagesBottomSheet(User studentUser) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1152,9 +1152,9 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1D2848).withOpacity(0.04),
+                        color: const Color(0xFF1D2848).withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1D2848).withOpacity(0.1)),
+                        border: Border.all(color: const Color(0xFF1D2848).withValues(alpha: 0.1)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1334,7 +1334,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -1347,7 +1347,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                   bottom: -20,
                   child: CircleAvatar(
                     radius: 80,
-                    backgroundColor: Colors.white.withOpacity(0.4),
+                    backgroundColor: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
                 Positioned(
@@ -1515,7 +1515,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 15,
                     offset: const Offset(0, 10),
                   ),
@@ -1618,7 +1618,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
+                            color: Colors.black.withValues(alpha: 0.03),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           ),
@@ -1709,7 +1709,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
+                            color: Colors.black.withValues(alpha: 0.03),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           ),
@@ -1805,7 +1805,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 15,
                     offset: const Offset(0, 10),
                   ),
@@ -2279,7 +2279,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFEDC620) : const Color(0xFF94A3B8).withOpacity(0.3),
+                color: isSelected ? const Color(0xFFEDC620) : const Color(0xFF94A3B8).withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -2336,7 +2336,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1D2848).withOpacity(0.05),
+                                    color: const Color(0xFF1D2848).withValues(alpha: 0.05),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(LucideIcons.book, size: 14, color: Color(0xFF1D2848)),

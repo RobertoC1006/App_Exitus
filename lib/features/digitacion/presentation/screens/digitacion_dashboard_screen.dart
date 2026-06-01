@@ -349,7 +349,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
             width: 1.5,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+              ? [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))]
               : [],
         ),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -371,7 +371,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
               style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white.withOpacity(0.9) : Colors.grey.shade500,
+                color: isSelected ? Colors.white.withValues(alpha: 0.9) : Colors.grey.shade500,
               ),
             ),
           ],

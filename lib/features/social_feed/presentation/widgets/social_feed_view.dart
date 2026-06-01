@@ -285,7 +285,7 @@ class _SocialFeedViewState extends State<SocialFeedView> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF8E1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFEDC620).withOpacity(0.3)),
+                    border: Border.all(color: const Color(0xFFEDC620).withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -374,7 +374,7 @@ class _SocialFeedViewState extends State<SocialFeedView> {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: activeType != 'none'
-                            ? const Color(0xFFEDC620).withOpacity(0.08)
+                            ? const Color(0xFFEDC620).withValues(alpha: 0.08)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -514,7 +514,7 @@ class _SocialFeedViewState extends State<SocialFeedView> {
                 entry.remove();
               },
               behavior: HitTestBehavior.translucent,
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: double.infinity,
               ),
@@ -528,12 +528,12 @@ class _SocialFeedViewState extends State<SocialFeedView> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withValues(alpha: 0.95),
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1D2848).withOpacity(0.12),
+                        color: const Color(0xFF1D2848).withValues(alpha: 0.12),
                         blurRadius: 20,
                         offset: const Offset(0, 6),
                       ),
