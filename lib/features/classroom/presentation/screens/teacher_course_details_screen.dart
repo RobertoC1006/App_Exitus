@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
+import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/dragon_painter.dart';
 
 class TeacherCourseDetailsScreen extends StatefulWidget {
@@ -21,61 +22,91 @@ class TeacherCourseDetailsScreen extends StatefulWidget {
 class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen> {
   int _activeTab = 0; // 0: Contenido, 1: Dojo, 2: Rúbricas, 3: Picklers
 
+  final _db = MockDatabase();
+  late List<DojoStudent> _allDojoStudents;
+  int _weeklyPoints = 480;
+  final _searchController = TextEditingController();
+  String _searchQuery = "";
+
+  String _selectedTrimester = "Primer Trimestre";
+
+  final Map<String, List<Map<String, dynamic>>> _trimesterRubrics = {
+    'Primer Trimestre': [
+      {
+        'title': 'Participación en clase',
+        'criterio': 'Participación',
+        'progress': 0.90,
+        'status': 'Excelente',
+        'icon': LucideIcons.users,
+        'color': const Color(0xFF8B5CF6),
+        'bgColor': const Color(0xFFF5F3FF),
+      },
+      {
+        'title': 'Responsabilidad',
+        'criterio': 'Responsabilidad',
+        'progress': 0.70,
+        'status': 'Bueno',
+        'icon': LucideIcons.clipboardList,
+        'color': const Color(0xFF3B82F6),
+        'bgColor': const Color(0xFFEFF6FF),
+      },
+      {
+        'title': 'Trabajo en equipo',
+        'criterio': 'Colaboración',
+        'progress': 0.80,
+        'status': 'Muy bueno',
+        'icon': LucideIcons.userCheck,
+        'color': const Color(0xFF10B981),
+        'bgColor': const Color(0xFFECFDF5),
+      },
+    ],
+    'Segundo Trimestre': [
+      {
+        'title': 'Exposición Oral',
+        'criterio': 'Comunicación',
+        'progress': 0.85,
+        'status': 'Muy bueno',
+        'icon': LucideIcons.mic,
+        'color': const Color(0xFFF59E0B),
+        'bgColor': const Color(0xFFFEF3C7),
+      },
+      {
+        'title': 'Proyecto de Investigación',
+        'criterio': 'Creatividad',
+        'progress': 0.95,
+        'status': 'Excelente',
+        'icon': LucideIcons.presentation,
+        'color': const Color(0xFFEC4899),
+        'bgColor': const Color(0xFFFDF2F8),
+      },
+    ],
+    'Tercer Trimestre': [
+      {
+        'title': 'Examen Final de Periodo',
+        'criterio': 'Conocimiento',
+        'progress': 0.60,
+        'status': 'Regular',
+        'icon': LucideIcons.fileText,
+        'color': const Color(0xFFEF4444),
+        'bgColor': const Color(0xFFFEF2F2),
+      },
+    ],
+  };
+
   // Estructura de datos reactiva para los acordeones de Trimestres y Sesiones
   late Map<String, List<Map<String, dynamic>>> _trimesterSessions;
-
-  // Datos simulados para la pestaña Dojo
-  late List<Map<String, dynamic>> _dojoStudentsList;
-  int _weeklyPoints = 480;
-  String _searchQuery = '';
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadInitialData();
+    _initDojoList();
   }
 
   // Carga sesiones iniciales con datos específicos según el curso seleccionado
   void _loadInitialData() {
     final String courseId = widget.course['id'] ?? '';
     final String courseTitle = widget.course['title'] ?? '';
-
-    // Inicializar lista de Dojo con los 4 estudiantes del mockup
-    _dojoStudentsList = [
-      {
-        'id': 1,
-        'name': 'Juan Pérez',
-        'avatar': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
-        'level': 8,
-        'points': 1240,
-        'dragonType': 'rayo',
-      },
-      {
-        'id': 2,
-        'name': 'María Torres',
-        'avatar': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-        'level': 10,
-        'points': 1890,
-        'dragonType': 'lava',
-      },
-      {
-        'id': 3,
-        'name': 'Carlos Ruiz',
-        'avatar': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100',
-        'level': 6,
-        'points': 850,
-        'dragonType': 'glaciar',
-      },
-      {
-        'id': 4,
-        'name': 'Sofía López',
-        'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100',
-        'level': 7,
-        'points': 1050,
-        'dragonType': 'brasa',
-      },
-    ];
 
     if (courseId == 'c_tutoria' || courseTitle.contains('Tutoría')) {
       _trimesterSessions = {
@@ -730,7 +761,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
       case 1:
         return _buildDojoView();
       case 2:
-        return _buildPlaceholderView("Rúbricas", LucideIcons.clipboardList, "Monitorea la evaluación por competencias de este curso.");
+        return _buildRubricasView();
       case 3:
         return _buildPlaceholderView("Picklers", LucideIcons.camera, "Usa la herramienta Picklers para participaciones aleatorias.");
       default:
@@ -1367,302 +1398,1150 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
   }
 
   // PESTAÑA DOJO (Pantalla 4)
-  Widget _buildDojoView() {
-    final filteredStudents = _dojoStudentsList
-        .where((s) => s['name']
-            .toString()
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase()))
-        .toList();
+  void _initDojoList() {
+    final dbStudents = _db.getDojoStudents();
+    
+    // Scale DB points to UI points (x100) if they are in the database format (e.g. < 100)
+    for (var s in dbStudents) {
+      if (s.points < 100) {
+        s.points = s.points * 100;
+      }
+    }
+    
+    // Check if mockup students are already in the list
+    bool hasMockup = dbStudents.any((s) => s.name == 'Juan Pérez');
+    if (!hasMockup) {
+      // Create mockup students matching the mockup screen
+      final mockStudents = [
+        DojoStudent(id: 101, name: 'Juan Pérez', points: 1240, present: true, dragonType: 'brasa'),
+        DojoStudent(id: 102, name: 'María Torres', points: 850, present: true, dragonType: 'glaciar'),
+        DojoStudent(id: 103, name: 'Carlos Ruiz', points: 510, present: true, dragonType: 'lava'),
+        DojoStudent(id: 104, name: 'Sofía López', points: 320, present: true, dragonType: 'rayo'),
+      ];
+      
+      // Let's insert them into the DB so they are present in the list returned by getDojoStudents()
+      for (var s in mockStudents.reversed) {
+        dbStudents.insert(0, s);
+      }
+    }
+    
+    _allDojoStudents = dbStudents;
+  }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        children: [
-          // 1. Tarjeta de Puntos Otorgados
-          Container(
-            padding: const EdgeInsets.all(16),
+  // VISTA 2: DOJO
+  Widget _buildDojoView() {
+    final filteredList = _allDojoStudents.where((s) {
+      return s.name.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    return Column(
+      children: [
+        // 1. Tarjeta Resumen de Puntos Otorgados Semanal (Sin dragones)
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+          child: Container(
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFFE0F2FE), Color(0xFFEFF6FF)],
+                colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3B82F6).withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Puntos otorgados",
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Puntos otorgados",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1E3A8A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Esta semana",
+                      style: GoogleFonts.outfit(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF3B82F6),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "+${_formatNumber(_weeklyPoints)}",
+                      style: GoogleFonts.outfit(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1E3A8A),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    _buildGoldCoin(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 2. Buscador de Alumnos
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val.trim();
+                });
+              },
+              style: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF1D2848)),
+              decoration: InputDecoration(
+                hintText: "Buscar estudiante...",
+                hintStyle: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF94A3B8)),
+                prefixIcon: const Icon(LucideIcons.search, size: 16, color: Color(0xFF94A3B8)),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = "";
+                          });
+                        },
+                        child: const Icon(LucideIcons.x, size: 16, color: Color(0xFF94A3B8)),
+                      )
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // 3. Lista de Estudiantes
+        Expanded(
+          child: filteredList.isEmpty
+              ? _buildDojoEmptyState()
+              : ListView.separated(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 24),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: filteredList.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final student = filteredList[index];
+                    return _buildDojoStudentCard(student);
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  // Widget para el estado vacío
+  Widget _buildDojoEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(LucideIcons.userX, size: 36, color: Color(0xFF94A3B8)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Sin resultados",
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1D2848),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No se encontraron alumnos que coincidan con '$_searchQuery'",
+              style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF64748B)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Moneda Dorada Animada/Estilizada
+  Widget _buildGoldCoin() {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFDE047), Color(0xFFEAB308), Color(0xFFCA8A04)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFEAB308).withOpacity(0.4),
+            blurRadius: 6,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFFEF08A), width: 1.5),
+      ),
+      child: const Center(
+        child: Icon(
+          LucideIcons.coins,
+          color: Colors.white,
+          size: 16,
+        ),
+      ),
+    );
+  }
+
+  // Tarjeta de Alumno de Dojo
+  Widget _buildDojoStudentCard(DojoStudent s) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Avatar del alumno
+          _buildStudentAvatar(s),
+          const SizedBox(width: 14),
+
+          // Columna Central: Nombre, nivel, dragón y fase
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.name,
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D2848),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    // Badge del nivel
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        "Nivel ${s.points ~/ 100}",
                         style: GoogleFonts.outfit(
-                          fontSize: 15,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF3B82F6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Dragon inline widget
+                    DragonWidget(
+                      dragonType: s.dragonType,
+                      points: s.points ~/ 100,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 6),
+
+                    // Fase del Dragón
+                    Text(
+                      _getDragonStage(s.points ~/ 100).toUpperCase(),
+                      style: GoogleFonts.outfit(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: _getElementalColor(s.dragonType),
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Columna Derecha: Puntos y botones +10/-10
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                "${_formatNumber(s.points)} pts",
+                style: GoogleFonts.outfit(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1D2848),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  _buildAdjustButton("-10", () => _adjustPoints(s, -10), isSubtract: true),
+                  const SizedBox(width: 6),
+                  _buildAdjustButton("+10", () => _adjustPoints(s, 10), isSubtract: false),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Avatar con iniciales y color aleatorio agradable
+  Widget _buildStudentAvatar(DojoStudent s) {
+    final initials = s.name
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0])
+        .take(2)
+        .join()
+        .toUpperCase();
+
+    final colorIndex = s.name.length % 5;
+    final List<Color> bgColors = [
+      const Color(0xFFEFF6FF),
+      const Color(0xFFECFDF5),
+      const Color(0xFFFFF7ED),
+      const Color(0xFFFDF2F8),
+      const Color(0xFFFAF5FF),
+    ];
+    final List<Color> textColors = [
+      const Color(0xFF3B82F6),
+      const Color(0xFF10B981),
+      const Color(0xFFF97316),
+      const Color(0xFFEC4899),
+      const Color(0xFF8B5CF6),
+    ];
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: bgColors[colorIndex],
+        shape: BoxShape.circle,
+        border: Border.all(color: textColors[colorIndex].withOpacity(0.15), width: 1.5),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: GoogleFonts.outfit(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: textColors[colorIndex],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Botón +10 / -10
+  Widget _buildAdjustButton(String label, VoidCallback onTap, {required bool isSubtract}) {
+    final bgColor = isSubtract ? const Color(0xFFFEF2F2) : const Color(0xFFECFDF5);
+    final textColor = isSubtract ? const Color(0xFFEF4444) : const Color(0xFF10B981);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: textColor.withOpacity(0.15), width: 1),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 10.5,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Lógica para sumar/restar puntos y evolucionar dragón
+  void _adjustPoints(DojoStudent student, int amount) {
+    final oldLevel = student.points ~/ 100;
+    final oldStage = _getDragonStage(oldLevel);
+
+    setState(() {
+      student.points = (student.points + amount).clamp(0, 9999);
+      _weeklyPoints = (_weeklyPoints + amount).clamp(0, 99999);
+    });
+
+    final newLevel = student.points ~/ 100;
+    final newStage = _getDragonStage(newLevel);
+
+    if (newStage != oldStage) {
+      _showEvolutionSnackBar(student, newStage);
+    }
+  }
+
+  // Obtener nombre de la fase en base a los puntos escalados
+  String _getDragonStage(int pts) {
+    if (pts >= 0 && pts <= 4) return 'Huevo';
+    if (pts >= 5 && pts <= 8) return 'Huevo Elemental';
+    if (pts >= 9 && pts <= 11) return 'Cachorro';
+    return 'Dragón Alado';
+  }
+
+  // Obtener color elemental
+  Color _getElementalColor(String type) {
+    if (type == 'glaciar') return const Color(0xFF0288D1);
+    if (type == 'lava') return const Color(0xFFE64A19);
+    if (type == 'rayo') return const Color(0xFF7B1FA2);
+    return const Color(0xFFD84315); // brasa / default
+  }
+
+  // Formateador de números (1240 -> 1,240)
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+  }
+
+  // Alerta festiva de evolución
+  void _showEvolutionSnackBar(DojoStudent student, String stage) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(LucideIcons.sparkles, color: Color(0xFFEDC620), size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "¡Evolución! El dragón de ${student.name.split(' ')[0]} ahora es un $stage. 🐲✨",
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF1D2848),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  // VISTA 3: RÚBRICAS
+  Widget _buildRubricasView() {
+    final rubrics = _trimesterRubrics[_selectedTrimester] ?? [];
+
+    return Column(
+      children: [
+        // Dropdown Trimestre
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+          child: InkWell(
+            onTap: _showTrimesterSelector,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.01),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _selectedTrimester,
+                    style: GoogleFonts.outfit(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1D2848),
+                    ),
+                  ),
+                  const Icon(LucideIcons.chevronDown, size: 16, color: Color(0xFF64748B)),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Lista de Rúbricas
+        Expanded(
+          child: rubrics.isEmpty
+              ? _buildRubricsEmptyState()
+              : ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: rubrics.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final rub = rubrics[index];
+                    return _buildRubricCard(rub);
+                  },
+                ),
+        ),
+
+        // Botón inferior "Ver todas las rúbricas"
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24, top: 8),
+          child: InkWell(
+            onTap: _showAllRubricsBottomSheet,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        "Ver todas las rúbricas",
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF1D2848),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                    ),
+                  ),
+                  const Icon(LucideIcons.chevronRight, size: 16, color: Color(0xFF1D2848)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Estado vacío para rúbricas
+  Widget _buildRubricsEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(LucideIcons.clipboardList, size: 36, color: Color(0xFF94A3B8)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Sin rúbricas",
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1D2848),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No hay rúbricas registradas para el $_selectedTrimester.",
+              style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF64748B)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Tarjeta de Rúbrica
+  Widget _buildRubricCard(Map<String, dynamic> rub) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Icono
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: rub['bgColor'],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  rub['icon'],
+                  color: rub['color'],
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 14),
+              // Textos
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      rub['title'],
+                      style: GoogleFonts.outfit(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      "Criterio: ${rub['criterio']}",
+                      style: GoogleFonts.outfit(
+                        fontSize: 11.5,
+                        color: const Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Barra e indicador numérico
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: SizedBox(
+                    height: 8,
+                    child: LinearProgressIndicator(
+                      value: rub['progress'],
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      valueColor: AlwaysStoppedAnimation<Color>(rub['color']),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                "${(rub['progress'] * 100).toInt()}%",
+                style: GoogleFonts.outfit(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1D2848),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Estado de la rúbrica
+          Text(
+            rub['status'],
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: rub['color'],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Selector inferior de Trimestres
+  void _showTrimesterSelector() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 38,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Seleccionar Trimestre",
+                style: GoogleFonts.outfit(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1D2848),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...['Primer Trimestre', 'Segundo Trimestre', 'Tercer Trimestre'].map((t) {
+                final isSelected = t == _selectedTrimester;
+                return ListTile(
+                  title: Text(
+                    t,
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFF1D2848),
+                    ),
+                  ),
+                  trailing: isSelected ? const Icon(LucideIcons.check, color: Color(0xFF3B82F6), size: 18) : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedTrimester = t;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Bottom Sheet de gestión de Rúbricas reales (Mock DB)
+  void _showAllRubricsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final rubricas = _db.getRubricas();
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.8,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       Text(
-                        "Esta semana",
+                        "Todas las Rúbricas",
                         style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: const Color(0xFF64748B),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF1D2848),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Container(
-                            width: 22,
-                            height: 22,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF59E0B),
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.star, color: Colors.white, size: 12),
+                      ElevatedButton.icon(
+                        onPressed: () => _openNewRubricaDialogFromModal(setModalState),
+                        icon: const Icon(LucideIcons.plus, size: 14),
+                        label: Text(
+                          "Nueva Rúbrica",
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "+$_weeklyPoints",
-                            style: GoogleFonts.outfit(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w900,
-                              color: const Color(0xFF1D2848),
-                            ),
-                          ),
-                        ],
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1D2848),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                // Dragón de Dojo (Glaciar - Azul)
-                const DragonWidget(
-                  dragonType: 'glaciar',
-                  points: 15,
-                  size: 85,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: rubricas.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No hay rúbricas registradas.",
+                              style: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF64748B)),
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: rubricas.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final r = rubricas[index];
+                              final isLibre = r.type == "Creación Libre";
+                              return Card(
+                                color: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              r.title,
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color(0xFF1D2848),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: isLibre ? const Color(0xFFE0F2FE) : const Color(0xFFFEF3C7),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              r.type.toUpperCase(),
+                                              style: GoogleFonts.outfit(
+                                                fontSize: 8.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: isLibre ? const Color(0xFF0369A1) : const Color(0xFFB45309),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        r.description,
+                                        style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF64748B)),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        children: [
+                                          ElevatedButton.icon(
+                                            onPressed: () => _evaluarRubrica(r),
+                                            icon: const Icon(LucideIcons.checkSquare, size: 12),
+                                            label: Text("EVALUAR", style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold)),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFFE8F5E9),
+                                              foregroundColor: const Color(0xFF2E7D32),
+                                              elevation: 0,
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              minimumSize: Size.zero,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          if (isLibre) ...[
+                                            OutlinedButton.icon(
+                                              onPressed: () => _editarRubricaFromModal(r, setModalState),
+                                              icon: const Icon(LucideIcons.edit2, size: 12),
+                                              label: Text("EDITAR", style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold)),
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor: const Color(0xFF1D2848),
+                                                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                minimumSize: Size.zero,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                          OutlinedButton.icon(
+                                            onPressed: () {
+                                              _db.deleteRubrica(r.id);
+                                              setModalState(() {});
+                                              setState(() {});
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text("Rúbrica eliminada.")),
+                                              );
+                                            },
+                                            icon: const Icon(LucideIcons.trash2, size: 12),
+                                            label: Text("BORRAR", style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold)),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: const Color(0xFFD32F2F),
+                                              side: const BorderSide(color: Color(0xFFFFCDD2)),
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              minimumSize: Size.zero,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
-          // 2. Buscador de Estudiante
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                const Icon(LucideIcons.search, color: Color(0xFF94A3B8), size: 16),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.trim();
-                      });
-                    },
-                    style: const TextStyle(fontSize: 13),
-                    decoration: const InputDecoration(
-                      hintText: "Buscar estudiante...",
-                      hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                      border: Border.none,
-                      isDense: true,
+  // Nueva Rúbrica desde panel inferior
+  void _openNewRubricaDialogFromModal(StateSetter setModalState) {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+    String selectedType = 'Creación Libre';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text("Nueva Rúbrica", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Nombre de Rúbrica *", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 11)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: nameController,
+                    style: GoogleFonts.outfit(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: "Ej. Exposición de Trigonometría",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
                   ),
-                ),
-                if (_searchQuery.isNotEmpty)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _searchController.clear();
-                        _searchQuery = '';
-                      });
+                  const SizedBox(height: 12),
+                  Text("Tipo de Rúbrica", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 11)),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    value: selectedType,
+                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.black),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'Creación Libre', child: Text("Creación Libre")),
+                      DropdownMenuItem(value: 'Sesión Alineada', child: Text("Sesión Alineada")),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setDialogState(() {
+                          selectedType = val;
+                        });
+                      }
                     },
-                    child: const Icon(LucideIcons.x, color: Color(0xFF64748B), size: 16),
                   ),
+                  const SizedBox(height: 12),
+                  Text("Descripción", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 11)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: descController,
+                    maxLines: 2,
+                    style: GoogleFonts.outfit(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: "Criterios a evaluar...",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("CANCELAR", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    if (name.isEmpty) return;
+                    _db.addRubrica(Rubrica(
+                      id: DateTime.now().millisecondsSinceEpoch,
+                      title: name,
+                      type: selectedType,
+                      description: descController.text.trim().isEmpty ? "Sin descripción" : descController.text.trim(),
+                      date: "01/06/2026",
+                    ));
+                    Navigator.pop(context);
+                    setModalState(() {});
+                    setState(() {});
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1D2848), foregroundColor: Colors.white),
+                  child: Text("GUARDAR", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                ),
               ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Editar Rúbrica desde panel inferior
+  void _editarRubricaFromModal(Rubrica r, StateSetter setModalState) {
+    final editController = TextEditingController(text: r.title);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text("Editar Rúbrica", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
+          content: TextField(
+            controller: editController,
+            style: GoogleFonts.outfit(fontSize: 13),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
           ),
-          const SizedBox(height: 10),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("CANCELAR", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final txt = editController.text.trim();
+                if (txt.isNotEmpty) {
+                  _db.editRubrica(r.id, txt);
+                  Navigator.pop(context);
+                  setModalState(() {});
+                  setState(() {});
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1D2848), foregroundColor: Colors.white),
+              child: Text("GUARDAR", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-          // 3. Lista de Estudiantes
-          Expanded(
-            child: filteredStudents.isEmpty
-                ? Center(
-                    child: Text(
-                      "No se encontraron estudiantes.",
-                      style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 13),
-                    ),
-                  )
-                : ListView.separated(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: filteredStudents.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    itemBuilder: (context, index) {
-                      final student = filteredStudents[index];
-                      final int points = student['points'];
-                      
-                      // Formatear el puntaje con comas
-                      final String pointsFormatted = points.toString().replaceAllMapped(
-                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                            (Match m) => '${m[1]},',
-                          );
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          children: [
-                            // Avatar del Estudiante
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: NetworkImage(student['avatar']),
-                              backgroundColor: const Color(0xFFF1F5F9),
-                            ),
-                            const SizedBox(width: 12),
-                            
-                            // Nombre y Nivel
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    student['name'],
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF1D2848),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 1),
-                                  Text(
-                                    "Nivel ${student['level']}",
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF10B981),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-
-                            // Puntos y Controles (+10 / -10)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                // Puntos
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFF59E0B),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: const Icon(Icons.star, color: Colors.white, size: 8),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      "$pointsFormatted puntos",
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF64748B),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                
-                                // Botones +10 / -10
-                                Row(
-                                  children: [
-                                    // Botón -10
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (student['points'] >= 10) {
-                                            student['points'] -= 10;
-                                            _weeklyPoints -= 10;
-                                            if (_weeklyPoints < 0) _weeklyPoints = 0;
-                                            
-                                            // Recalcular nivel
-                                            final calculatedLevel = (student['points'] / 150).floor() + 1;
-                                            student['level'] = calculatedLevel.clamp(1, 99);
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFFFCA5A5)),
-                                        ),
-                                        child: Text(
-                                          "-10",
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFFEF4444),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    
-                                    // Botón +10
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          student['points'] += 10;
-                                          _weeklyPoints += 10;
-                                          
-                                          // Recalcular nivel
-                                          final calculatedLevel = (student['points'] / 150).floor() + 1;
-                                          student['level'] = calculatedLevel.clamp(1, 99);
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: const Color(0xFFA7F3D0)),
-                                        ),
-                                        child: Text(
-                                          "+10",
-                                          style: GoogleFonts.outfit(
-                                            color: const Color(0xFF10B981),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+  // Evaluar Rúbrica
+  void _evaluarRubrica(Rubrica r) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Competencias cargadas para '${r.title}'. Evaluando al aula."),
+        backgroundColor: const Color(0xFF2E7D32),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }

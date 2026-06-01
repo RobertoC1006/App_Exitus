@@ -861,9 +861,20 @@ class MockDatabase {
   }
 
   // Métodos de consulta y mutación
-  List<DojoStudent> getDojoStudents() => dojoStudents;
+  List<DojoStudent> getDojoStudents() {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.dojoStudentsList,
+    );
+    return dojoStudents;
+  }
 
   bool addDojoPoint(int id) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.addDojoPoints,
+      body: {"id": id, "points": 1},
+    );
     final idx = dojoStudents.indexWhere((s) => s.id == id);
     if (idx != -1) {
       final currentPoints = dojoStudents[idx].points;
@@ -881,6 +892,10 @@ class MockDatabase {
   }
 
   void toggleDojoPresence(int id) {
+    ApiLogger.logCall(
+      method: "PATCH",
+      endpoint: ApiEndpoints.toggleDojoPresence.replaceAll("{studentId}", id.toString()),
+    );
     final idx = dojoStudents.indexWhere((s) => s.id == id);
     if (idx != -1) {
       dojoStudents[idx].present = !dojoStudents[idx].present;
@@ -888,6 +903,11 @@ class MockDatabase {
   }
 
   void deductDojoPoints(int studentId, String category) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.deductDojoPoints,
+      body: {"studentId": studentId, "category": category},
+    );
     final idx = dojoStudents.indexWhere((s) => s.id == studentId);
     if (idx != -1) {
       int penalty = 0;
@@ -899,9 +919,24 @@ class MockDatabase {
     }
   }
 
-  List<SocialPost> getSocialPosts() => socialPosts;
+  List<SocialPost> getSocialPosts() {
+    ApiLogger.logCall(
+      method: "GET",
+      endpoint: ApiEndpoints.socialPosts,
+    );
+    return socialPosts;
+  }
 
   void addSocialComment(int postId, SocialComment comment) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.addSocialComment.replaceAll("{postId}", postId.toString()),
+      body: {
+        "author": comment.author,
+        "avatar": comment.avatar,
+        "text": comment.text,
+      },
+    );
     final idx = socialPosts.indexWhere((p) => p.id == postId);
     if (idx != -1) {
       socialPosts[idx].comments.add(comment);
@@ -909,6 +944,11 @@ class MockDatabase {
   }
 
   void toggleReaction(int postId, String type) {
+    ApiLogger.logCall(
+      method: "POST",
+      endpoint: ApiEndpoints.toggleSocialReaction.replaceAll("{postId}", postId.toString()),
+      body: {"type": type},
+    );
     final idx = socialPosts.indexWhere((p) => p.id == postId);
     if (idx != -1) {
       final post = socialPosts[idx];
@@ -985,7 +1025,7 @@ class MockDatabase {
   List<StudentTask> getTasksForUser(String userId) {
     ApiLogger.logCall(
       method: "GET",
-      endpoint: "${ApiEndpoints.baseUrl}/classroom/tasks",
+      endpoint: ApiEndpoints.classroomTasks,
       queryParameters: {"userId": userId},
     );
     if (userId.contains('mateo')) return mateoTasks;
@@ -996,7 +1036,7 @@ class MockDatabase {
   void submitTask(String userId, String taskId) {
     ApiLogger.logCall(
       method: "POST",
-      endpoint: "${ApiEndpoints.baseUrl}/classroom/tasks/$taskId/submit",
+      endpoint: ApiEndpoints.submitTask.replaceAll("{taskId}", taskId),
       body: {"userId": userId},
     );
     final list = getTasksForUser(userId);
@@ -1010,7 +1050,7 @@ class MockDatabase {
   List<StudentGrade> getGradesForUser(String userId) {
     ApiLogger.logCall(
       method: "GET",
-      endpoint: "${ApiEndpoints.baseUrl}/classroom/grades",
+      endpoint: ApiEndpoints.classroomGrades,
       queryParameters: {"userId": userId},
     );
     if (userId.contains('mateo')) return mateoGrades;
@@ -1051,7 +1091,7 @@ class MockDatabase {
   void gradeSubmission(String submissionId, String grade, String feedback) {
     ApiLogger.logCall(
       method: "POST",
-      endpoint: "${ApiEndpoints.baseUrl}/classroom/submissions/$submissionId/grade",
+      endpoint: ApiEndpoints.gradeSubmission.replaceAll("{submissionId}", submissionId),
       body: {"grade": grade, "feedback": feedback},
     );
     final idx = submissions.indexWhere((element) => element.id == submissionId);
@@ -1112,7 +1152,7 @@ class MockDatabase {
   void deletePrintRequest(int id) {
     ApiLogger.logCall(
       method: "DELETE",
-      endpoint: "${ApiEndpoints.baseUrl}/digitacion/request/$id",
+      endpoint: ApiEndpoints.deletePrintRequest.replaceAll("{id}", id.toString()),
     );
     digitacionJobs.removeWhere((j) => j.id == id);
   }
