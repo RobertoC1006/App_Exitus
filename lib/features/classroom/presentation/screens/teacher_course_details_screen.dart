@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
+import 'package:app_exitus/features/classroom/presentation/widgets/dragon_painter.dart';
 
 class TeacherCourseDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -23,6 +24,12 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
   // Estructura de datos reactiva para los acordeones de Trimestres y Sesiones
   late Map<String, List<Map<String, dynamic>>> _trimesterSessions;
 
+  // Datos simulados para la pestaña Dojo
+  late List<Map<String, dynamic>> _dojoStudentsList;
+  int _weeklyPoints = 480;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +40,42 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
   void _loadInitialData() {
     final String courseId = widget.course['id'] ?? '';
     final String courseTitle = widget.course['title'] ?? '';
+
+    // Inicializar lista de Dojo con los 4 estudiantes del mockup
+    _dojoStudentsList = [
+      {
+        'id': 1,
+        'name': 'Juan Pérez',
+        'avatar': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
+        'level': 8,
+        'points': 1240,
+        'dragonType': 'rayo',
+      },
+      {
+        'id': 2,
+        'name': 'María Torres',
+        'avatar': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
+        'level': 10,
+        'points': 1890,
+        'dragonType': 'lava',
+      },
+      {
+        'id': 3,
+        'name': 'Carlos Ruiz',
+        'avatar': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100',
+        'level': 6,
+        'points': 850,
+        'dragonType': 'glaciar',
+      },
+      {
+        'id': 4,
+        'name': 'Sofía López',
+        'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100',
+        'level': 7,
+        'points': 1050,
+        'dragonType': 'brasa',
+      },
+    ];
 
     if (courseId == 'c_tutoria' || courseTitle.contains('Tutoría')) {
       _trimesterSessions = {
@@ -685,7 +728,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
       case 0:
         return _buildContenidoView();
       case 1:
-        return _buildPlaceholderView("Dojo", LucideIcons.sparkles, "Gestiona los puntos Dojo de tus alumnos en clase.");
+        return _buildDojoView();
       case 2:
         return _buildPlaceholderView("Rúbricas", LucideIcons.clipboardList, "Monitorea la evaluación por competencias de este curso.");
       case 3:
@@ -1319,6 +1362,307 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // PESTAÑA DOJO (Pantalla 4)
+  Widget _buildDojoView() {
+    final filteredStudents = _dojoStudentsList
+        .where((s) => s['name']
+            .toString()
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase()))
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          // 1. Tarjeta de Puntos Otorgados
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE0F2FE), Color(0xFFEFF6FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Puntos otorgados",
+                        style: GoogleFonts.outfit(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF1D2848),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "Esta semana",
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Container(
+                            width: 22,
+                            height: 22,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF59E0B),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.star, color: Colors.white, size: 12),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "+$_weeklyPoints",
+                            style: GoogleFonts.outfit(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF1D2848),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Dragón de Dojo (Glaciar - Azul)
+                const DragonWidget(
+                  dragonType: 'glaciar',
+                  points: 15,
+                  size: 85,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 2. Buscador de Estudiante
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(LucideIcons.search, color: Color(0xFF94A3B8), size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.trim();
+                      });
+                    },
+                    style: const TextStyle(fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: "Buscar estudiante...",
+                      hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                      border: Border.none,
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                if (_searchQuery.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _searchController.clear();
+                        _searchQuery = '';
+                      });
+                    },
+                    child: const Icon(LucideIcons.x, color: Color(0xFF64748B), size: 16),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 3. Lista de Estudiantes
+          Expanded(
+            child: filteredStudents.isEmpty
+                ? Center(
+                    child: Text(
+                      "No se encontraron estudiantes.",
+                      style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 13),
+                    ),
+                  )
+                : ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filteredStudents.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    itemBuilder: (context, index) {
+                      final student = filteredStudents[index];
+                      final int points = student['points'];
+                      
+                      // Formatear el puntaje con comas
+                      final String pointsFormatted = points.toString().replaceAllMapped(
+                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                            (Match m) => '${m[1]},',
+                          );
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            // Avatar del Estudiante
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundImage: NetworkImage(student['avatar']),
+                              backgroundColor: const Color(0xFFF1F5F9),
+                            ),
+                            const SizedBox(width: 12),
+                            
+                            // Nombre y Nivel
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    student['name'],
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1D2848),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    "Nivel ${student['level']}",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF10B981),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Puntos y Controles (+10 / -10)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                // Puntos
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFF59E0B),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Icon(Icons.star, color: Colors.white, size: 8),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "$pointsFormatted puntos",
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                
+                                // Botones +10 / -10
+                                Row(
+                                  children: [
+                                    // Botón -10
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (student['points'] >= 10) {
+                                            student['points'] -= 10;
+                                            _weeklyPoints -= 10;
+                                            if (_weeklyPoints < 0) _weeklyPoints = 0;
+                                            
+                                            // Recalcular nivel
+                                            final calculatedLevel = (student['points'] / 150).floor() + 1;
+                                            student['level'] = calculatedLevel.clamp(1, 99);
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFFCA5A5)),
+                                        ),
+                                        child: Text(
+                                          "-10",
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFFEF4444),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    
+                                    // Botón +10
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          student['points'] += 10;
+                                          _weeklyPoints += 10;
+                                          
+                                          // Recalcular nivel
+                                          final calculatedLevel = (student['points'] / 150).floor() + 1;
+                                          student['level'] = calculatedLevel.clamp(1, 99);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFA7F3D0)),
+                                        ),
+                                        child: Text(
+                                          "+10",
+                                          style: GoogleFonts.outfit(
+                                            color: const Color(0xFF10B981),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
