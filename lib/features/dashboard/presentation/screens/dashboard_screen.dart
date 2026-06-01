@@ -652,7 +652,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           courses: teacherCourses,
                         ),
                       ),
-                    );
+                    ).then((value) {
+                      if (value != null && value is int && value != 99) {
+                        setState(() {
+                          _currentIndex = value;
+                        });
+                      }
+                    });
                   } else if (route == 'digitacion') {
                     Navigator.push(
                       context,
@@ -1845,7 +1851,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     courses: teacherCourses,
                   ),
                 ),
-              );
+              ).then((value) {
+                if (value != null && value is int && value != 99) {
+                  setState(() {
+                    _currentIndex = value;
+                  });
+                }
+              });
             },
             icon: LucideIcons.bookOpen,
             iconColor: const Color(0xFF1E88E5),

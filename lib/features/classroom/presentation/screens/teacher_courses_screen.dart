@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
+import 'package:app_exitus/features/classroom/presentation/screens/teacher_course_details_screen.dart';
 
 class TeacherCoursesScreen extends ConsumerStatefulWidget {
   final User teacherUser;
@@ -20,45 +21,78 @@ class TeacherCoursesScreen extends ConsumerStatefulWidget {
 }
 
 class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
-  final List<LinearGradient> _courseGradients = const [
-    LinearGradient(
-      colors: [Color(0xFFFF7043), Color(0xFFFFA726)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    LinearGradient(
-      colors: [Color(0xFF42A5F5), Color(0xFF26C6DA)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    LinearGradient(
-      colors: [Color(0xFFAB47BC), Color(0xFFEC407A)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    LinearGradient(
-      colors: [Color(0xFF66BB6A), Color(0xFF9CCC65)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
+  // Lista exacta de cursos del docente según el mockup
+  final List<Map<String, dynamic>> _mockedCourses = [
+    {
+      'id': 'c_tutoria',
+      'title': 'Tutoría',
+      'category': 'Tutoría',
+      'level': 'Primaria',
+      'levelNum': '5° A',
+      'iconType': 'tutoria',
+      'color': const Color(0xFFF59E0B),
+    },
+    {
+      'id': 'c_chino',
+      'title': 'Chino Mandarín',
+      'category': 'Idiomas',
+      'level': 'Secundaria',
+      'levelNum': '1° A',
+      'iconType': 'china_flag',
+      'color': const Color(0xFFEF4444),
+    },
+    {
+      'id': 'c_chino',
+      'title': 'Chino Mandarín',
+      'category': 'Idiomas',
+      'level': 'Secundaria',
+      'levelNum': '1° B',
+      'iconType': 'china_flag',
+      'color': const Color(0xFFEF4444),
+    },
+    {
+      'id': 'c_chino',
+      'title': 'Chino Mandarín',
+      'category': 'Idiomas',
+      'level': 'Secundaria',
+      'levelNum': '2° A',
+      'iconType': 'china_flag',
+      'color': const Color(0xFFEF4444),
+    },
+    {
+      'id': 'c_chino',
+      'title': 'Chino Mandarín',
+      'category': 'Idiomas',
+      'level': 'Secundaria',
+      'levelNum': '3° A',
+      'iconType': 'china_flag',
+      'color': const Color(0xFFEF4444),
+    },
+    {
+      'id': 'c_fisica',
+      'title': 'Ciencia y Tecnología',
+      'category': 'Ciencias',
+      'level': 'Secundaria',
+      'levelNum': '4° B',
+      'iconType': 'ciencia',
+      'color': const Color(0xFF10B981),
+    },
   ];
 
   void _openCourseDetails(Map<String, dynamic> course) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.85,
-          child: InnerClassroomDrawer(
-            course: course,
-            isTeacher: true,
-            currentUser: widget.teacherUser,
-          ),
-        );
-      },
-    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TeacherCourseDetailsScreen(
+          course: course,
+          teacherUser: widget.teacherUser,
+        ),
+      ),
+    ).then((value) {
+      if (value != null) {
+        Navigator.pop(context, value);
+      }
+    });
   }
 
   @override
@@ -66,45 +100,56 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double screenWidth = MediaQuery.of(context).size.width;
 
-    final double headerHeight = screenWidth < 380 ? 160.0 : 175.0;
-    final double mascotHeight = screenWidth < 380 ? 110.0 : (screenWidth < 415 ? 125.0 : 145.0);
-    final double mascotLeftMargin = screenWidth < 380 ? 40.0 : (screenWidth < 415 ? 60.0 : 80.0);
-    final double titleFontSize = screenWidth < 380 ? 20.0 : 23.0;
-    final double speechFontSize = screenWidth < 380 ? 10.0 : 11.0;
-    final double logoHeight = screenWidth < 380 ? 26.0 : 30.0;
+    // Ajuste de altura del banner para acomodar el avatar flotante
+    final double headerHeight = screenWidth < 380 ? 170.0 : 190.0;
+    
+    // Mapear los datos simulados con los parámetros que espera el InnerClassroomDrawer
+    final List<Map<String, dynamic>> coursesToUse = _mockedCourses.map((c) {
+      return {
+        'id': c['id'],
+        'title': c['title'],
+        'level': c['level'] ?? 'Secundaria',
+        'levelNum': c['levelNum'],
+        'room': 'Aula ${c['levelNum']}',
+        'teacher': widget.teacherUser.fullName,
+        'avatar': widget.teacherUser.avatarUrl,
+        'iconType': c['iconType'],
+        'color': c['color'],
+        'category': c['category'],
+      };
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. Cabecera Banner
+          // 1. Cabecera Banner con botón Atrás, Campana, Título/Subtítulo y Avatar Flotante
           SliverToBoxAdapter(
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
+                // Fondo decorativo suave
                 Container(
                   height: headerHeight + statusBarHeight,
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/courses_background.png'),
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
+                    color: Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
                     ),
                   ),
                 ),
-                Container(
-                  height: headerHeight + statusBarHeight,
-                  width: double.infinity,
-                  color: Colors.white.withOpacity(0.55),
-                ),
+                // Botones superiores: Atrás y Campana de Notificación
                 Positioned(
-                  top: statusBarHeight + (screenWidth < 380 ? 8 : 12),
+                  top: statusBarHeight + 12,
                   left: 16,
                   right: 16,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Botón Atrás circular con sombra
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: Container(
@@ -120,158 +165,210 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                               ),
                             ],
                           ),
-                          child: Icon(
+                          child: const Icon(
                             LucideIcons.arrowLeft,
-                            color: const Color(0xFF1D2848),
-                            size: screenWidth < 380 ? 16 : 18,
+                            color: Color(0xFF1D2848),
+                            size: 18,
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'assets/images/school_logo.png',
-                            height: logoHeight,
-                            fit: BoxFit.contain,
-                          ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                "EXITUS",
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF1D2848),
-                                  fontSize: screenWidth < 380 ? 14 : 16,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
-                                  height: 1.1,
-                                ),
+                      // Botón Campana con punto rojo de notificación
+                      GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
-                              Text(
-                                "COLEGIO",
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFFE5A93B),
-                                  fontSize: screenWidth < 380 ? 7 : 8,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.5,
-                                  height: 1.0,
+                            ],
+                          ),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              const Icon(
+                                LucideIcons.bell,
+                                color: Color(0xFF1D2848),
+                                size: 18,
+                              ),
+                              Positioned(
+                                right: -1,
+                                top: -1,
+                                child: Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFEF4444),
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      SizedBox(width: screenWidth < 380 ? 32 : 36),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 4,
-                  left: mascotLeftMargin,
-                  right: 20,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Image.asset(
-                        'assets/images/mascota_cursos2.png',
-                        height: mascotHeight,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(width: 0),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Mis Cursos",
-                              style: GoogleFonts.outfit(
-                                color: const Color(0xFF1D2848),
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth < 380 ? 10 : 12,
-                                    vertical: screenWidth < 380 ? 6 : 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF9E6),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: const Color(0xFFFFF4D2),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    "¿Qué curso\nquieres gestionar hoy?",
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF1D2848),
-                                      fontSize: speechFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: -6,
-                                  top: 10,
-                                  child: CustomPaint(
-                                    painter: BubbleTrianglePainter2(),
-                                    size: const Size(6, 8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                          ],
                         ),
                       ),
                     ],
+                  ),
+                ),
+                // Título y Subtítulo a la izquierda
+                Positioned(
+                  bottom: 24,
+                  left: 20,
+                  right: 150, // Deja espacio para el avatar flotante
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Mis Cursos",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1D2848),
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Aulas que tienes a tu cargo",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF64748B),
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Avatar del profesor flotante en la esquina superior derecha
+                Positioned(
+                  right: 10,
+                  bottom: -15, // Sobresale ligeramente hacia abajo en el grid
+                  child: Image.asset(
+                    'assets/images/profesor_avatar.png',
+                    height: 180,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 110,
+                      height: 130,
+                      alignment: Alignment.bottomCenter,
+                      child: const Icon(Icons.person, size: 70, color: Colors.blueGrey),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+          
+          // Espaciador entre el banner y el grid para compensar el avatar sobresaliente
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 25),
+          ),
 
-          // 2. Lista de Cursos del Docente
+          // 2. Grid de Cursos (2 Columnas)
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            sliver: SliverList(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.05,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+              ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final course = widget.courses[index];
-                  return _buildCourseCard(course, index);
+                  final course = coursesToUse[index];
+                  return _buildCourseCard(course);
                 },
-                childCount: widget.courses.length,
+                childCount: coursesToUse.length,
               ),
             ),
           ),
+          // Espacio extra al final para evitar que el bottom bar oculte tarjetas
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 80),
+          ),
         ],
+      ),
+      
+      // 3. Barra de navegación inferior que replica el estilo del Dashboard principal
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        elevation: 16,
+        padding: EdgeInsets.zero,
+        child: SafeArea(
+          child: SizedBox(
+            height: 70,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
+                _buildBottomNavItem(1, LucideIcons.bell, "Avisos"),
+                // Botón central flotante '+' en dorado/ámbar
+                GestureDetector(
+                  onTap: () => Navigator.pop(context, 99), // Acción de agregar
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEDC620),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x4DEDC620),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
+                  ),
+                ),
+                _buildBottomNavItem(2, LucideIcons.mail, "Mensajes"),
+                _buildBottomNavItem(3, LucideIcons.user, "Mi perfil"),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCourseCard(Map<String, dynamic> course, int index) {
-    final gradient = _courseGradients[index % _courseGradients.length];
-    String sectionBadge = "${course['levelNum']} ${course['room'].replaceAll('Aula ', '')} - SEC";
-    String areaTag = course['title'].contains('Matemática') || course['title'].contains('Cálculo')
-        ? 'CIENCIAS EXACTAS y MATEMÁTICA'
-        : 'EDUCACIÓN PARA EL TRABAJO';
+  Widget _buildBottomNavItem(int index, IconData icon, String label) {
+    return InkWell(
+      onTap: () => Navigator.pop(context, index),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: const Color(0xFF94A3B8), size: 20),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF94A3B8),
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildCourseCard(Map<String, dynamic> course) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -280,114 +377,80 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: () => _openCourseDetails(course),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 6,
-                  decoration: BoxDecoration(
-                    gradient: gradient,
+                // Icono del curso (Tutoría, Bandera China o Beaker de Ciencia)
+                _buildCourseIcon(course['iconType']),
+                const SizedBox(height: 12),
+                
+                // Nombre del curso (Negrita)
+                Text(
+                  course['title'],
+                  style: GoogleFonts.outfit(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D2848),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                
+                // Categoría/Área
+                Text(
+                  course['category'],
+                  style: GoogleFonts.outfit(
+                    fontSize: 11.5,
+                    color: const Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                sectionBadge.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Color(0xFF1D2848),
-                                  fontSize: 8.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF2E7D32),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ],
+                
+                // Grado y Sección (Ej: 1° A • Secundaria)
+                Text(
+                  "${course['levelNum']} • ${course['level']}",
+                  style: GoogleFonts.outfit(
+                    fontSize: 11.5,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Botón "Ver Aula" estilizado
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Ver Aula",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1D2848),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          course['title'],
-                          style: GoogleFonts.outfit(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1D2848),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          areaTag,
-                          style: const TextStyle(
-                            color: Color(0xFF64748B),
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(LucideIcons.mapPin, size: 12, color: Color(0xFF94A3B8)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  course['room'],
-                                  style: const TextStyle(
-                                    color: Color(0xFF64748B),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Ver Aula Virtual",
-                                  style: GoogleFonts.outfit(
-                                    color: const Color(0xFF1D2848),
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  LucideIcons.arrowRight,
-                                  color: Color(0xFF1D2848),
-                                  size: 12,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                      const Icon(
+                        LucideIcons.arrowRight,
+                        color: Color(0xFF3B82F6),
+                        size: 13,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -397,34 +460,123 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
       ),
     );
   }
+
+  Widget _buildCourseIcon(String type) {
+    const double size = 36;
+    if (type == 'china_flag') {
+      return const ChinaFlagCircle(size: size);
+    } else if (type == 'tutoria') {
+      return Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(
+          color: Color(0xFFFEF3C7),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: const Icon(
+          LucideIcons.users,
+          color: Color(0xFFD97706),
+          size: 18,
+        ),
+      );
+    } else {
+      // Ciencia y tecnología
+      return Container(
+        width: size,
+        height: size,
+        decoration: const BoxDecoration(
+          color: Color(0xFFD1FAE5),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: const Icon(
+          LucideIcons.flaskConical,
+          color: Color(0xFF059669),
+          size: 18,
+        ),
+      );
+    }
+  }
 }
 
-class BubbleTrianglePainter2 extends CustomPainter {
+// Widget personalizado de la bandera de China en forma circular
+class ChinaFlagCircle extends StatelessWidget {
+  final double size;
+  const ChinaFlagCircle({super.key, this.size = 36});
+
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFFFF9E6)
-      ..style = PaintingStyle.fill;
-
-    final borderPaint = Paint()
-      ..color = const Color(0xFFFFF4D2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-
-    final path = Path()
-      ..moveTo(size.width, 0)
-      ..lineTo(0, size.height * 0.5)
-      ..lineTo(size.width, size.height)
-      ..close();
-
-    canvas.drawPath(path, paint);
-    final borderPath = Path()
-      ..moveTo(size.width, 0)
-      ..lineTo(0, size.height * 0.5)
-      ..lineTo(size.width, size.height);
-    canvas.drawPath(borderPath, borderPaint);
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFDE2910),
+        shape: BoxShape.circle,
+      ),
+      child: Stack(
+        children: [
+          // Estrella grande
+          Positioned(
+            left: size * 0.22,
+            top: size * 0.22,
+            child: Icon(
+              Icons.star,
+              color: const Color(0xFFFFDE00),
+              size: size * 0.35,
+            ),
+          ),
+          // Estrellitas pequeñas en arco
+          Positioned(
+            left: size * 0.56,
+            top: size * 0.12,
+            child: Transform.rotate(
+              angle: 0.4,
+              child: Icon(
+                Icons.star,
+                color: const Color(0xFFFFDE00),
+                size: size * 0.10,
+              ),
+            ),
+          ),
+          Positioned(
+            left: size * 0.68,
+            top: size * 0.24,
+            child: Transform.rotate(
+              angle: 0.8,
+              child: Icon(
+                Icons.star,
+                color: const Color(0xFFFFDE00),
+                size: size * 0.10,
+              ),
+            ),
+          ),
+          Positioned(
+            left: size * 0.68,
+            top: size * 0.42,
+            child: Transform.rotate(
+              angle: 0.0,
+              child: Icon(
+                Icons.star,
+                color: const Color(0xFFFFDE00),
+                size: size * 0.10,
+              ),
+            ),
+          ),
+          Positioned(
+            left: size * 0.56,
+            top: size * 0.54,
+            child: Transform.rotate(
+              angle: 0.4,
+              child: Icon(
+                Icons.star,
+                color: const Color(0xFFFFDE00),
+                size: size * 0.10,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
