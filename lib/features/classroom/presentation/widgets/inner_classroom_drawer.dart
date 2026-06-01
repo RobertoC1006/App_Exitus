@@ -54,7 +54,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
     bool evolved = _db.addDojoPoint(student.id);
     _refreshDojo();
 
-    if (evolved) {
+    if (evolved && mounted) {
       String levelStr = "Huevo elemental";
       if (student.points >= 9 && student.points <= 11) levelStr = "Cachorro";
       if (student.points >= 12) levelStr = "Dragón Alado Adulto";
@@ -751,7 +751,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFA726).withOpacity(0.2),
+              color: const Color(0xFFFFA726).withValues(alpha: 0.2),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),

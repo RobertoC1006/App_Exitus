@@ -273,7 +273,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.8,
+                childAspectRatio: 1.2,
                 crossAxisSpacing: 14,
                 mainAxisSpacing: 14,
               ),
@@ -383,19 +383,19 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
           onTap: () => _openCourseDetails(course),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Icono del curso (Tutoría, Bandera China o Beaker de Ciencia)
                 _buildCourseIcon(course['iconType']),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 
                 // Nombre del curso (Negrita)
                 Text(
                   course['title'],
                   style: GoogleFonts.outfit(
-                    fontSize: 14.5,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF1D2848),
                   ),
@@ -408,7 +408,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                 Text(
                   course['category'],
                   style: GoogleFonts.outfit(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: const Color(0xFF94A3B8),
                     fontWeight: FontWeight.w600,
                   ),
@@ -418,7 +418,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                 Text(
                   "${course['levelNum']} • ${course['level']}",
                   style: GoogleFonts.outfit(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w500,
                   ),
@@ -427,11 +427,11 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                 
                 // Botón "Ver Aula" estilizado
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -440,14 +440,14 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                         "Ver Aula",
                         style: GoogleFonts.outfit(
                           color: const Color(0xFF1D2848),
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const Icon(
                         LucideIcons.arrowRight,
                         color: Color(0xFF3B82F6),
-                        size: 13,
+                        size: 12,
                       ),
                     ],
                   ),
@@ -461,7 +461,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
   }
 
   Widget _buildCourseIcon(String type) {
-    const double size = 36;
+    const double size = 28;
     if (type == 'china_flag') {
       return const ChinaFlagCircle(size: size);
     } else if (type == 'tutoria') {

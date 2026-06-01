@@ -7,9 +7,6 @@ import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Vistas del docente
-import 'package:app_exitus/features/social_feed/presentation/widgets/social_feed_view.dart';
-import 'package:app_exitus/features/messages/presentation/widgets/inbox_messages_view.dart';
-import 'package:app_exitus/features/profile/presentation/widgets/teacher_profile_view.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_overlay.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
@@ -68,40 +65,6 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     setState(() {
       _currentIndex = index;
     });
-  }
-
-  void _handleLogout() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(LucideIcons.logOut, color: Color(0xFFC0392B)),
-            SizedBox(width: 8),
-            Text("Cerrar Sesión", style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: const Text("¿Estás seguro de que deseas salir del portal docente?"),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar", style: TextStyle(color: Color(0xFF64748B))),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
-              ref.read(authControllerProvider.notifier).logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFC0392B),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text("Salir"),
-          ),
-        ],
-      ),
-    );
   }
 
   void _openCourseDetails(Map<String, dynamic> course, User teacherUser) {
@@ -542,24 +505,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
       };
     }).toList();
 
-    // Vistas asociadas a las 4 pestañas principales
-    final List<Widget> views = [
-      _buildTeacherHomeView(teacherUser, teacherCourses),
-      SocialFeedView(currentUser: teacherUser),
-      InboxMessagesView(currentUser: teacherUser, onMessageRead: () => setState(() {})),
-      TeacherProfileView(currentUser: teacherUser, onLogout: _handleLogout),
-    ];
 
-    // Títulos de la cabecera
-    final List<String> titles = [
-      "Inicio",
-      "Avisos",
-      "Mensajes de Docente",
-      "Mi Perfil Docente",
-    ];
-
-    // Mensajes no leídos para la cabecera
-    final unreadMessages = _db.getMessagesForUser(teacherUser.id).where((m) => m.unread).length;
 
     return Stack(
       children: [
@@ -798,7 +744,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     }
   }
 
-  Widget _buildTeacherHeader(User teacher, String title, int unreadCount) {
+  Widget buildTeacherHeader(User teacher, String title, int unreadCount) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -872,7 +818,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-  Widget _buildBottomNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
+  Widget buildBottomNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
     final isSelected = _currentIndex == index;
 
     if (isSelected) {

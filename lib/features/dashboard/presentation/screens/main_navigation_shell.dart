@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -286,7 +285,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                             child: ChoiceChip(
                               label: Text(day, style: TextStyle(fontSize: 11.5, fontWeight: isSel ? FontWeight.bold : FontWeight.w500, color: isSel ? const Color(0xFF1D2848) : const Color(0xFF64748B))),
                               selected: isSel,
-                              selectedColor: const Color(0xFFEDC620).withOpacity(0.2),
+                              selectedColor: const Color(0xFFEDC620).withValues(alpha: 0.2),
                               backgroundColor: const Color(0xFFF1F5F9),
                               onSelected: (val) {
                                 setModalState(() {
@@ -429,7 +428,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     );
   }
 
-  void _showUserSwitcherDialog(User currentUser) {
+  void showUserSwitcherDialog(User currentUser) {
     showDialog(
       context: context,
       builder: (context) {
@@ -516,10 +515,10 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEDC620).withOpacity(0.08) : Colors.transparent,
+        color: isSelected ? const Color(0xFFEDC620).withValues(alpha: 0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? const Color(0xFFEDC620).withOpacity(0.2) : Colors.transparent,
+          color: isSelected ? const Color(0xFFEDC620).withValues(alpha: 0.2) : Colors.transparent,
         ),
       ),
       child: ListTile(
@@ -1019,7 +1018,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     );
   }
 
-  Widget _buildStudentHeader(User student, String title, int unreadCount) {
+  Widget buildStudentHeader(User student, String title, int unreadCount) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1083,7 +1082,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     );
   }
 
-  Widget _buildTeacherHeader(User teacher, String title, int unreadCount) {
+  Widget buildTeacherHeader(User teacher, String title, int unreadCount) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1147,7 +1146,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     );
   }
 
-  Widget _buildAdminHeader(User admin) {
+  Widget buildAdminHeader(User admin) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1351,12 +1350,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       profileView,
     ];
 
-    final List<String> titles = [
-      user.role == 'admin' ? "Inicio Admin" : (user.role == 'teacher' ? "Mis Aulas Virtuales" : "Inicio"),
-      "Muro Institucional",
-      "Mensajes",
-      user.role == 'admin' ? "Portal Admin" : (user.role == 'teacher' ? "Mi Perfil Docente" : "Mi Perfil Exitus"),
-    ];
+
 
     final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
 

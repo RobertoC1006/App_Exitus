@@ -279,7 +279,7 @@ class _ClassroomDojoTabState extends State<ClassroomDojoTab> {
                         const SizedBox(width: 6),
                         Switch(
                           value: _dojoOnlyPresent,
-                          activeColor: const Color(0xFFEDC620),
+                          activeThumbColor: const Color(0xFFEDC620),
                           onChanged: (val) {
                             setState(() {
                               _dojoOnlyPresent = val;
@@ -395,7 +395,7 @@ class _ClassroomDojoTabState extends State<ClassroomDojoTab> {
             width: isHighlighted ? 2.0 : 1.0,
           ),
           boxShadow: isHighlighted
-              ? [BoxShadow(color: const Color(0xFFEDC620).withOpacity(0.3), blurRadius: 10, spreadRadius: 2)]
+              ? [BoxShadow(color: const Color(0xFFEDC620).withValues(alpha: 0.3), blurRadius: 10, spreadRadius: 2)]
               : null,
         ),
         clipBehavior: Clip.antiAlias,
@@ -692,11 +692,11 @@ class ClassroomStudentDojoTab extends StatelessWidget {
                     height: 130,
                     width: 130,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00B0FF).withOpacity(0.04),
+                      color: const Color(0xFF00B0FF).withValues(alpha: 0.04),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00B0FF).withOpacity(0.06),
+                          color: const Color(0xFF00B0FF).withValues(alpha: 0.06),
                           blurRadius: 15,
                         ),
                       ],
@@ -1187,7 +1187,7 @@ class ClassroomProyectoVidaTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      s.name.split(' ')[0] + ' ' + (s.name.split(' ').length > 1 ? s.name.split(' ')[1] : ''),
+                      "${s.name.split(' ')[0]} ${s.name.split(' ').length > 1 ? s.name.split(' ')[1] : ''}",
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

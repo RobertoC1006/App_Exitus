@@ -7,9 +7,7 @@ import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Vistas del estudiante
-import 'package:app_exitus/features/social_feed/presentation/widgets/social_feed_view.dart';
 import 'package:app_exitus/features/messages/presentation/widgets/inbox_messages_view.dart';
-import 'package:app_exitus/features/profile/presentation/widgets/student_profile_view.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_overlay.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
@@ -84,7 +82,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     });
   }
 
-  void _handleLogout() {
+  void handleLogout() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1960,7 +1958,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     );
   }
 
-  Widget _buildStudentHeader(User student, String title, int unreadCount) {
+  Widget buildStudentHeader(User student, String title, int unreadCount) {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -2038,7 +2036,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     );
   }
 
-  Widget _buildBottomNavItem(int index, IconData icon, String label) {
+  Widget buildBottomNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
     
     if (isSelected) {
@@ -2092,7 +2090,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     );
   }
 
-  Widget _buildStudentTasksView(User user) {
+  Widget buildStudentTasksView(User user) {
     final tasks = _db.getTasksForUser(user.id);
     final filteredTasks = tasks.where((t) => t.status == _taskFilter).toList();
 

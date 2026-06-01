@@ -35,7 +35,7 @@ class AdminHomeView extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF002244).withOpacity(0.15),
+                  color: const Color(0xFF002244).withValues(alpha: 0.15),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 )
@@ -177,7 +177,7 @@ class AdminHomeView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 16, color: color),
@@ -204,7 +204,7 @@ class AdminHomeView extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: color, size: 20),
