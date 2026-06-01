@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 
 class StudentDojoStoreScreen extends StatefulWidget {
@@ -131,7 +131,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                 color: Color(0xFFE8F5E9),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.check, color: Color(0xFF2E7D32), size: 36),
+              child: const Icon(LucideIcons.check, color: Color(0xFF2E7D32), size: 36),
             ),
             const SizedBox(height: 20),
             Text(
@@ -240,7 +240,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                       ],
                     ),
                     child: const Icon(
-                      Icons.arrow_back_ios_new,
+                      LucideIcons.chevronLeft,
                       size: 14,
                       color: Color(0xFF1D2848),
                     ),
@@ -284,7 +284,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                 width: 100,
                 height: 100,
                 alignment: Alignment.center,
-                child: const Icon(Icons.face, size: 40, color: Colors.orange),
+                child: const Icon(LucideIcons.smile, size: 40, color: Colors.orange),
               ),
             ),
           ),
@@ -318,7 +318,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.stars,
+              LucideIcons.star,
               color: Color(0xFFFFB300),
               size: 13,
             ),
@@ -350,11 +350,11 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Expanded(child: _buildCategoryTab('Dragones', Icons.pets, const Color(0xFFFFB300))),
+          Expanded(child: _buildCategoryTab('Dragones', LucideIcons.dog, const Color(0xFFFFB300))),
           const SizedBox(width: 8),
-          Expanded(child: _buildCategoryTab('Auras', Icons.auto_awesome, const Color(0xFF9C27B0))),
+          Expanded(child: _buildCategoryTab('Auras', LucideIcons.sparkles, const Color(0xFF9C27B0))),
           const SizedBox(width: 8),
-          Expanded(child: _buildCategoryTab('Multiplicadores', Icons.bolt, const Color(0xFFFFEB3B))),
+          Expanded(child: _buildCategoryTab('Multiplicadores', LucideIcons.zap, const Color(0xFFFFEB3B))),
         ],
       ),
     );
@@ -454,7 +454,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                     color: Color(0xFFFFF8E1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.pets, color: Color(0xFFFFB300), size: 14),
+                  child: const Icon(LucideIcons.dog, color: Color(0xFFFFB300), size: 14),
                 ),
                 const SizedBox(width: 8),
                 Column(
@@ -480,7 +480,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
             DropdownButton<String>(
               value: _sortBy,
               underline: const SizedBox(),
-              icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF1D2848)),
+              icon: const Icon(LucideIcons.chevronDown, size: 16, color: Color(0xFF1D2848)),
               style: GoogleFonts.outfit(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -591,7 +591,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                       width: 80,
                       height: 80,
                       alignment: Alignment.center,
-                      child: const Icon(Icons.egg, size: 40, color: Colors.orange),
+                      child: const Icon(LucideIcons.egg, size: 40, color: Colors.orange),
                     ),
                   ),
                 ),
@@ -612,7 +612,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.stars, color: Color(0xFFFBC02D), size: 13),
+                  const Icon(LucideIcons.star, color: Color(0xFFFBC02D), size: 13),
                   const SizedBox(width: 3),
                   Text(
                     "$points puntos",
@@ -642,7 +642,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        isOwned ? Icons.check : Icons.shopping_cart,
+                        isOwned ? LucideIcons.check : LucideIcons.shoppingCart,
                         color: isOwned ? const Color(0xFF64748B) : Colors.white,
                         size: 13,
                       ),
@@ -672,7 +672,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'Aura Ígnea',
         'points': 350,
         'description': 'Destellos de fuego alrededor de tu dragón',
-        'icon': Icons.local_fire_department,
+        'icon': LucideIcons.flame,
         'color': const Color(0xFFEF5350),
         'bgColor': const Color(0xFFFFEBEE),
       },
@@ -680,7 +680,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'Aura Glacial',
         'points': 400,
         'description': 'Niebla y copos de nieve flotando en tu perfil',
-        'icon': Icons.ac_unit,
+        'icon': LucideIcons.snowflake,
         'color': const Color(0xFF26C6DA),
         'bgColor': const Color(0xFFE0F7FA),
       },
@@ -688,7 +688,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'Aura Eléctrica',
         'points': 600,
         'description': 'Relámpagos dinámicos de alto voltaje en tu avatar',
-        'icon': Icons.flash_on,
+        'icon': LucideIcons.zap,
         'color': const Color(0xFFAB47BC),
         'bgColor': const Color(0xFFF3E5F5),
       },
@@ -696,7 +696,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'Aura Cósmica',
         'points': 1200,
         'description': 'Polvo estelar y galaxias en miniatura giratorias',
-        'icon': Icons.blur_on,
+        'icon': LucideIcons.sparkles,
         'color': const Color(0xFF5C6BC0),
         'bgColor': const Color(0xFFE8EAF6),
       },
@@ -760,7 +760,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.stars, color: Color(0xFFFBC02D), size: 12),
+                        const Icon(LucideIcons.star, color: Color(0xFFFBC02D), size: 12),
                         const SizedBox(width: 3),
                         Text(
                           "${aura['points']} puntos",
@@ -805,7 +805,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'x1.5 Tareas',
         'points': 800,
         'description': 'Aumenta en 50% todos los puntos de tus tareas durante 7 días',
-        'icon': Icons.trending_up,
+        'icon': LucideIcons.trendingUp,
         'color': const Color(0xFF66BB6A),
         'bgColor': const Color(0xFFE8F5E9),
       },
@@ -813,7 +813,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'x2.0 Asistencia',
         'points': 1000,
         'description': 'Duplica los puntos que obtienes por asistencia perfecta esta semana',
-        'icon': Icons.bolt,
+        'icon': LucideIcons.zap,
         'color': const Color(0xFFFFCA28),
         'bgColor': const Color(0xFFFFF8E1),
       },
@@ -821,7 +821,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
         'name': 'x2.0 Participación',
         'points': 1500,
         'description': 'Duplica todos los puntos obtenidos por participar activamente en clase',
-        'icon': Icons.people,
+        'icon': LucideIcons.users,
         'color': const Color(0xFF29B6F6),
         'bgColor': const Color(0xFFE1F5FE),
       },
@@ -885,7 +885,7 @@ class _StudentDojoStoreScreenState extends State<StudentDojoStoreScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.stars, color: Color(0xFFFBC02D), size: 12),
+                        const Icon(LucideIcons.star, color: Color(0xFFFBC02D), size: 12),
                         const SizedBox(width: 3),
                         Text(
                           "${mult['points']} puntos",

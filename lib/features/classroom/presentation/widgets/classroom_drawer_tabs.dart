@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/dragon_painter.dart';

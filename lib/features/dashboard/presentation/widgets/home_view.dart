@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/core/theme/app_theme.dart';
@@ -20,16 +20,26 @@ class HomeView extends ConsumerWidget {
 
     // Obtener día de hoy en español
     final weekdayIndex = DateTime.now().weekday;
-    final weekdays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    final weekdays = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
     String todayName = weekdays[weekdayIndex - 1];
-    
+
     // Si es fin de semana, mostramos Lunes para fines demostrativos
     if (todayName == 'Sábado' || todayName == 'Domingo') {
       todayName = 'Lunes';
     }
 
     final todaySchedule = db.teacherSchedule[todayName] ?? [];
-    final pendingCount = db.submissions.where((s) => s.status == 'Pendiente').length;
+    final pendingCount = db.submissions
+        .where((s) => s.status == 'Pendiente')
+        .length;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -51,7 +61,7 @@ class HomeView extends ConsumerWidget {
                   color: const Color(0xFF002244).withOpacity(0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
-                )
+                ),
               ],
             ),
             child: Row(
@@ -83,7 +93,10 @@ class HomeView extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.accentGold,
                           borderRadius: BorderRadius.circular(6),
@@ -96,7 +109,7 @@ class HomeView extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -154,16 +167,24 @@ class HomeView extends ConsumerWidget {
                   color: Color(0xFF002244),
                 ),
               ),
-              if (todayName == 'Lunes' && (weekdayIndex == 6 || weekdayIndex == 7))
+              if (todayName == 'Lunes' &&
+                  (weekdayIndex == 6 || weekdayIndex == 7))
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     "Modo Demo (Finde)",
-                    style: TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
             ],
@@ -181,7 +202,11 @@ class HomeView extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  Icon(LucideIcons.calendarX, size: 48, color: Colors.grey.shade400),
+                  Icon(
+                    LucideIcons.calendarX,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     "No tienes clases programadas hoy.",
@@ -209,7 +234,7 @@ class HomeView extends ConsumerWidget {
                         color: Colors.black.withOpacity(0.02),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
-                      )
+                      ),
                     ],
                   ),
                   child: Row(
@@ -221,7 +246,7 @@ class HomeView extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          LucideIcons.bookOpen,
+                          LucideIcons.bookOpenText,
                           color: Color(0xFF002244),
                           size: 20,
                         ),
@@ -242,25 +267,43 @@ class HomeView extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(LucideIcons.clock, size: 14, color: Colors.grey.shade600),
+                                Icon(
+                                  LucideIcons.clock,
+                                  size: 14,
+                                  color: Colors.grey.shade600,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   item.time,
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
-                                Icon(LucideIcons.mapPin, size: 14, color: Colors.grey.shade600),
+                                Icon(
+                                  LucideIcons.mapPin,
+                                  size: 14,
+                                  color: Colors.grey.shade600,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   item.classroom,
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      const Icon(LucideIcons.chevronRight, size: 16, color: Colors.grey),
+                      const Icon(
+                        LucideIcons.chevronRight,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                     ],
                   ),
                 );
@@ -290,7 +333,7 @@ class HomeView extends ConsumerWidget {
             color: Colors.black.withOpacity(0.02),
             blurRadius: 5,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -329,10 +372,7 @@ class HomeView extends ConsumerWidget {
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
           ),
         ],
       ),

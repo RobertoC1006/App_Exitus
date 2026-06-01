@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
@@ -537,7 +537,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              LucideIcons.bookOpen,
+                              LucideIcons.bookOpenText,
                               color: Color(0xFFE5A93B),
                               size: 18,
                             ),
@@ -1326,10 +1326,9 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
           Container(
             height: headerHeight,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE9F3FF), Color(0xFFF5F9FF)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+              image: const DecorationImage(
+                image: AssetImage('assets/images/Fondo_niño.webp'),
+                fit: BoxFit.cover,
               ),
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
               boxShadow: [
@@ -1474,7 +1473,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                           width: 120,
                           height: 140,
                           alignment: Alignment.bottomCenter,
-                          child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
+                          child: const Icon(LucideIcons.user, size: 80, color: Colors.blueGrey),
                         ),
                       ),
                     ],
@@ -1542,7 +1541,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          LucideIcons.bookOpen,
+                          LucideIcons.bookOpenText,
                           color: Color(0xFFE5A93B),
                           size: 20,
                         ),
@@ -1998,7 +1997,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                     children: [
                       CircleAvatar(radius: 10, backgroundImage: NetworkImage(student.avatarUrl)),
                       const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
+                      const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF64748B)),
                     ],
                   ),
                 ),
@@ -2359,7 +2358,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                                 ),
                               ],
                             ),
-                            const Icon(Icons.more_vert, size: 16, color: Color(0xFF94A3B8)),
+                             const Icon(LucideIcons.moreVertical, size: 16, color: Color(0xFF94A3B8)),
                           ],
                         ),
                         const SizedBox(height: 12),

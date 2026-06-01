@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
@@ -836,7 +836,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     children: [
                       CircleAvatar(radius: 10, backgroundImage: NetworkImage(teacher.avatarUrl)),
                       const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
+                      const Icon(LucideIcons.chevronDown, size: 14, color: Color(0xFF64748B)),
                     ],
                   ),
                 ),
@@ -1770,7 +1770,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                           width: 120,
                           height: 140,
                           alignment: Alignment.bottomCenter,
-                          child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
+                          child: const Icon(LucideIcons.user, size: 80, color: Colors.blueGrey),
                         ),
                       ),
                     ],
@@ -1798,7 +1798,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 }
               });
             },
-            icon: LucideIcons.bookOpen,
+            icon: LucideIcons.bookOpenText,
             iconColor: const Color(0xFF1E88E5),
             iconBg: const Color(0xFFE3F2FD),
             title: "Mis Cursos",
