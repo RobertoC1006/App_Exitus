@@ -49,7 +49,7 @@ class MockAuthRepository implements AuthRepository {
   Future<User?> getCurrentUser() async {
     ApiLogger.logCall(
       method: "GET",
-      endpoint: "${ApiEndpoints.baseUrl}/auth/me",
+      endpoint: ApiEndpoints.authMe,
     );
 
     await Future.delayed(const Duration(milliseconds: 500));
