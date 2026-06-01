@@ -1961,17 +1961,19 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
             color: Colors.white,
             elevation: 16,
             padding: EdgeInsets.zero,
-            child: SizedBox(
-              height: 70,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
-                  _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
-                  const SizedBox(width: 48),
-                  _buildBottomNavItem(2, LucideIcons.briefcase, "Tareas"),
-                  _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
-                ],
+            child: SafeArea(
+              child: SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
+                    _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
+                    const SizedBox(width: 48),
+                    _buildBottomNavItem(2, LucideIcons.briefcase, "Tareas"),
+                    _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
+                  ],
+                ),
               ),
             ),
           ),

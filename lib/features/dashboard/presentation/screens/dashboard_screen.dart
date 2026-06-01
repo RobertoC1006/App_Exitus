@@ -14,6 +14,7 @@ import 'package:app_exitus/features/classroom/presentation/widgets/inner_classro
 import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_overlay.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
 import 'package:app_exitus/features/digitacion/presentation/screens/digitacion_dashboard_screen.dart';
+import 'package:app_exitus/features/classroom/presentation/screens/teacher_courses_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -128,6 +129,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         context,
         MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
       );
+    } else if (action == 'my_attendance' || action == 'attendance_report') {
+      final currentAuthState = ref.read(authControllerProvider);
+      if (currentAuthState is AuthAuthenticated) {
+        _showAttendanceBottomSheet(currentAuthState.user);
+      }
     } else if (action == 'tesoreria') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Módulo exclusivo para administración y tesorería escolar.")),
@@ -529,21 +535,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       };
     }).toList();
 
-    // Vistas asociadas a las 5 pestañas
+    // Vistas asociadas a las 4 pestañas principales
     final List<Widget> views = [
+      _buildTeacherHomeView(teacherUser, teacherCourses),
       SocialFeedView(currentUser: teacherUser),
-      _buildClassroomTabContent(teacherCourses),
       InboxMessagesView(currentUser: teacherUser, onMessageRead: () => setState(() {})),
-      _buildTeacherAttendanceTab(teacherUser), // Nueva pestaña de registro de asistencia
       TeacherProfileView(currentUser: teacherUser, onLogout: _handleLogout),
     ];
 
     // Títulos de la cabecera
     final List<String> titles = [
-      "Muro Institucional",
-      "Mis Aulas Virtuales",
+      "Inicio",
+      "Avisos",
       "Mensajes de Docente",
-      "Control de Asistencia",
       "Mi Perfil Docente",
     ];
 
@@ -555,50 +559,58 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
           body: SafeArea(
+            top: _currentIndex != 0,
             child: Column(
               children: [
-                // Cabecera premium del docente
-                _buildTeacherHeader(teacherUser, titles[_currentIndex], unreadMessages),
-                Container(height: 1, color: const Color(0xFFE2E8F0)),
+                if (_currentIndex != 0) ...[
+                  // Cabecera premium del docente (solo para pestañas secundarias)
+                  _buildTeacherHeader(teacherUser, titles[_currentIndex], unreadMessages),
+                  Container(height: 1, color: const Color(0xFFE2E8F0)),
+                ],
 
-                // Contenido de pestaña activa
+                // Contenido de pestaña activa usando IndexedStack para persistir scroll
                 Expanded(
-                  child: views[_currentIndex],
+                  child: IndexedStack(
+                    index: _currentIndex,
+                    children: views,
+                  ),
                 ),
               ],
             ),
           ),
 
-          // Botón Flotante Central FAB now endFloat
+          // Botón Flotante Central (FAB) estilo circular y dorado
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               setState(() {
                 _isFABMenuOpen = true;
               });
             },
-            backgroundColor: const Color(0xFF1D2848),
+            backgroundColor: const Color(0xFFEDC620),
             elevation: 8,
             shape: const CircleBorder(),
-            child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
+            child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-          // Barra de navegación inferior
+          // Barra de navegación inferior premium
           bottomNavigationBar: BottomAppBar(
             color: Colors.white,
             elevation: 16,
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: SizedBox(
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildBottomNavItem(0, LucideIcons.home, "INICIO"),
-                  _buildBottomNavItem(1, LucideIcons.bookOpen, "AULAS"),
-                  _buildBottomNavItem(2, LucideIcons.mail, "MENSAJES", badgeCount: unreadMessages),
-                  _buildBottomNavItem(3, LucideIcons.userCheck, "ASISTENCIAS"),
-                  _buildBottomNavItem(4, LucideIcons.user, "MI PERFIL"),
-                ],
+            padding: EdgeInsets.zero,
+            child: SafeArea(
+              child: SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
+                    _buildBottomNavItem(1, LucideIcons.bell, "Avisos"),
+                    const SizedBox(width: 48), // Espacio para el FAB central
+                    _buildBottomNavItem(2, LucideIcons.mail, "Mensajes", badgeCount: unreadMessages),
+                    _buildBottomNavItem(3, LucideIcons.user, "Mi perfil"),
+                  ],
+                ),
               ),
             ),
           ),
@@ -632,7 +644,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 setState(() {
                   _isLaunchpadOpen = false;
                   if (route == 'classroom') {
-                    _currentIndex = 1;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TeacherCoursesScreen(
+                          teacherUser: teacherUser,
+                          courses: teacherCourses,
+                        ),
+                      ),
+                    );
                   } else if (route == 'digitacion') {
                     Navigator.push(
                       context,
@@ -901,7 +921,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildBottomNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
     final isSelected = _currentIndex == index;
-    final color = isSelected ? const Color(0xFF1D2848) : const Color(0xFF94A3B8);
+
+    if (isSelected) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1D2848),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: const Color(0xFFEDC620), size: 18),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return InkWell(
       onTap: () => _onTabChanged(index),
@@ -915,15 +959,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(icon, color: color, size: 20),
+                Icon(icon, color: const Color(0xFF94A3B8), size: 20),
                 if (badgeCount > 0)
                   Positioned(
                     top: -4,
                     right: -4,
                     child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(color: Color(0xFFEDC620), shape: BoxShape.circle),
-                      child: Text("$badgeCount", style: const TextStyle(color: Color(0xFF1D2848), fontSize: 7, fontWeight: FontWeight.bold)),
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFD32F2F),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        "$badgeCount",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 7,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
               ],
@@ -931,10 +985,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const SizedBox(height: 3),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 8.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: color,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF94A3B8),
                 letterSpacing: -0.2,
               ),
             ),
@@ -1379,6 +1433,809 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAttendanceBottomSheet(User teacherUser) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.85,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _buildTeacherAttendanceTab(teacherUser),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showBitacorasBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.7,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFF0F0),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        LucideIcons.clipboard,
+                        color: Color(0xFFE53E3E),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Bitácoras e Incidencias",
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _buildBitacoraItem("García Pérez, Luis", "Tardanza recurrente", "Llegó 15 minutos tarde por tercera vez en la semana.", "27 May 2026", true),
+                      _buildBitacoraItem("Alvarez Quispe, Jose", "Felicitación por participación", "Excelente desempeño en la resolución de problemas en la pizarra.", "26 May 2026", false),
+                      _buildBitacoraItem("Jimenez Ruiz, Carmen", "Falta de material", "No trajo el cuaderno de trabajo ni los útiles requeridos.", "25 May 2026", true),
+                      _buildBitacoraItem("Huaman Ortiz, Lucía", "Felicitación por trabajo en equipo", "Lideró de manera sobresaliente el trabajo de equipo.", "22 May 2026", false),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBitacoraItem(String student, String title, String desc, String date, bool isUrgent) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isUrgent ? const Color(0xFFFFF5F5) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isUrgent ? const Color(0xFFFED7D7) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                student,
+                style: GoogleFonts.outfit(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1D2848),
+                ),
+              ),
+              Text(
+                date,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              if (isUrgent) ...[
+                const Icon(LucideIcons.alertTriangle, color: Color(0xFFE53E3E), size: 12),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: isUrgent ? const Color(0xFFC53030) : const Color(0xFF1D2848),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            desc,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeacherHomeView(User teacherUser, List<Map<String, dynamic>> teacherCourses) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double headerHeight = 250 + statusBarHeight;
+
+    final firstName = teacherUser.fullName.split(' ').first;
+    final displayName = "Prof. $firstName";
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Header Banner Card
+          Container(
+            height: headerHeight,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE9F3FF), Color(0xFFF5F9FF)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -20,
+                  bottom: -20,
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  top: 24 + statusBarHeight,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(),
+                    child: OverflowBox(
+                      maxWidth: 140,
+                      maxHeight: 36,
+                      alignment: Alignment.centerLeft,
+                      child: Image.asset(
+                        'assets/images/school_logo.png',
+                        height: 36,
+                        fit: BoxFit.fitHeight,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 68,
+                  top: 22 + statusBarHeight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "EXITUS",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF1D2848),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                          height: 1.1,
+                        ),
+                      ),
+                      Text(
+                        "COLEGIO",
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFEDC620),
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  right: 24,
+                  top: 22 + statusBarHeight,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _currentIndex = 1),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(LucideIcons.bell, size: 16, color: Color(0xFF1D2848)),
+                        ),
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEDC620),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 24,
+                  right: 12,
+                  bottom: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 40),
+                          child: GestureDetector(
+                            onTap: () => _showUserSwitcherDialog(teacherUser),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Hola, ",
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF1D2848),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      displayName,
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFFEDC620),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Container(
+                                  width: 100,
+                                  height: 1,
+                                  color: const Color(0xFFCBD5E1),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "ROL: ",
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF64748B),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Profesor",
+                                      style: GoogleFonts.outfit(
+                                        color: const Color(0xFF1D2848),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _showUserSwitcherDialog(teacherUser),
+                        child: Image.asset(
+                          'assets/images/profesor_avatar.png',
+                          height: 230,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 120,
+                            height: 140,
+                            alignment: Alignment.bottomCenter,
+                            child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 2. Tarjeta Cursos
+          _buildFullWidthCard(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeacherCoursesScreen(
+                    teacherUser: teacherUser,
+                    courses: teacherCourses,
+                  ),
+                ),
+              );
+            },
+            icon: LucideIcons.bookOpen,
+            iconColor: const Color(0xFF1E88E5),
+            iconBg: const Color(0xFFE3F2FD),
+            title: "Mis Cursos",
+            subtitle: "Gestiona tus cursos, materiales, tareas y contenidos.",
+            arrowColor: const Color(0xFF1E88E5),
+            assetImage: "assets/images/mascot_cursos_3d.png",
+          ),
+          const SizedBox(height: 16),
+
+          // 3. Grid de Digitación y Bitácoras
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildGridCard(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
+                      );
+                    },
+                    icon: LucideIcons.printer,
+                    iconColor: const Color(0xFF7E57C2),
+                    iconBg: const Color(0xFFEDE7F6),
+                    title: "Digitación",
+                    subtitle: "Envía solicitudes de impresión y revisa su estado.",
+                    arrowColor: const Color(0xFF7E57C2),
+                    assetImage: "assets/images/mascot_digitacion.png",
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildGridCard(
+                    onTap: _showBitacorasBottomSheet,
+                    icon: LucideIcons.clipboard,
+                    iconColor: const Color(0xFFEC407A),
+                    iconBg: const Color(0xFFFCE4EC),
+                    title: "Bitácoras",
+                    subtitle: "Registra y gestiona incidencias de tus estudiantes.",
+                    arrowColor: const Color(0xFFEC407A),
+                    assetImage: "assets/images/mascot_bitacoras.png",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 4. Tarjeta Horario
+          _buildFullWidthCard(
+            onTap: _showScheduleSheet,
+            icon: LucideIcons.calendar,
+            iconColor: const Color(0xFFF57C00),
+            iconBg: const Color(0xFFFFF3E0),
+            title: "Horario",
+            subtitle: "Consulta tu horario de clases.",
+            arrowColor: const Color(0xFFF57C00),
+            assetImage: "assets/images/mascot_horario_3d.png",
+          ),
+          const SizedBox(height: 24),
+
+          // 5. Horario Hoy
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 15,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Hoy",
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _showScheduleSheet,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Ver horario completo",
+                              style: GoogleFonts.outfit(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF1D2848),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              LucideIcons.chevronRight,
+                              color: Color(0xFF1D2848),
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                const SizedBox(height: 4),
+                _buildSchedulePreviewRow("08:00", "Álgebra", "5° A", const Color(0xFF42A5F5)),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                _buildSchedulePreviewRow("10:00", "Física", "4° B", const Color(0xFFFFA726)),
+                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                _buildSchedulePreviewRow("12:00", "Tutoría", "3° A", const Color(0xFF66BB6A)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridCard({
+    required VoidCallback onTap,
+    required Color iconColor,
+    required Color iconBg,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color arrowColor,
+    required String assetImage,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth = constraints.maxWidth;
+              // Leave 65px on the right to avoid overlapping the 3D asset image
+              final textWidth = (cardWidth - 20 - 65).clamp(0.0, double.infinity);
+              
+              return Stack(
+                children: [
+                  Positioned(
+                    top: 16,
+                    left: 20,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: iconBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: iconColor,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 56,
+                    left: 20,
+                    width: textWidth,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1D2848),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: GoogleFonts.outfit(
+                            fontSize: 10.5,
+                            color: const Color(0xFF64748B),
+                            height: 1.3,
+                          ),
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 20,
+                    child: Icon(
+                      LucideIcons.arrowRight,
+                      color: arrowColor,
+                      size: 16,
+                    ),
+                  ),
+                  Positioned(
+                    right: -5,
+                    bottom: -5,
+                    child: Image.asset(
+                      assetImage,
+                      width: 75,
+                      height: 95,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.bottomRight,
+                      errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullWidthCard({
+    required VoidCallback onTap,
+    required Color iconColor,
+    required Color iconBg,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color arrowColor,
+    required String assetImage,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        height: 145,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 16,
+                left: 24,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 18,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 54,
+                left: 24,
+                right: 125,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.outfit(
+                        fontSize: 11.5,
+                        color: const Color(0xFF64748B),
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 16,
+                left: 24,
+                child: Icon(
+                  LucideIcons.arrowRight,
+                  color: arrowColor,
+                  size: 16,
+                ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                top: 0,
+                child: Image.asset(
+                  assetImage,
+                  width: 110,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomRight,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSchedulePreviewRow(String time, String subject, String section, Color dotColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            time,
+            style: GoogleFonts.outfit(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1D2848),
+            ),
+          ),
+          const SizedBox(width: 24),
+          Text(
+            subject,
+            style: GoogleFonts.outfit(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1D2848),
+            ),
+          ),
+          const Spacer(),
+          Text(
+            section,
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF64748B),
             ),
           ),
         ],
