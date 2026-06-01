@@ -1048,21 +1048,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
           ),
           Row(
             children: [
-              GestureDetector(
-                onTap: () => _showUserSwitcherDialog(student),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
-                  child: Row(
-                    children: [
-                      CircleAvatar(radius: 10, backgroundImage: NetworkImage(student.avatarUrl)),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
+
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1126,21 +1112,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
           ),
           Row(
             children: [
-              GestureDetector(
-                onTap: () => _showUserSwitcherDialog(teacher),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
-                  child: Row(
-                    children: [
-                      CircleAvatar(radius: 10, backgroundImage: NetworkImage(teacher.avatarUrl)),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
+
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -1231,25 +1203,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
           ),
           Row(
             children: [
-              GestureDetector(
-                onTap: () => _showUserSwitcherDialog(admin),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(radius: 10, backgroundImage: NetworkImage(admin.avatarUrl)),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF64748B)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
+
               GestureDetector(
                 onTap: () => _showAdminNotificationsDialog(),
                 child: Container(
@@ -1363,14 +1317,12 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       homeView = TeacherHomeView(
         teacherUser: user,
         teacherCourses: teacherCourses,
-        onUserSwitcherTap: () => _showUserSwitcherDialog(user),
         onTabChanged: _onTabChanged,
       );
     } else {
       homeView = StudentHomeView(
         studentUser: user,
         studentCourses: studentCourses,
-        onUserSwitcherTap: () => _showUserSwitcherDialog(user),
         onTabChanged: _onTabChanged,
       );
     }
@@ -1408,34 +1360,14 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
 
     final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
 
-    Widget header;
-    if (user.role == 'admin') {
-      header = _buildAdminHeader(user);
-    } else if (user.role == 'teacher') {
-      header = _buildTeacherHeader(user, titles[_currentIndex], unreadMessages);
-    } else {
-      header = _buildStudentHeader(user, titles[_currentIndex], unreadMessages);
-    }
-
     return Stack(
       children: [
         Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
           body: SafeArea(
-            top: user.role != 'student' || _currentIndex != 0,
-            child: Column(
-              children: [
-                if (user.role != 'student' || _currentIndex != 0) ...[
-                  header,
-                  Container(height: 1, color: const Color(0xFFE2E8F0)),
-                ],
-                Expanded(
-                  child: IndexedStack(
-                    index: _currentIndex,
-                    children: views,
-                  ),
-                ),
-              ],
+            child: IndexedStack(
+              index: _currentIndex,
+              children: views,
             ),
           ),
 

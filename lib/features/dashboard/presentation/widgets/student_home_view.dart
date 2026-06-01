@@ -19,14 +19,12 @@ import 'package:app_exitus/features/classroom/presentation/screens/student_dojo_
 class StudentHomeView extends ConsumerStatefulWidget {
   final User studentUser;
   final List<Map<String, dynamic>> studentCourses;
-  final VoidCallback onUserSwitcherTap;
   final Function(int index) onTabChanged;
 
   const StudentHomeView({
     super.key,
     required this.studentUser,
     required this.studentCourses,
-    required this.onUserSwitcherTap,
     required this.onTabChanged,
   });
 
@@ -1468,18 +1466,15 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: widget.onUserSwitcherTap,
-                        child: Image.asset(
-                          'assets/images/student_avatar.png',
-                          height: 230,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 120,
-                            height: 140,
-                            alignment: Alignment.bottomCenter,
-                            child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
-                          ),
+                      Image.asset(
+                        'assets/images/student_avatar.png',
+                        height: 230,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 120,
+                          height: 140,
+                          alignment: Alignment.bottomCenter,
+                          child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
                         ),
                       ),
                     ],

@@ -19,14 +19,12 @@ import 'package:app_exitus/features/classroom/presentation/screens/teacher_cours
 class TeacherHomeView extends ConsumerStatefulWidget {
   final User teacherUser;
   final List<Map<String, dynamic>> teacherCourses;
-  final VoidCallback onUserSwitcherTap;
   final Function(int index) onTabChanged;
 
   const TeacherHomeView({
     super.key,
     required this.teacherUser,
     required this.teacherCourses,
-    required this.onUserSwitcherTap,
     required this.onTabChanged,
   });
 
@@ -1708,77 +1706,71 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 40),
-                          child: GestureDetector(
-                            onTap: widget.onUserSwitcherTap,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Hola, ",
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF1D2848),
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(
+                                    "Hola, ",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1D2848),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    Text(
-                                      displayName,
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFFEDC620),
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                  Text(
+                                    displayName,
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFFEDC620),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Container(
-                                  width: 100,
-                                  height: 1,
-                                  color: const Color(0xFFCBD5E1),
-                                ),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "ROL: ",
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF64748B),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                width: 100,
+                                height: 1,
+                                color: const Color(0xFFCBD5E1),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Text(
+                                    "ROL: ",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF64748B),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    Text(
-                                      "Profesor",
-                                      style: GoogleFonts.outfit(
-                                        color: const Color(0xFF1D2848),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                  Text(
+                                    "Profesor",
+                                    style: GoogleFonts.outfit(
+                                      color: const Color(0xFF1D2848),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTap: widget.onUserSwitcherTap,
-                        child: Image.asset(
-                          'assets/images/profesor_avatar.png',
-                          height: 230,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 120,
-                            height: 140,
-                            alignment: Alignment.bottomCenter,
-                            child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
-                          ),
+                      Image.asset(
+                        'assets/images/profesor_avatar.png',
+                        height: 230,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 120,
+                          height: 140,
+                          alignment: Alignment.bottomCenter,
+                          child: const Icon(Icons.person, size: 80, color: Colors.blueGrey),
                         ),
                       ),
                     ],
