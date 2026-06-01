@@ -1474,7 +1474,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                     decoration: const InputDecoration(
                       hintText: "Buscar estudiante...",
                       hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                      border: Border.none,
+                      border: InputBorder.none,
                       isDense: true,
                     ),
                   ),

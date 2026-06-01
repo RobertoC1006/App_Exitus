@@ -16,14 +16,25 @@ import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_ove
 import 'package:app_exitus/features/classroom/presentation/screens/student_courses_screen.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/student_dojo_store_screen.dart';
 
-class StudentDashboardScreen extends ConsumerStatefulWidget {
-  const StudentDashboardScreen({super.key});
+class StudentHomeView extends ConsumerStatefulWidget {
+  final User studentUser;
+  final List<Map<String, dynamic>> studentCourses;
+  final VoidCallback onUserSwitcherTap;
+  final Function(int index) onTabChanged;
+
+  const StudentHomeView({
+    super.key,
+    required this.studentUser,
+    required this.studentCourses,
+    required this.onUserSwitcherTap,
+    required this.onTabChanged,
+  });
 
   @override
-  ConsumerState<StudentDashboardScreen> createState() => _StudentDashboardScreenState();
+  ConsumerState<StudentHomeView> createState() => _StudentHomeViewState();
 }
 
-class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen> {
+class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
   int _currentIndex = 0;
   final MockDatabase _db = MockDatabase();
   StateSetter? _modalStateSetter;
@@ -1458,7 +1469,7 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => _showUserSwitcherDialog(studentUser),
+                        onTap: widget.onUserSwitcherTap,
                         child: Image.asset(
                           'assets/images/student_avatar.png',
                           height: 230,
@@ -1885,100 +1896,12 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentAuthState = ref.watch(authControllerProvider);
-    if (currentAuthState is! AuthAuthenticated) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    final studentUser = currentAuthState.user;
-
-    final List<Map<String, dynamic>> studentCourses = studentUser.username.contains('sofia')
-        ? [
-            {'id': 'c1', 'title': 'Matemáticas', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100', 'teacher': 'Prof. Carlos Oliva', 'tag': 'CIENCIA Y TECNOLOGÍA'},
-            {'id': 'c2', 'title': 'Ciencias', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María', 'tag': 'CIENCIA Y TECNOLOGÍA'},
-            {'id': 'c3', 'title': 'Literatura', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Aula B', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Miss Ana María', 'tag': 'COMUNICACIÓN'},
-            {'id': 'c4', 'title': 'Inglés', 'level': 'PRIMARIA', 'levelNum': '2°', 'room': 'Lab. Primaria', 'avatar': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100', 'teacher': 'Miss Sara Conner', 'tag': 'INGLÉS'},
-          ]
-        : [
-            {'id': 'c1', 'title': 'Tutoría', 'level': 'SECUNDARIA', 'levelNum': '4° B', 'room': 'Secundaria', 'avatar': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', 'teacher': 'Nicole Sulay A.', 'tag': 'PLATAFORMA EDUCATIVA EXITUS'},
-            {'id': 'c2', 'title': 'Tech Savvy', 'level': 'SECUNDARIA', 'levelNum': '2° A', 'room': 'Aula 201', 'avatar': 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100', 'teacher': 'Nicole Sulay A.', 'tag': 'EDUCACIÓN PARA EL TRABAJO'},
-            {'id': 'c3', 'title': 'Biología', 'level': 'SECUNDARIA', 'levelNum': '5° A', 'room': 'Lab. Química', 'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100', 'teacher': 'Prof. Luis Gonzaga', 'tag': 'CIENCIA Y TECNOLOGÍA'},
-            {'id': 'c4', 'title': 'Literatura', 'level': 'SECUNDARIA', 'levelNum': '5° A', 'room': 'Aula A', 'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', 'teacher': 'Dra. Julia Mendoza', 'tag': 'COMUNICACIÓN'},
-          ];
-
-    final List<Widget> views = [
-      _buildStudentHomeView(studentUser, studentCourses),
-      SocialFeedView(currentUser: studentUser),
-      _buildStudentTasksView(studentUser),
-      StudentProfileView(currentUser: studentUser, onLogout: _handleLogout),
-    ];
-
-    final List<String> titles = [
-      "Inicio",
-      "Muro Institucional",
-      "Mis Tareas",
-      "Mi Perfil Exitus",
-    ];
-
-    final unreadMessages = _db.getMessagesForUser(studentUser.id).where((m) => m.unread).length;
+    final studentUser = widget.studentUser;
+    final studentCourses = widget.studentCourses;
 
     return Stack(
       children: [
-        Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          body: SafeArea(
-            top: _currentIndex != 0,
-            child: Column(
-              children: [
-                if (_currentIndex != 0) ...[
-                  _buildStudentHeader(studentUser, titles[_currentIndex], unreadMessages),
-                  Container(height: 1, color: const Color(0xFFE2E8F0)),
-                ],
-
-                Expanded(
-                  child: IndexedStack(
-                    index: _currentIndex,
-                    children: views,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isFABMenuOpen = true;
-              });
-            },
-            backgroundColor: const Color(0xFFF9C824),
-            elevation: 8,
-            shape: const CircleBorder(),
-            child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-          bottomNavigationBar: BottomAppBar(
-            color: Colors.white,
-            elevation: 16,
-            padding: EdgeInsets.zero,
-            child: SafeArea(
-              child: SizedBox(
-                height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
-                    _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
-                    const SizedBox(width: 48),
-                    _buildBottomNavItem(2, LucideIcons.briefcase, "Tareas"),
-                    _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
+        _buildStudentHomeView(studentUser, studentCourses),
         if (_isFABMenuOpen)
           Positioned.fill(
             child: FABMenuOverlay(
@@ -1991,7 +1914,6 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
               onActionTap: _handleFABAction,
             ),
           ),
-
         if (_isLaunchpadOpen)
           Positioned.fill(
             child: LaunchpadOverlay(
@@ -2021,14 +1943,12 @@ class _StudentDashboardScreenState extends ConsumerState<StudentDashboardScreen>
                           _isFABMenuOpen = true;
                         });
                       } else {
-                        _onTabChanged(result);
+                        widget.onTabChanged(result);
                       }
                     }
                   });
                 } else if (route == 'messages') {
-                  setState(() {
-                    _currentIndex = 2; // Switch to Messages tab
-                  });
+                  widget.onTabChanged(2); // Redirect to Messages
                 } else if (route == 'attendance') {
                   _showAttendanceBottomSheet(studentUser);
                 }

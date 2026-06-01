@@ -1,29 +1,210 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class DragonWidget extends StatelessWidget {
   final String dragonType; // 'glaciar', 'lava', 'rayo', 'brasa'
   final int points;
   final double size;
+  final String? spriteSheetUrl;
 
   const DragonWidget({
     super.key,
     required this.dragonType,
     required this.points,
     this.size = 80,
+    this.spriteSheetUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: DragonPainter(
-          dragonType: dragonType,
-          points: points,
+    final ImageProvider imageProvider = (spriteSheetUrl != null && spriteSheetUrl!.isNotEmpty)
+        ? NetworkImage(spriteSheetUrl!)
+        : const AssetImage('assets/images/dragon_spritesheet.png') as ImageProvider;
+
+    return DragonSpriteWidget(
+      dragonType: dragonType,
+      points: points,
+      size: size,
+      imageProvider: imageProvider,
+    );
+  }
+}
+
+class DragonSpriteWidget extends StatefulWidget {
+  final String dragonType;
+  final int points;
+  final double size;
+  final ImageProvider imageProvider;
+  final int rows;
+  final int columns;
+  final Duration frameDuration;
+
+  const DragonSpriteWidget({
+    super.key,
+    required this.dragonType,
+    required this.points,
+    required this.imageProvider,
+    this.size = 80,
+    this.rows = 4,
+    this.columns = 4,
+    this.frameDuration = const Duration(milliseconds: 100),
+  });
+
+  @override
+  State<DragonSpriteWidget> createState() => _DragonSpriteWidgetState();
+}
+
+class _DragonSpriteWidgetState extends State<DragonSpriteWidget>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _controller;
+  ui.Image? _image;
+  bool _hasError = false;
+  bool _isLoading = true;
+  ImageStream? _imageStream;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: widget.frameDuration.inMilliseconds * widget.rows * widget.columns),
+    )..repeat();
+    _loadImage();
+  }
+
+  @override
+  void didUpdateWidget(covariant DragonSpriteWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.imageProvider != oldWidget.imageProvider) {
+      _loadImage();
+    }
+  }
+
+  void _loadImage() {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
+
+    if (_imageStream != null && _listener != null) {
+      _imageStream!.removeListener(_listener!);
+    }
+
+    _imageStream = widget.imageProvider.resolve(ImageConfiguration.empty);
+    _listener = ImageStreamListener(
+      (ImageInfo info, bool _) {
+        if (mounted) {
+          setState(() {
+            _image = info.image;
+            _isLoading = false;
+          });
+        }
+      },
+      onError: (dynamic exception, StackTrace? stackTrace) {
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _isLoading = false;
+          });
+        }
+      },
+    );
+    _imageStream!.addListener(_listener!);
+  }
+
+  @override
+  void dispose() {
+    if (_imageStream != null && _listener != null) {
+      _imageStream!.removeListener(_listener!);
+    }
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasError || _isLoading || _image == null) {
+      // Fallback: draw with Vector DragonPainter
+      return SizedBox(
+        width: widget.size,
+        height: widget.size,
+        child: CustomPaint(
+          painter: DragonPainter(
+            dragonType: widget.dragonType,
+            points: widget.points,
+          ),
         ),
+      );
+    }
+
+    // Otherwise, draw the animated sprite sheet
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller!,
+        builder: (context, child) {
+          final int totalFrames = widget.rows * widget.columns;
+          final int currentFrame = (_controller!.value * totalFrames).floor().clamp(0, totalFrames - 1);
+          return CustomPaint(
+            painter: DragonSpritePainter(
+              image: _image!,
+              rows: widget.rows,
+              columns: widget.columns,
+              frameIndex: currentFrame,
+            ),
+          );
+        },
       ),
     );
+  }
+}
+
+class DragonSpritePainter extends CustomPainter {
+  final ui.Image image;
+  final int rows;
+  final int columns;
+  final int frameIndex;
+
+  DragonSpritePainter({
+    required this.image,
+    required this.rows,
+    required this.columns,
+    required this.frameIndex,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double cellWidth = image.width / columns;
+    final double cellHeight = image.height / rows;
+
+    final int col = frameIndex % columns;
+    final int row = (frameIndex / columns).floor();
+
+    final Rect srcRect = Rect.fromLTWH(
+      col * cellWidth,
+      row * cellHeight,
+      cellWidth,
+      cellHeight,
+    );
+
+    final Rect destRect = Rect.fromLTWH(0, 0, size.width, size.height);
+
+    final Paint paint = Paint()
+      ..filterQuality = FilterQuality.medium;
+
+    canvas.drawImageRect(image, srcRect, destRect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant DragonSpritePainter oldDelegate) {
+    return oldDelegate.image != image ||
+        oldDelegate.rows != rows ||
+        oldDelegate.columns != columns ||
+        oldDelegate.frameIndex != frameIndex;
   }
 }
 

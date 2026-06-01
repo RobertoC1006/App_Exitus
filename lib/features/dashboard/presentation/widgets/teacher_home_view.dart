@@ -16,14 +16,25 @@ import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_ove
 import 'package:app_exitus/features/digitacion/presentation/screens/digitacion_dashboard_screen.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_courses_screen.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({super.key});
+class TeacherHomeView extends ConsumerStatefulWidget {
+  final User teacherUser;
+  final List<Map<String, dynamic>> teacherCourses;
+  final VoidCallback onUserSwitcherTap;
+  final Function(int index) onTabChanged;
+
+  const TeacherHomeView({
+    super.key,
+    required this.teacherUser,
+    required this.teacherCourses,
+    required this.onUserSwitcherTap,
+    required this.onTabChanged,
+  });
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<TeacherHomeView> createState() => _TeacherHomeViewState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
   int _currentIndex = 0;
   final MockDatabase _db = MockDatabase();
   bool _showAllAttendance = false;
@@ -297,9 +308,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       );
                       _db.getSocialPosts().insert(0, newPost);
                       Navigator.pop(context);
-                      setState(() {
-                        _currentIndex = 0; // Redirigir a muro
-                      });
+                      widget.onTabChanged(1); // Redirigir a muro
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Comunicado publicado con éxito.")),
                       );
@@ -556,65 +565,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Stack(
       children: [
-        Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          body: SafeArea(
-            top: _currentIndex != 0,
-            child: Column(
-              children: [
-                if (_currentIndex != 0) ...[
-                  // Cabecera premium del docente (solo para pestañas secundarias)
-                  _buildTeacherHeader(teacherUser, titles[_currentIndex], unreadMessages),
-                  Container(height: 1, color: const Color(0xFFE2E8F0)),
-                ],
-
-                // Contenido de pestaña activa usando IndexedStack para persistir scroll
-                Expanded(
-                  child: IndexedStack(
-                    index: _currentIndex,
-                    children: views,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Botón Flotante Central (FAB) estilo circular y dorado
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isFABMenuOpen = true;
-              });
-            },
-            backgroundColor: const Color(0xFFEDC620),
-            elevation: 8,
-            shape: const CircleBorder(),
-            child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
-          // Barra de navegación inferior premium
-          bottomNavigationBar: BottomAppBar(
-            color: Colors.white,
-            elevation: 16,
-            padding: EdgeInsets.zero,
-            child: SafeArea(
-              child: SizedBox(
-                height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
-                    _buildBottomNavItem(1, LucideIcons.bell, "Avisos"),
-                    const SizedBox(width: 48), // Espacio para el FAB central
-                    _buildBottomNavItem(2, LucideIcons.mail, "Mensajes", badgeCount: unreadMessages),
-                    _buildBottomNavItem(3, LucideIcons.user, "Mi perfil"),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        _buildTeacherHomeView(teacherUser, teacherCourses),
 
         // 3. Superposición del Menú FAB
         if (_isFABMenuOpen)
@@ -654,9 +605,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ).then((value) {
                       if (value != null && value is int && value != 99) {
-                        setState(() {
-                          _currentIndex = value;
-                        });
+                        widget.onTabChanged(value);
                       }
                     });
                   } else if (route == 'digitacion') {
@@ -1713,7 +1662,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   right: 24,
                   top: 22 + statusBarHeight,
                   child: GestureDetector(
-                    onTap: () => setState(() => _currentIndex = 1),
+                    onTap: () => widget.onTabChanged(1),
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -1760,7 +1709,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 40),
                           child: GestureDetector(
-                            onTap: () => _showUserSwitcherDialog(teacherUser),
+                            onTap: widget.onUserSwitcherTap,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -1819,7 +1768,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => _showUserSwitcherDialog(teacherUser),
+                        onTap: widget.onUserSwitcherTap,
                         child: Image.asset(
                           'assets/images/profesor_avatar.png',
                           height: 230,
@@ -1853,9 +1802,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ).then((value) {
                 if (value != null && value is int && value != 99) {
-                  setState(() {
-                    _currentIndex = value;
-                  });
+                  widget.onTabChanged(value);
                 }
               });
             },
