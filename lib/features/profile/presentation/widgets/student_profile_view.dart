@@ -96,7 +96,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
               border: Border.all(color: const Color(0xFFEDC620), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1D2848).withOpacity(0.12),
+                  color: const Color(0xFF1D2848).withValues(alpha: 0.12),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -134,7 +134,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFEDC620).withOpacity(0.15),
+                        color: const Color(0xFFEDC620).withValues(alpha: 0.15),
                         blurRadius: 15,
                         offset: const Offset(0, 4),
                       ),
@@ -328,7 +328,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1D2848).withOpacity(0.08),
+                              color: const Color(0xFF1D2848).withValues(alpha: 0.08),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -357,7 +357,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                               border: Border.all(color: Colors.white, width: 2),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -390,7 +390,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2196F3).withOpacity(0.1),
+                      color: const Color(0xFF2196F3).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

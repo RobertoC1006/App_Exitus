@@ -78,7 +78,7 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: accentGold,
         secondary: accentGold,
-        surface: const Color(0xFF1E293B), // Slate 800
+        surface: Color(0xFF1E293B), // Slate 800
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
         displayLarge: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),

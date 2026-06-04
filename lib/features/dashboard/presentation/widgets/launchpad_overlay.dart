@@ -135,7 +135,7 @@ class _LaunchpadOverlayState extends State<LaunchpadOverlay> {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                color: const Color(0xFFF5F6F9).withOpacity(0.88),
+                color: const Color(0xFFF5F6F9).withValues(alpha: 0.88),
               ),
             ),
           ),
@@ -315,7 +315,7 @@ class _LaunchpadOverlayState extends State<LaunchpadOverlay> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.08),
+                  color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(

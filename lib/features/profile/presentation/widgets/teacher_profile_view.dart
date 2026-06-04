@@ -94,7 +94,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
               border: Border.all(color: const Color(0xFFEDC620), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1D2848).withOpacity(0.12),
+                  color: const Color(0xFF1D2848).withValues(alpha: 0.12),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -132,7 +132,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFEDC620).withOpacity(0.15),
+                        color: const Color(0xFFEDC620).withValues(alpha: 0.15),
                         blurRadius: 15,
                         offset: const Offset(0, 4),
                       ),
@@ -323,7 +323,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1D2848).withOpacity(0.08),
+                              color: const Color(0xFF1D2848).withValues(alpha: 0.08),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -352,7 +352,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                               border: Border.all(color: Colors.white, width: 2),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -385,7 +385,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEDC620).withOpacity(0.1),
+                      color: const Color(0xFFEDC620).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -533,7 +533,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1D2848).withOpacity(0.06),
+                          color: const Color(0xFF1D2848).withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(LucideIcons.bookOpen, color: Color(0xFF1D2848), size: 16),

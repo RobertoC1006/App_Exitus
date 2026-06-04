@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class AudioService {
@@ -11,7 +12,7 @@ class AudioService {
       // Reproducir sonido de clic del sistema como feedback auditivo inmediato y libre de dependencias
       await SystemSound.play(SystemSoundType.click);
     } catch (e) {
-      print('Error al reproducir el sonido: $e');
+      debugPrint('Error al reproducir el sonido: $e');
     }
   }
 }
