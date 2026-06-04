@@ -1769,34 +1769,7 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.14), 5, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.35)..style = PaintingStyle.fill);
       canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.08), 4, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.45)..style = PaintingStyle.fill);
 
-      canvas.drawCircle(
-        Offset(size.width * 0.75, size.height * 0.25),
-        4,
-        Paint()
-          ..color = const Color(0xFFEC407A).withOpacity(0.4)
-          ..style = PaintingStyle.fill,
-      );
-      canvas.drawCircle(
-        Offset(size.width * 0.79, size.height * 0.18),
-        3,
-        Paint()
-          ..color = const Color(0xFFEC407A).withOpacity(0.3)
-          ..style = PaintingStyle.fill,
-      );
-      canvas.drawCircle(
-        Offset(size.width * 0.85, size.height * 0.14),
-        5,
-        Paint()
-          ..color = const Color(0xFFEC407A).withOpacity(0.35)
-          ..style = PaintingStyle.fill,
-      );
-      canvas.drawCircle(
-        Offset(size.width * 0.9, size.height * 0.08),
-        4,
-        Paint()
-          ..color = const Color(0xFFEC407A).withOpacity(0.45)
-          ..style = PaintingStyle.fill,
-      );
+
     } else if (courseId == 'c_ingles') {
       // Landmarks & clock outlines
       final skyline = Path()
@@ -1877,22 +1850,7 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 12, Paint()..color = themeColor.withValues(alpha: 0.04)..style = PaintingStyle.stroke..strokeWidth = 1.5);
       canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 2, Paint()..color = themeColor.withValues(alpha: 0.08)..style = PaintingStyle.fill);
 
-      // Particle/Flask float
-      canvas.drawCircle(
-        Offset(size.width * 0.18, size.height * 0.35),
-        12,
-        Paint()
-          ..color = themeColor.withOpacity(0.04)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5,
-      );
-      canvas.drawCircle(
-        Offset(size.width * 0.18, size.height * 0.35),
-        2,
-        Paint()
-          ..color = themeColor.withOpacity(0.08)
-          ..style = PaintingStyle.fill,
-      );
+
     } else if (courseId == 'c_literatura') {
       // Opened book silhouette
       final Offset bookCenter = Offset(size.width * 0.8, size.height * 0.55);
@@ -1951,21 +1909,7 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.42, size.height * 0.72), 3.5, Paint()..color = themeColor.withValues(alpha: 0.2)..style = PaintingStyle.fill);
       canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.72), 4.5, Paint()..color = themeColor.withValues(alpha: 0.35)..style = PaintingStyle.fill);
 
-      canvas.drawPath(trace, paint..strokeWidth = 1.2);
-      canvas.drawCircle(
-        Offset(size.width * 0.42, size.height * 0.72),
-        3.5,
-        Paint()
-          ..color = themeColor.withOpacity(0.2)
-          ..style = PaintingStyle.fill,
-      );
-      canvas.drawCircle(
-        Offset(size.width * 0.78, size.height * 0.72),
-        4.5,
-        Paint()
-          ..color = themeColor.withOpacity(0.35)
-          ..style = PaintingStyle.fill,
-      );
+
     } else {
       // c_tutoria / generic: Hearts
       final heartPath = Path()

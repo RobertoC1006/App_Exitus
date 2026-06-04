@@ -6,7 +6,6 @@ import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_overlay.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
 import 'package:app_exitus/features/digitacion/presentation/screens/digitacion_dashboard_screen.dart';
@@ -32,13 +31,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
   final MockDatabase _db = MockDatabase();
   bool _showAllAttendance = false;
 
-
-
   // Estados de overlays
   bool _isFABMenuOpen = false;
   bool _isLaunchpadOpen = false;
-
-
 
   void _handleFABAction(String action) {
     if (action == 'portal') {
@@ -54,7 +49,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     } else if (action == 'digitacion') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
+        MaterialPageRoute(
+          builder: (context) => const DigitacionDashboardScreen(),
+        ),
       );
     } else if (action == 'my_attendance' || action == 'attendance_report') {
       final currentAuthState = ref.read(authControllerProvider);
@@ -63,7 +60,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
       }
     } else if (action == 'tesoreria') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Módulo exclusivo para administración y tesorería escolar.")),
+        const SnackBar(
+          content: Text(
+            "Módulo exclusivo para administración y tesorería escolar.",
+          ),
+        ),
       );
     } else {
       _showSimulatedSubmenu(action);
@@ -80,22 +81,41 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
       title = "Tópico / Enfermería";
       icon = LucideIcons.activity;
       color = const Color(0xFFEF4444);
-      items = ["Ficha Médica Consolidada", "Registrar Incidente en Aula", "Historial de Derivaciones", "Medicamentos Autorizados"];
+      items = [
+        "Ficha Médica Consolidada",
+        "Registrar Incidente en Aula",
+        "Historial de Derivaciones",
+        "Medicamentos Autorizados",
+      ];
     } else if (actionId == 'psicologia') {
       title = "Psicología & Consejería";
       icon = LucideIcons.heart;
       color = const Color(0xFFEC4899);
-      items = ["Derivaciones Pendientes", "Talleres Emocionales Activos", "Recomendaciones Psicoeducativas", "Mis Alumnos en Seguimiento"];
+      items = [
+        "Derivaciones Pendientes",
+        "Talleres Emocionales Activos",
+        "Recomendaciones Psicoeducativas",
+        "Mis Alumnos en Seguimiento",
+      ];
     } else if (actionId == 'actia') {
       title = "Sesiones ActIA";
       icon = LucideIcons.cpu;
       color = const Color(0xFF6366F1);
-      items = ["Asistente IA de Clases", "Analítica de Progreso IA", "Sugerencias de Planificación", "Consultas Recientes"];
+      items = [
+        "Asistente IA de Clases",
+        "Analítica de Progreso IA",
+        "Sugerencias de Planificación",
+        "Consultas Recientes",
+      ];
     } else if (actionId == 'firma') {
       title = "Firma Rápida de Actas";
       icon = LucideIcons.penTool;
       color = const Color(0xFF6B7280);
-      items = ["Firma de Actas Trimestrales", "Registros de Asistencia Oficial", "Firmar Justificaciones Aprobadas"];
+      items = [
+        "Firma de Actas Trimestrales",
+        "Registros de Asistencia Oficial",
+        "Firmar Justificaciones Aprobadas",
+      ];
     }
 
     showModalBottomSheet(
@@ -116,7 +136,10 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -124,13 +147,20 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Icon(icon, color: color, size: 18),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     title,
-                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+                    style: GoogleFonts.outfit(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1D2848),
+                    ),
                   ),
                 ],
               ),
@@ -139,11 +169,18 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: items.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
                 itemBuilder: (context, index) {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text(items[index], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    title: Text(
+                      items[index],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     trailing: const Icon(LucideIcons.chevronRight, size: 14),
                     onTap: () {
                       Navigator.pop(context);
@@ -170,7 +207,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -182,12 +221,23 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   "CREAR COMUNICADO EN EL MURO",
-                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D2848),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -196,10 +246,14 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   maxLines: 4,
                   style: const TextStyle(fontSize: 12.5),
                   decoration: InputDecoration(
-                    hintText: "Escribe un comunicado para compartir con padres y alumnos en el muro...",
+                    hintText:
+                        "Escribe un comunicado para compartir con padres y alumnos en el muro...",
                     filled: true,
                     fillColor: const Color(0xFFF5F6F9),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -219,14 +273,23 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                         time: 'Hace un momento',
                         tag: 'Comunicado',
                         content: text,
-                        userReactions: {'likes': false, 'loves': false, 'bravos': false, 'insights': false, 'haha': false, 'sad': false},
+                        userReactions: {
+                          'likes': false,
+                          'loves': false,
+                          'bravos': false,
+                          'insights': false,
+                          'haha': false,
+                          'sad': false,
+                        },
                         comments: [],
                       );
                       _db.getSocialPosts().insert(0, newPost);
                       Navigator.pop(context);
                       widget.onTabChanged(1); // Redirigir a muro
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Comunicado publicado con éxito.")),
+                        const SnackBar(
+                          content: Text("Comunicado publicado con éxito."),
+                        ),
                       );
                     }
                   },
@@ -234,7 +297,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     backgroundColor: const Color(0xFF1D2848),
                     foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text("PUBLICAR COMUNICADO"),
                 ),
@@ -270,12 +335,23 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Center(
-                      child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(2))),
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       "MI AGENDA Y HORARIO DE CLASES",
-                      style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1D2848),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -284,23 +360,43 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].map((day) {
-                          final isSel = day == activeDay;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text(day, style: TextStyle(fontSize: 11.5, fontWeight: isSel ? FontWeight.bold : FontWeight.w500, color: isSel ? const Color(0xFF1D2848) : const Color(0xFF64748B))),
-                              selected: isSel,
-                              selectedColor: const Color(0xFFEDC620).withValues(alpha: 0.2),
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              onSelected: (val) {
-                                setModalState(() {
-                                  activeDay = day;
-                                });
-                              },
-                            ),
-                          );
-                        }).toList(),
+                        children:
+                            [
+                              'Lunes',
+                              'Martes',
+                              'Miércoles',
+                              'Jueves',
+                              'Viernes',
+                            ].map((day) {
+                              final isSel = day == activeDay;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: ChoiceChip(
+                                  label: Text(
+                                    day,
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: isSel
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      color: isSel
+                                          ? const Color(0xFF1D2848)
+                                          : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                  selected: isSel,
+                                  selectedColor: const Color(
+                                    0xFFEDC620,
+                                  ).withValues(alpha: 0.2),
+                                  backgroundColor: const Color(0xFFF1F5F9),
+                                  onSelected: (val) {
+                                    setModalState(() {
+                                      activeDay = day;
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -308,10 +404,19 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     // Lista de clases
                     Expanded(
                       child: items.isEmpty
-                          ? const Center(child: Text("No tienes clases asignadas para este día.", style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))))
+                          ? const Center(
+                              child: Text(
+                                "No tienes clases asignadas para este día.",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                              ),
+                            )
                           : ListView.separated(
                               itemCount: items.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 12),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 12),
                               itemBuilder: (context, index) {
                                 final item = items[index];
                                 final isComp = item.status == 'completed';
@@ -320,7 +425,12 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                                 return Card(
                                   color: Colors.white,
                                   elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFE2E8F0))),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: const BorderSide(
+                                      color: Color(0xFFE2E8F0),
+                                    ),
+                                  ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
                                     child: Row(
@@ -331,30 +441,68 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                                           decoration: BoxDecoration(
                                             color: isComp
                                                 ? const Color(0xFF2E7D32)
-                                                : (isActive ? const Color(0xFFEDC620) : const Color(0xFF64748B)),
-                                            borderRadius: BorderRadius.circular(2),
+                                                : (isActive
+                                                      ? const Color(0xFFEDC620)
+                                                      : const Color(
+                                                          0xFF64748B,
+                                                        )),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Text(item.subject, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
+                                              Text(
+                                                item.subject,
+                                                style: const TextStyle(
+                                                  fontSize: 12.5,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF1D2848),
+                                                ),
+                                              ),
                                               const SizedBox(height: 2),
-                                              Text("${item.time} • ${item.classroom}", style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                                              Text(
+                                                "${item.time} • ${item.classroom}",
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Color(0xFF64748B),
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ),
                                         if (isActive)
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(color: const Color(0xFFFFF8E1), borderRadius: BorderRadius.circular(6)),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFFF8E1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
                                             child: Row(
                                               children: const [
-                                                Icon(LucideIcons.activity, size: 8, color: Color(0xFFE6A817)),
+                                                Icon(
+                                                  LucideIcons.activity,
+                                                  size: 8,
+                                                  color: Color(0xFFE6A817),
+                                                ),
                                                 SizedBox(width: 2),
-                                                Text("EN VIVO", style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFFE6A817))),
+                                                Text(
+                                                  "EN VIVO",
+                                                  style: TextStyle(
+                                                    fontSize: 8,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFFE6A817),
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -380,7 +528,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
       context: context,
       builder: (context) {
         final currentAuthState = ref.read(authControllerProvider);
-        if (currentAuthState is! AuthAuthenticated) return const SizedBox.shrink();
+        if (currentAuthState is! AuthAuthenticated) {
+          return const SizedBox.shrink();
+        }
         final user = currentAuthState.user;
 
         return Dialog(
@@ -398,8 +548,18 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Pase Digital de Docente", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
-                    IconButton(icon: const Icon(LucideIcons.x, size: 18), onPressed: () => Navigator.pop(context)),
+                    const Text(
+                      "Pase Digital de Docente",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1D2848),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(LucideIcons.x, size: 18),
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ],
                 ),
                 const Divider(height: 16),
@@ -410,17 +570,41 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   height: 180,
                 ),
                 const SizedBox(height: 20),
-                Text(user.fullName.toUpperCase(), style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848))),
+                Text(
+                  user.fullName.toUpperCase(),
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1D2848),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F5E9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(LucideIcons.check, size: 12, color: Color(0xFF2E7D32)),
+                      Icon(
+                        LucideIcons.check,
+                        size: 12,
+                        color: Color(0xFF2E7D32),
+                      ),
                       SizedBox(width: 4),
-                      Text("Ingreso Autorizado", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
+                      Text(
+                        "Ingreso Autorizado",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -441,10 +625,14 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     final teacherUser = currentAuthState.user;
 
     // Configurar los cursos/aulas asignadas al docente
-    final List<Map<String, dynamic>> teacherCourses = teacherUser.subjects.map((sub) {
+    final List<Map<String, dynamic>> teacherCourses = teacherUser.subjects.map((
+      sub,
+    ) {
       String level = "SECUNDARIA";
       String levelNum = sub.contains('5to') ? '5°' : '4°';
-      String room = sub.contains('5to A') ? 'Aula A' : (sub.contains('5to B') ? 'Aula B' : 'Aula C');
+      String room = sub.contains('5to A')
+          ? 'Aula A'
+          : (sub.contains('5to B') ? 'Aula B' : 'Aula C');
       String avatar = sub.contains('Matemática')
           ? 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=100'
           : 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100';
@@ -459,8 +647,6 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
         'teacher': teacherUser.fullName,
       };
     }).toList();
-
-
 
     return Stack(
       children: [
@@ -510,7 +696,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   } else if (route == 'digitacion') {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const DigitacionDashboardScreen(),
+                      ),
                     );
                   }
                 });
@@ -527,24 +715,22 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
   Widget _buildTeacherAttendanceTab(User teacherUser) {
     final attendanceLogs = _db.getAttendanceLogsForUser(teacherUser.id);
-    final validLogs = attendanceLogs.where((log) => log.status != 'SIN_REGISTRO').toList();
+    final validLogs = attendanceLogs
+        .where((log) => log.status != 'SIN_REGISTRO')
+        .toList();
     final totalDays = validLogs.length;
-    final punctualDays = validLogs.where((log) => log.status == 'PUNTUAL').length;
-    final tardanzaDays = validLogs.where((log) => log.status == 'TARDANZA').length;
+    final punctualDays = validLogs
+        .where((log) => log.status == 'PUNTUAL')
+        .length;
+    final tardanzaDays = validLogs
+        .where((log) => log.status == 'TARDANZA')
+        .length;
     final faltaDays = validLogs.where((log) => log.status == 'FALTA').length;
-    final double punctualRate = totalDays > 0 ? (punctualDays / totalDays) * 100 : 0.0;
+    final double punctualRate = totalDays > 0
+        ? (punctualDays / totalDays) * 100
+        : 0.0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -553,7 +739,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
         children: [
           Text(
             "Control de Asistencia Docente",
-            style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+            style: GoogleFonts.outfit(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1D2848),
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -608,12 +798,18 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   const SizedBox(height: 12),
                   const Text(
                     "Registro de Asistencia de Docente (Mayo 2026)",
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF64748B),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Column(
                     children: List.generate(
-                      _showAllAttendance ? attendanceLogs.length : 5.clamp(0, attendanceLogs.length),
+                      _showAllAttendance
+                          ? attendanceLogs.length
+                          : 5.clamp(0, attendanceLogs.length),
                       (index) {
                         final log = attendanceLogs[index];
                         return _buildAttendanceTimelineItem(log);
@@ -629,7 +825,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                         });
                       },
                       child: Text(
-                        _showAllAttendance ? "VER MENOS" : "VER DETALLE MENSUAL COMPLETO",
+                        _showAllAttendance
+                            ? "VER MENOS"
+                            : "VER DETALLE MENSUAL COMPLETO",
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -647,7 +845,12 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-  Widget _buildAttendanceKpi(String label, String value, Color color, Color bg) {
+  Widget _buildAttendanceKpi(
+    String label,
+    String value,
+    Color color,
+    Color bg,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
@@ -722,17 +925,10 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
               Container(
                 width: 20,
                 height: 20,
-                decoration: BoxDecoration(
-                  color: bg,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
                 child: Icon(icon, size: 12, color: fg),
               ),
-              Container(
-                width: 1.5,
-                height: 32,
-                color: const Color(0xFFE2E8F0),
-              ),
+              Container(width: 1.5, height: 32, color: const Color(0xFFE2E8F0)),
             ],
           ),
           const SizedBox(width: 12),
@@ -771,7 +967,10 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: bg,
                       borderRadius: BorderRadius.circular(6),
@@ -820,9 +1019,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: _buildTeacherAttendanceTab(teacherUser),
-                ),
+                Expanded(child: _buildTeacherAttendanceTab(teacherUser)),
               ],
             ),
           ),
@@ -888,10 +1085,34 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 Expanded(
                   child: ListView(
                     children: [
-                      _buildBitacoraItem("García Pérez, Luis", "Tardanza recurrente", "Llegó 15 minutos tarde por tercera vez en la semana.", "27 May 2026", true),
-                      _buildBitacoraItem("Alvarez Quispe, Jose", "Felicitación por participación", "Excelente desempeño en la resolución de problemas en la pizarra.", "26 May 2026", false),
-                      _buildBitacoraItem("Jimenez Ruiz, Carmen", "Falta de material", "No trajo el cuaderno de trabajo ni los útiles requeridos.", "25 May 2026", true),
-                      _buildBitacoraItem("Huaman Ortiz, Lucía", "Felicitación por trabajo en equipo", "Lideró de manera sobresaliente el trabajo de equipo.", "22 May 2026", false),
+                      _buildBitacoraItem(
+                        "García Pérez, Luis",
+                        "Tardanza recurrente",
+                        "Llegó 15 minutos tarde por tercera vez en la semana.",
+                        "27 May 2026",
+                        true,
+                      ),
+                      _buildBitacoraItem(
+                        "Alvarez Quispe, Jose",
+                        "Felicitación por participación",
+                        "Excelente desempeño en la resolución de problemas en la pizarra.",
+                        "26 May 2026",
+                        false,
+                      ),
+                      _buildBitacoraItem(
+                        "Jimenez Ruiz, Carmen",
+                        "Falta de material",
+                        "No trajo el cuaderno de trabajo ni los útiles requeridos.",
+                        "25 May 2026",
+                        true,
+                      ),
+                      _buildBitacoraItem(
+                        "Huaman Ortiz, Lucía",
+                        "Felicitación por trabajo en equipo",
+                        "Lideró de manera sobresaliente el trabajo de equipo.",
+                        "22 May 2026",
+                        false,
+                      ),
                     ],
                   ),
                 ),
@@ -903,7 +1124,13 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-  Widget _buildBitacoraItem(String student, String title, String desc, String date, bool isUrgent) {
+  Widget _buildBitacoraItem(
+    String student,
+    String title,
+    String desc,
+    String date,
+    bool isUrgent,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -930,10 +1157,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
               ),
               Text(
                 date,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Color(0xFF64748B),
-                ),
+                style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
               ),
             ],
           ),
@@ -941,7 +1165,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
           Row(
             children: [
               if (isUrgent) ...[
-                const Icon(LucideIcons.alertTriangle, color: Color(0xFFE53E3E), size: 12),
+                const Icon(
+                  LucideIcons.alertTriangle,
+                  color: Color(0xFFE53E3E),
+                  size: 12,
+                ),
                 const SizedBox(width: 4),
               ],
               Text(
@@ -949,7 +1177,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 style: GoogleFonts.outfit(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
-                  color: isUrgent ? const Color(0xFFC53030) : const Color(0xFF1D2848),
+                  color: isUrgent
+                      ? const Color(0xFFC53030)
+                      : const Color(0xFF1D2848),
                 ),
               ),
             ],
@@ -957,17 +1187,17 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
           const SizedBox(height: 4),
           Text(
             desc,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Color(0xFF64748B),
-            ),
+            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTeacherHomeView(User teacherUser, List<Map<String, dynamic>> teacherCourses) {
+  Widget _buildTeacherHomeView(
+    User teacherUser,
+    List<Map<String, dynamic>> teacherCourses,
+  ) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double headerHeight = 250 + statusBarHeight;
 
@@ -989,7 +1219,9 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -1078,7 +1310,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                               ),
                             ],
                           ),
-                          child: const Icon(LucideIcons.bell, size: 16, color: Color(0xFF1D2848)),
+                          child: const Icon(
+                            LucideIcons.bell,
+                            size: 16,
+                            color: Color(0xFF1D2848),
+                          ),
                         ),
                         Positioned(
                           top: -2,
@@ -1171,7 +1407,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                           width: 120,
                           height: 140,
                           alignment: Alignment.bottomCenter,
-                          child: const Icon(LucideIcons.user, size: 80, color: Colors.blueGrey),
+                          child: const Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.blueGrey,
+                          ),
                         ),
                       ),
                     ],
@@ -1199,7 +1439,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 }
               });
             },
-            icon: LucideIcons.bookOpenText,
+            icon: LucideIcons.bookOpen,
             iconColor: const Color(0xFF1E88E5),
             iconBg: const Color(0xFFE3F2FD),
             title: "Mis Cursos",
@@ -1219,14 +1459,18 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const DigitacionDashboardScreen(),
+                        ),
                       );
                     },
                     icon: LucideIcons.printer,
                     iconColor: const Color(0xFF7E57C2),
                     iconBg: const Color(0xFFEDE7F6),
                     title: "Digitación",
-                    subtitle: "Envía solicitudes de impresión y revisa su estado.",
+                    subtitle:
+                        "Envía solicitudes de impresión y revisa su estado.",
                     arrowColor: const Color(0xFF7E57C2),
                     assetImage: "assets/images/mascot_digitacion.png",
                   ),
@@ -1239,7 +1483,8 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     iconColor: const Color(0xFFEC407A),
                     iconBg: const Color(0xFFFCE4EC),
                     title: "Bitácoras",
-                    subtitle: "Registra y gestiona incidencias de tus estudiantes.",
+                    subtitle:
+                        "Registra y gestiona incidencias de tus estudiantes.",
                     arrowColor: const Color(0xFFEC407A),
                     assetImage: "assets/images/mascot_bitacoras.png",
                   ),
@@ -1294,7 +1539,10 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     GestureDetector(
                       onTap: _showScheduleSheet,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(12),
@@ -1324,11 +1572,26 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 const SizedBox(height: 12),
                 const Divider(height: 1, color: Color(0xFFF1F5F9)),
                 const SizedBox(height: 4),
-                _buildSchedulePreviewRow("08:00", "Álgebra", "5° A", const Color(0xFF42A5F5)),
+                _buildSchedulePreviewRow(
+                  "08:00",
+                  "Álgebra",
+                  "5° A",
+                  const Color(0xFF42A5F5),
+                ),
                 const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                _buildSchedulePreviewRow("10:00", "Física", "4° B", const Color(0xFFFFA726)),
+                _buildSchedulePreviewRow(
+                  "10:00",
+                  "Física",
+                  "4° B",
+                  const Color(0xFFFFA726),
+                ),
                 const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                _buildSchedulePreviewRow("12:00", "Tutoría", "3° A", const Color(0xFF66BB6A)),
+                _buildSchedulePreviewRow(
+                  "12:00",
+                  "Tutoría",
+                  "3° A",
+                  const Color(0xFF66BB6A),
+                ),
               ],
             ),
           ),
@@ -1368,8 +1631,11 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
             builder: (context, constraints) {
               final cardWidth = constraints.maxWidth;
               // Leave 65px on the right to avoid overlapping the 3D asset image
-              final textWidth = (cardWidth - 20 - 65).clamp(0.0, double.infinity);
-              
+              final textWidth = (cardWidth - 20 - 65).clamp(
+                0.0,
+                double.infinity,
+              );
+
               return Stack(
                 children: [
                   Positioned(
@@ -1381,11 +1647,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                         color: iconBg,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        icon,
-                        color: iconColor,
-                        size: 18,
-                      ),
+                      child: Icon(icon, color: iconColor, size: 18),
                     ),
                   ),
                   Positioned(
@@ -1435,7 +1697,8 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                       height: 95,
                       fit: BoxFit.contain,
                       alignment: Alignment.bottomRight,
-                      errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const SizedBox.shrink(),
                     ),
                   ),
                 ],
@@ -1486,11 +1749,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     color: iconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 18,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 18),
                 ),
               ),
               Positioned(
@@ -1540,7 +1799,8 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   width: 110,
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomRight,
-                  errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
                 ),
               ),
             ],
@@ -1550,7 +1810,12 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-  Widget _buildSchedulePreviewRow(String time, String subject, String section, Color dotColor) {
+  Widget _buildSchedulePreviewRow(
+    String time,
+    String subject,
+    String section,
+    Color dotColor,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -1558,10 +1823,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 12),
           Text(
