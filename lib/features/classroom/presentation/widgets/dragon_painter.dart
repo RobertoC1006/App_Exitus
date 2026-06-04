@@ -300,7 +300,7 @@ class DragonPainter extends CustomPainter {
 
       // Dibujar lunares dorados
       final spotPaint = Paint()
-        ..color = const Color(0xFFEDC620).withOpacity(0.85)
+        ..color = const Color(0xFFEDC620).withValues(alpha: 0.85)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(const Offset(40, 45), 4.5, spotPaint);
@@ -327,7 +327,7 @@ class DragonPainter extends CustomPainter {
 
       // Dibujar patrones según elemento
       final patternPaint = Paint()
-        ..color = Colors.white.withOpacity(0.8)
+        ..color = Colors.white.withValues(alpha: 0.8)
         ..style = PaintingStyle.fill;
 
       if (dragonType == 'glaciar') {
@@ -378,7 +378,7 @@ class DragonPainter extends CustomPainter {
       } else {
         // Brasa (llama dorada interna)
         final flamePaint = Paint()
-          ..color = const Color(0xFFEDC620).withOpacity(0.2)
+          ..color = const Color(0xFFEDC620).withValues(alpha: 0.2)
           ..style = PaintingStyle.fill;
 
         final path = Path()
@@ -445,7 +445,7 @@ class DragonPainter extends CustomPainter {
         ..quadraticBezierTo(81, 39, 73, 48)
         ..close();
 
-      canvas.drawPath(leftWing, wingPaint..color = wingPaint.color.withOpacity(0.8));
+      canvas.drawPath(leftWing, wingPaint..color = wingPaint.color.withValues(alpha: 0.8));
       canvas.drawPath(rightWing, wingPaint);
 
       // 3. Cabeza y cuello
@@ -459,7 +459,7 @@ class DragonPainter extends CustomPainter {
       canvas.drawCircle(const Offset(50, 42), 17, dragonPaint);
 
       // Hocico
-      canvas.drawOval(Rect.fromCenter(center: const Offset(50, 48), width: 18, height: 14), dragonPaint..color = dragonPaint.color.withOpacity(0.9));
+      canvas.drawOval(Rect.fromCenter(center: const Offset(50, 48), width: 18, height: 14), dragonPaint..color = dragonPaint.color.withValues(alpha: 0.9));
       final nosePaint = Paint()..color = const Color(0xFF1D2848)..style = PaintingStyle.fill;
       canvas.drawCircle(const Offset(47, 47), 1.0, nosePaint);
       canvas.drawCircle(const Offset(53, 47), 1.0, nosePaint);
@@ -530,7 +530,7 @@ class DragonPainter extends CustomPainter {
         ..quadraticBezierTo(62, 55, 55, 53)
         ..close();
 
-      canvas.drawPath(leftWing, dragonPaint..color = dragonPaint.color.withOpacity(0.95));
+      canvas.drawPath(leftWing, dragonPaint..color = dragonPaint.color.withValues(alpha: 0.95));
       canvas.drawPath(rightWing, dragonPaint);
 
       // Borde de alas dorado

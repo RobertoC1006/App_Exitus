@@ -152,7 +152,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.01),
+                            color: Colors.black.withValues(alpha: 0.01),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           )
@@ -201,7 +201,7 @@ class _AttendanceViewState extends State<AttendanceView> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -3),
               )
@@ -211,7 +211,7 @@ class _AttendanceViewState extends State<AttendanceView> {
             onPressed: _isSaving ? null : _handleSave,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF002244),
-              disabledBackgroundColor: const Color(0xFF002244).withOpacity(0.6),
+              disabledBackgroundColor: const Color(0xFF002244).withValues(alpha: 0.6),
             ),
             child: _isSaving
                 ? const SizedBox(

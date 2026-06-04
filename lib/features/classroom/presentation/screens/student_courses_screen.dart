@@ -186,7 +186,7 @@ class _StudentCoursesScreenState extends ConsumerState<StudentCoursesScreen> {
                 Container(
                   height: headerHeight + statusBarHeight,
                   width: double.infinity,
-                  color: Colors.white.withOpacity(0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                 ),
                 // Botón de Volver y Logo Centrado arriba
                 Positioned(
@@ -206,7 +206,7 @@ class _StudentCoursesScreenState extends ConsumerState<StudentCoursesScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -441,7 +441,7 @@ class _StudentCoursesScreenState extends ConsumerState<StudentCoursesScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

@@ -143,7 +143,7 @@ class _GradingDetailScreenState extends State<GradingDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2E7D32).withOpacity(0.1),
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -383,7 +383,7 @@ class _GradingDetailScreenState extends State<GradingDetailScreen> {
                       onPressed: _isSaving ? null : _submitGrading,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF002244),
-                        disabledBackgroundColor: const Color(0xFF002244).withOpacity(0.6),
+                        disabledBackgroundColor: const Color(0xFF002244).withValues(alpha: 0.6),
                       ),
                       child: _isSaving
                           ? const SizedBox(

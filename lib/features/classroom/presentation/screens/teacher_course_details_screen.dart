@@ -221,20 +221,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
     });
   }
 
-  // Elimina una sesión del trimestre
-  void _deleteSession(String trimester, int index) {
-    setState(() {
-      _trimesterSessions[trimester]!.removeAt(index);
-    });
-  }
 
-  // Cambia la visibilidad de una sesión
-  void _toggleSessionVisibility(String trimester, int index) {
-    setState(() {
-      final session = _trimesterSessions[trimester]![index];
-      session['visible'] = !session['visible'];
-    });
-  }
 
   // Abre el bottom sheet de agregar contenido (Pantalla 3)
   void _openAddContentSheet(String trimester, int sessionIndex) {
@@ -473,19 +460,16 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
       child: Stack(
         children: [
           // Pintor decorativo temático a la derecha
-          if (decorationPainter != null)
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 140,
-              child: Opacity(
-                opacity: 0.12,
-                child: CustomPaint(painter: decorationPainter),
-              ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 140,
+            child: Opacity(
+              opacity: 0.12,
+              child: CustomPaint(painter: decorationPainter),
             ),
-          
-          // Contenido principal de la cabecera
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -504,7 +488,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -524,7 +508,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -582,7 +566,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.02),
+                                      color: Colors.black.withValues(alpha: 0.02),
                                       blurRadius: 4,
                                     ),
                                   ],
@@ -604,7 +588,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.02),
+                                      color: Colors.black.withValues(alpha: 0.02),
                                       blurRadius: 4,
                                     ),
                                   ],
@@ -643,7 +627,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 3),
             )
@@ -661,7 +645,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
             )
           ]
@@ -684,7 +668,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
             )
           ]
@@ -794,7 +778,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -829,7 +813,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                     ),
                     TextButton.icon(
                       style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFFEDC620).withOpacity(0.12),
+                        backgroundColor: const Color(0xFFEDC620).withValues(alpha: 0.12),
                         foregroundColor: const Color(0xFFB45309),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -966,7 +950,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3), style: BorderStyle.solid),
+                  border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.3), style: BorderStyle.solid),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1040,7 +1024,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -1383,7 +1367,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1D2848).withOpacity(0.06),
+                color: const Color(0xFF1D2848).withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -1451,7 +1435,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
               border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF3B82F6).withOpacity(0.04),
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -1510,7 +1494,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -1627,7 +1611,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFEAB308).withOpacity(0.4),
+            color: const Color(0xFFEAB308).withValues(alpha: 0.4),
             blurRadius: 6,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -1655,7 +1639,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -1787,7 +1771,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
       decoration: BoxDecoration(
         color: bgColors[colorIndex],
         shape: BoxShape.circle,
-        border: Border.all(color: textColors[colorIndex].withOpacity(0.15), width: 1.5),
+        border: Border.all(color: textColors[colorIndex].withValues(alpha: 0.15), width: 1.5),
       ),
       child: Center(
         child: Text(
@@ -1814,7 +1798,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: textColor.withOpacity(0.15), width: 1),
+          border: Border.all(color: textColor.withValues(alpha: 0.15), width: 1),
         ),
         child: Text(
           label,
@@ -1919,7 +1903,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                 border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.01),
+                    color: Colors.black.withValues(alpha: 0.01),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -2045,7 +2029,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withValues(alpha: 0.015),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -2427,7 +2411,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                   Text("Tipo de Rúbrica", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 11)),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     style: GoogleFonts.outfit(fontSize: 13, color: Colors.black),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -2551,7 +2535,7 @@ class PagodaPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFFCA5A5).withOpacity(0.6)
+      ..color = const Color(0xFFFCA5A5).withValues(alpha: 0.6)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -2591,7 +2575,7 @@ class CirclesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFFDE68A).withOpacity(0.8)
+      ..color = const Color(0xFFFDE68A).withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
@@ -2608,7 +2592,7 @@ class TechPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFA7F3D0).withOpacity(0.8)
+      ..color = const Color(0xFFA7F3D0).withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
@@ -2624,7 +2608,7 @@ class TechPainter extends CustomPainter {
     path2.addOval(Rect.fromCenter(center: Offset(w * 0.6, h * 0.5), width: 25, height: 60));
     canvas.drawPath(path2, paint);
     
-    canvas.drawCircle(Offset(w * 0.6, h * 0.5), 6, Paint()..color = const Color(0xFFA7F3D0).withOpacity(0.6));
+    canvas.drawCircle(Offset(w * 0.6, h * 0.5), 6, Paint()..color = const Color(0xFFA7F3D0).withValues(alpha: 0.6));
   }
 
   @override
@@ -2635,7 +2619,7 @@ class GenericPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFBAE6FD).withOpacity(0.8)
+      ..color = const Color(0xFFBAE6FD).withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

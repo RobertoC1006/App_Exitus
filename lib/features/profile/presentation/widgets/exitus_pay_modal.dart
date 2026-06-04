@@ -84,7 +84,7 @@ class _ExitusPayModalState extends State<ExitusPayModal> with SingleTickerProvid
           border: Border.all(color: const Color(0xFFEDC620), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1D2848).withOpacity(0.12),
+              color: const Color(0xFF1D2848).withValues(alpha: 0.12),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -225,7 +225,7 @@ class _ExitusPayModalState extends State<ExitusPayModal> with SingleTickerProvid
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF1D2848).withOpacity(0.15),
+                            color: const Color(0xFF1D2848).withValues(alpha: 0.15),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -309,9 +309,9 @@ class _ExitusPayModalState extends State<ExitusPayModal> with SingleTickerProvid
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              Colors.white.withOpacity(0.0),
-                                              Colors.white.withOpacity(0.25),
-                                              Colors.white.withOpacity(0.0),
+                                              Colors.white.withValues(alpha: 0.0),
+                                              Colors.white.withValues(alpha: 0.25),
+                                              Colors.white.withValues(alpha: 0.0),
                                             ],
                                           ),
                                         ),
