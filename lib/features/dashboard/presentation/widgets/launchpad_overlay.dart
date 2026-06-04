@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LaunchpadOverlay extends StatefulWidget {
@@ -57,7 +57,7 @@ class _LaunchpadOverlayState extends State<LaunchpadOverlay> {
       'color': Colors.purple,
       'modules': [
         {'id': 'actia', 'name': 'Sesiones ActIA', 'icon': LucideIcons.cpu, 'submenu': true},
-        {'id': 'sims', 'name': 'Simulaciones', 'icon': LucideIcons.bookOpen},
+        {'id': 'sims', 'name': 'Simulaciones', 'icon': LucideIcons.bookOpenText},
         {'id': 'psy', 'name': 'Psicología', 'icon': LucideIcons.heart, 'submenu': true},
         {'id': 'topico', 'name': 'Tópico / Enfermería', 'icon': LucideIcons.activity, 'submenu': true},
         {'id': 'student_council', 'name': 'Consejo Estudiantil', 'icon': LucideIcons.vote, 'submenu': true},

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:google_fonts/google_fonts.dart';

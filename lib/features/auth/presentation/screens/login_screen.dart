@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/school_logo.dart';
 
@@ -38,7 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.white),
+                  const Icon(LucideIcons.alertCircle, color: Colors.white),
                   const SizedBox(width: 8),
                   Expanded(child: Text(state.message)),
                 ],

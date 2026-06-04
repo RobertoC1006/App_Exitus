@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/network/api_endpoints.dart';
 import 'package:app_exitus/core/network/api_logger.dart';
@@ -20,13 +20,15 @@ class StudentCourseDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<StudentCourseDetailsScreen> createState() => _StudentCourseDetailsScreenState();
+  State<StudentCourseDetailsScreen> createState() =>
+      _StudentCourseDetailsScreenState();
 }
 
-class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen> with SingleTickerProviderStateMixin {
+class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
+    with SingleTickerProviderStateMixin {
   final _db = MockDatabase();
   late TabController _tabController;
-  
+
   bool _isLoadingContent = true;
   bool _isLoadingDojo = true;
   bool _isLoadingRubricas = true;
@@ -48,10 +50,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
 
   void _loadAllData() async {
     final String courseId = widget.course['id'];
-    
+
     // 1. Fetch content
     _courseContent = _db.getCourseContent(courseId);
-    
+
     // 2. Fetch rubrics
     _courseRubricas = _db.getRubricasForCourse(courseId);
 
@@ -61,14 +63,18 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
       endpoint: ApiEndpoints.courseDojo.replaceAll("{courseId}", courseId),
     );
     _allDojoStudents = _db.getDojoStudents();
-    final String queryName = widget.studentUser.fullName.toLowerCase().split(' ')[0];
+    final String queryName = widget.studentUser.fullName.toLowerCase().split(
+      ' ',
+    )[0];
     try {
       _currentDojoStudent = _allDojoStudents.firstWhere(
         (s) => s.name.toLowerCase().contains(queryName),
       );
     } catch (_) {
       try {
-        _currentDojoStudent = _allDojoStudents.firstWhere((s) => s.id == 34); // Default to Mateo
+        _currentDojoStudent = _allDojoStudents.firstWhere(
+          (s) => s.id == 34,
+        ); // Default to Mateo
       } catch (_) {}
     }
 
@@ -135,10 +141,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  bgColor,
-                  Colors.white,
-                ],
+                colors: [bgColor, Colors.white],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -154,7 +157,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                     ),
                   ),
                 ),
-                
+
                 // Back Button
                 Positioned(
                   top: statusBarHeight + 10,
@@ -189,7 +192,8 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                   left: 16,
                   right: 16,
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center, // Vertically align all items
+                    crossAxisAlignment:
+                        CrossAxisAlignment.center, // Vertically align all items
                     children: [
                       // Course details & Teacher
                       Expanded(
@@ -210,18 +214,24 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                     border: Border.all(color: themeColor.withValues(alpha: 0.2), width: 1.5),
                                   ),
                                   alignment: Alignment.center,
-                                  child: _buildHeaderIconWidget(courseId, themeColor),
+                                  child: _buildHeaderIconWidget(
+                                    courseId,
+                                    themeColor,
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         widget.course['title'],
                                         style: GoogleFonts.outfit(
-                                          fontSize: screenWidth < 380 ? 18.0 : 21.0,
+                                          fontSize: screenWidth < 380
+                                              ? 18.0
+                                              : 21.0,
                                           fontWeight: FontWeight.w800,
                                           color: const Color(0xFF1D2848),
                                           height: 1.1,
@@ -231,7 +241,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                       ),
                                       const SizedBox(height: 2),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: themeColor.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(20),
@@ -256,13 +269,16 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                               children: [
                                 CircleAvatar(
                                   radius: 16,
-                                  backgroundImage: NetworkImage(widget.course['avatar']),
+                                  backgroundImage: NetworkImage(
+                                    widget.course['avatar'],
+                                  ),
                                   backgroundColor: Colors.grey[200],
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Text(
@@ -304,7 +320,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                             clipBehavior: Clip.none,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFF9E6),
                                   borderRadius: BorderRadius.circular(10),
@@ -365,19 +384,26 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             ),
             child: TabBar(
               controller: _tabController,
-              dividerColor: Colors.transparent, // Remove standard thick divider line
+              dividerColor:
+                  Colors.transparent, // Remove standard thick divider line
               indicatorColor: const Color(0xFFF9C824),
               indicatorWeight: 3.0,
               labelColor: const Color(0xFF1D2848),
               unselectedLabelColor: const Color(0xFF94A3B8),
-              labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13.5),
-              unselectedLabelStyle: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 13.5),
+              labelStyle: GoogleFonts.outfit(
+                fontWeight: FontWeight.bold,
+                fontSize: 13.5,
+              ),
+              unselectedLabelStyle: GoogleFonts.outfit(
+                fontWeight: FontWeight.w600,
+                fontSize: 13.5,
+              ),
               tabs: const [
                 Tab(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(LucideIcons.bookOpen, size: 16),
+                      Icon(LucideIcons.bookOpenText, size: 16),
                       SizedBox(width: 6),
                       Text("Contenido"),
                     ],
@@ -427,17 +453,29 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
     if (courseId == 'c_chino') {
       return Text(
         "文",
-        style: GoogleFonts.outfit(color: themeColor, fontSize: 18, fontWeight: FontWeight.bold),
+        style: GoogleFonts.outfit(
+          color: themeColor,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       );
     } else if (courseId == 'c_ingles') {
       return Text(
         "EN",
-        style: GoogleFonts.outfit(color: themeColor, fontSize: 16, fontWeight: FontWeight.w900),
+        style: GoogleFonts.outfit(
+          color: themeColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w900,
+        ),
       );
     } else if (courseId == 'c_algebra' || courseId == 'c_trigo') {
       return Text(
         "∑",
-        style: GoogleFonts.outfit(color: themeColor, fontSize: 18, fontWeight: FontWeight.bold),
+        style: GoogleFonts.outfit(
+          color: themeColor,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
       );
     } else if (courseId == 'c_fisica') {
       return Icon(LucideIcons.flaskConical, color: themeColor, size: 20);
@@ -454,7 +492,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
   Widget _buildContenidoTab() {
     if (_isLoadingContent) {
       return const Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848))),
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848)),
+        ),
       );
     }
 
@@ -479,7 +519,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("El ${trimester['title']} estará disponible a partir del ${trimester['date'].split(' - ')[0]}."),
+                      content: Text(
+                        "El ${trimester['title']} estará disponible a partir del ${trimester['date'].split(' - ')[0]}.",
+                      ),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -515,10 +557,14 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isCurrent 
-                            ? (isExpanded ? LucideIcons.chevronDown : LucideIcons.chevronRight)
+                        isCurrent
+                            ? (isExpanded
+                                  ? LucideIcons.chevronDown
+                                  : LucideIcons.chevronRight)
                             : LucideIcons.chevronRight,
-                        color: isCurrent ? widget.course['themeColor'] : const Color(0xFF94A3B8),
+                        color: isCurrent
+                            ? widget.course['themeColor']
+                            : const Color(0xFF94A3B8),
                         size: 16,
                       ),
                     ),
@@ -533,17 +579,26 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.5,
-                              color: isCurrent ? const Color(0xFF1D2848) : const Color(0xFF64748B),
+                              color: isCurrent
+                                  ? const Color(0xFF1D2848)
+                                  : const Color(0xFF64748B),
                             ),
                           ),
                           const SizedBox(height: 2),
                           Row(
                             children: [
-                              const Icon(LucideIcons.calendar, size: 10, color: Color(0xFF94A3B8)),
+                              const Icon(
+                                LucideIcons.calendar,
+                                size: 10,
+                                color: Color(0xFF94A3B8),
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 trimester['date'],
-                                style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF94A3B8),
+                                ),
                               ),
                             ],
                           ),
@@ -552,9 +607,14 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                     ),
                     // Status Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: isCurrent ? const Color(0xFFFCE4EC) : const Color(0xFFF1F5F9),
+                        color: isCurrent
+                            ? const Color(0xFFFCE4EC)
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -562,7 +622,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         style: GoogleFonts.outfit(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: isCurrent ? const Color(0xFFEC407A) : const Color(0xFF64748B),
+                          color: isCurrent
+                              ? const Color(0xFFEC407A)
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ),
@@ -570,7 +632,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                 ),
               ),
             ),
-            
+
             // Expandable List of Lessons
             if (isExpanded && isCurrent)
               Padding(
@@ -585,12 +647,16 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: trimester['items'].length,
-                    separatorBuilder: (context, idx) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    separatorBuilder: (context, idx) =>
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     itemBuilder: (context, lessonIdx) {
                       final item = trimester['items'][lessonIdx];
                       return ListTile(
                         onTap: () => _openLessonItem(item),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
                         leading: _buildLessonIcon(item['type']),
                         title: Text(
                           item['title'],
@@ -605,7 +671,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: _getLessonTypeColor(item['type']).withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(4),
@@ -622,12 +691,19 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                               const SizedBox(width: 6),
                               Text(
                                 item['info'],
-                                style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF94A3B8),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        trailing: const Icon(LucideIcons.chevronRight, size: 16, color: Color(0xFF1E88E5)),
+                        trailing: const Icon(
+                          LucideIcons.chevronRight,
+                          size: 16,
+                          color: Color(0xFF1E88E5),
+                        ),
                       );
                     },
                   ),
@@ -655,7 +731,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
 
   Widget _buildLessonIcon(String type) {
     final Color color = _getLessonTypeColor(type);
-    
+
     if (type == 'pdf' || type == 'docx') {
       return Container(
         width: 38,
@@ -671,7 +747,12 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             Icon(LucideIcons.fileText, color: color, size: 14),
             Text(
               type.toUpperCase(),
-              style: TextStyle(color: color, fontSize: 6.5, fontWeight: FontWeight.w900, height: 1.1),
+              style: TextStyle(
+                color: color,
+                fontSize: 6.5,
+                fontWeight: FontWeight.w900,
+                height: 1.1,
+              ),
             ),
           ],
         ),
@@ -708,7 +789,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
         content: Row(
           children: [
             Icon(
-              item['type'] == 'video' ? LucideIcons.youtube : LucideIcons.externalLink,
+              item['type'] == 'video'
+                  ? LucideIcons.play
+                  : LucideIcons.externalLink,
               color: Colors.white,
               size: 16,
             ),
@@ -731,7 +814,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
   Widget _buildDojoTab() {
     if (_isLoadingDojo || _currentDojoStudent == null) {
       return const Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848))),
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848)),
+        ),
       );
     }
 
@@ -747,12 +832,16 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             Expanded(
               flex: 6,
               child: Container(
-                height: 275, // fixed height to align with the column on the right
+                height:
+                    275, // fixed height to align with the column on the right
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                  border: Border.all(
+                    color: const Color(0xFFF1F5F9),
+                    width: 1.5,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withValues(alpha: 0.04),
@@ -774,7 +863,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.pets,
+                            LucideIcons.dog,
                             color: Color(0xFFEC407A),
                             size: 14,
                           ),
@@ -828,7 +917,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         ),
                         const SizedBox(width: 4),
                         Icon(
-                          Icons.info_outline,
+                          LucideIcons.info,
                           size: 13,
                           color: Colors.grey[400],
                         ),
@@ -848,7 +937,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                             child: Container(
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFFFBC02D), Color(0xFFF57F17)],
+                                  colors: [
+                                    Color(0xFFFBC02D),
+                                    Color(0xFFF57F17),
+                                  ],
                                 ),
                               ),
                             ),
@@ -894,7 +986,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                          border: Border.all(
+                            color: const Color(0xFFF1F5F9),
+                            width: 1.5,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withValues(alpha: 0.04),
@@ -916,7 +1011,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
-                                    Icons.stars,
+                                    LucideIcons.star,
                                     color: Color(0xFFFFB300),
                                     size: 13,
                                   ),
@@ -947,7 +1042,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                 ),
                                 const SizedBox(width: 4),
                                 const Icon(
-                                  Icons.stars,
+                                  LucideIcons.star,
                                   color: Color(0xFFFFB300),
                                   size: 18,
                                 ),
@@ -967,24 +1062,31 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => StudentDojoStoreScreen(
-                                      studentUser: widget.studentUser,
-                                      currentPoints: 4850,
-                                    ),
+                                    builder: (context) =>
+                                        StudentDojoStoreScreen(
+                                          studentUser: widget.studentUser,
+                                          currentPoints: 4850,
+                                        ),
                                   ),
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFFBE7),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: const Color(0xFFFFECB3), width: 1.0),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFECB3),
+                                    width: 1.0,
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
                                     const Icon(
-                                      Icons.shopping_bag_outlined,
+                                      LucideIcons.shoppingBag,
                                       color: Color(0xFFD84315),
                                       size: 12,
                                     ),
@@ -1002,7 +1104,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                       ),
                                     ),
                                     const Icon(
-                                      Icons.chevron_right,
+                                      LucideIcons.chevronRight,
                                       color: Color(0xFFD84315),
                                       size: 12,
                                     ),
@@ -1022,7 +1124,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                          border: Border.all(
+                            color: const Color(0xFFF1F5F9),
+                            width: 1.5,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withValues(alpha: 0.04),
@@ -1041,7 +1146,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                   Row(
                                     children: [
                                       const Icon(
-                                        Icons.whatshot,
+                                        LucideIcons.flame,
                                         color: Color(0xFFEC407A),
                                         size: 14,
                                       ),
@@ -1087,7 +1192,10 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: const Color(0xFFF8BBD0), width: 1.5),
+                                border: Border.all(
+                                  color: const Color(0xFFF8BBD0),
+                                  width: 1.5,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(0xFFF8BBD0).withValues(alpha: 0.15),
@@ -1111,7 +1219,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                                   const Expanded(
                                     child: Center(
                                       child: Icon(
-                                        Icons.check,
+                                        LucideIcons.check,
                                         color: Color(0xFFEC407A),
                                         size: 20,
                                       ),
@@ -1157,7 +1265,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                   Row(
                     children: [
                       const Icon(
-                        Icons.history,
+                        LucideIcons.history,
                         color: Color(0xFFEC407A),
                         size: 18,
                       ),
@@ -1195,7 +1303,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               const SizedBox(height: 8),
               const Divider(height: 1, color: Color(0xFFF1F5F9)),
               _buildHistoryItem(
-                icon: Icons.people_outline,
+                icon: LucideIcons.users,
                 iconColor: const Color(0xFF2E7D32),
                 bgColor: const Color(0xFFE8F5E9),
                 title: "Participación en clase",
@@ -1205,7 +1313,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               ),
               const Divider(height: 1, color: Color(0xFFF1F5F9)),
               _buildHistoryItem(
-                icon: Icons.assignment_outlined,
+                icon: LucideIcons.fileText,
                 iconColor: const Color(0xFF7B1FA2),
                 bgColor: const Color(0xFFF3E5F5),
                 title: "Entrega de tarea",
@@ -1215,7 +1323,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               ),
               const Divider(height: 1, color: Color(0xFFF1F5F9)),
               _buildHistoryItem(
-                icon: Icons.star_outline,
+                icon: LucideIcons.star,
                 iconColor: const Color(0xFFF57F17),
                 bgColor: const Color(0xFFFFF8E1),
                 title: "Trabajo destacado",
@@ -1225,7 +1333,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               ),
               const Divider(height: 1, color: Color(0xFFF1F5F9)),
               _buildHistoryItem(
-                icon: Icons.group_outlined,
+                icon: LucideIcons.users,
                 iconColor: const Color(0xFF1565C0),
                 bgColor: const Color(0xFFE3F2FD),
                 title: "Trabajo en equipo",
@@ -1235,7 +1343,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               ),
               const Divider(height: 1, color: Color(0xFFF1F5F9)),
               _buildHistoryItem(
-                icon: Icons.check_circle_outline,
+                icon: LucideIcons.checkCircle,
                 iconColor: const Color(0xFF00796B),
                 bgColor: const Color(0xFFE0F2F1),
                 title: "Asistencia",
@@ -1266,10 +1374,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
           Container(
             width: 38,
             height: 38,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
             child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 12),
@@ -1288,10 +1393,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1313,10 +1415,7 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
               const SizedBox(height: 2),
               Text(
                 date,
-                style: TextStyle(
-                  fontSize: 9.5,
-                  color: Colors.grey[400],
-                ),
+                style: TextStyle(fontSize: 9.5, color: Colors.grey[400]),
               ),
             ],
           ),
@@ -1331,7 +1430,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
   Widget _buildRubricaTab() {
     if (_isLoadingRubricas) {
       return const Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848))),
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1D2848)),
+        ),
       );
     }
 
@@ -1340,11 +1441,18 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(LucideIcons.fileQuestion, size: 40, color: Color(0xFF94A3B8)),
+            const Icon(
+              LucideIcons.fileQuestion,
+              size: 40,
+              color: Color(0xFF94A3B8),
+            ),
             const SizedBox(height: 12),
             Text(
               "No hay rúbricas registradas para este curso.",
-              style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 13.5),
+              style: GoogleFonts.outfit(
+                color: const Color(0xFF94A3B8),
+                fontSize: 13.5,
+              ),
             ),
           ],
         ),
@@ -1389,9 +1497,14 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: isLibre ? const Color(0xFFE0F2FE) : const Color(0xFFFEF3C7),
+                          color: isLibre
+                              ? const Color(0xFFE0F2FE)
+                              : const Color(0xFFFEF3C7),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -1399,7 +1512,9 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                           style: TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
-                            color: isLibre ? const Color(0xFF0369A1) : const Color(0xFFB45309),
+                            color: isLibre
+                                ? const Color(0xFF0369A1)
+                                : const Color(0xFFB45309),
                           ),
                         ),
                       ),
@@ -1408,7 +1523,11 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                   const SizedBox(height: 8),
                   Text(
                     r.description,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.3),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF64748B),
+                      height: 1.3,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -1416,19 +1535,37 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
                     children: [
                       Row(
                         children: [
-                          const Icon(LucideIcons.calendar, size: 10, color: Color(0xFF94A3B8)),
+                          const Icon(
+                            LucideIcons.calendar,
+                            size: 10,
+                            color: Color(0xFF94A3B8),
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "Creado el: ${r.date}",
-                            style: const TextStyle(fontSize: 9.5, color: Color(0xFF94A3B8)),
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              color: Color(0xFF94A3B8),
+                            ),
                           ),
                         ],
                       ),
                       const Row(
                         children: [
-                          Text("Ver detalles", style: TextStyle(fontSize: 10.5, color: Color(0xFF1E88E5), fontWeight: FontWeight.bold)),
+                          Text(
+                            "Ver detalles",
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: Color(0xFF1E88E5),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           SizedBox(width: 2),
-                          Icon(LucideIcons.chevronRight, size: 12, color: Color(0xFF1E88E5)),
+                          Icon(
+                            LucideIcons.chevronRight,
+                            size: 12,
+                            color: Color(0xFF1E88E5),
+                          ),
                         ],
                       ),
                     ],
@@ -1447,15 +1584,25 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: [
-              Icon(LucideIcons.fileSpreadsheet, color: widget.course['themeColor'], size: 18),
+              Icon(
+                LucideIcons.fileSpreadsheet,
+                color: widget.course['themeColor'],
+                size: 18,
+              ),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
                   "Evaluación por Competencias",
-                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1D2848),
+                  ),
                 ),
               ),
             ],
@@ -1466,33 +1613,66 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
             children: [
               Text(
                 r.title,
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13, color: widget.course['themeColor']),
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: widget.course['themeColor'],
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
                 "Criterios de Evaluación:",
-                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1D2848),
+                ),
               ),
               const SizedBox(height: 8),
-              _buildCriteriaRow("Competencia 1: Capacidad Técnica / Teórica", "LOGRADO (A)", Colors.green),
+              _buildCriteriaRow(
+                "Competencia 1: Capacidad Técnica / Teórica",
+                "LOGRADO (A)",
+                Colors.green,
+              ),
               const SizedBox(height: 6),
-              _buildCriteriaRow("Competencia 2: Fluidez y Claridad", "DESTACADO (AD)", Colors.blue),
+              _buildCriteriaRow(
+                "Competencia 2: Fluidez y Claridad",
+                "DESTACADO (AD)",
+                Colors.blue,
+              ),
               const SizedBox(height: 6),
-              _buildCriteriaRow("Competencia 3: Presentación / Tareas", "LOGRADO (A)", Colors.green),
+              _buildCriteriaRow(
+                "Competencia 3: Presentación / Tareas",
+                "LOGRADO (A)",
+                Colors.green,
+              ),
               const SizedBox(height: 12),
               const Divider(),
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Estado de Calificación:", style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                  const Text(
+                    "Estado de Calificación:",
+                    style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8F5E9),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text("PROCESADO", style: TextStyle(fontSize: 8.5, color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      "PROCESADO",
+                      style: TextStyle(
+                        fontSize: 8.5,
+                        color: Color(0xFF2E7D32),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -1528,7 +1708,11 @@ class _StudentCourseDetailsScreenState extends State<StudentCourseDetailsScreen>
           ),
           Text(
             grade,
-            style: GoogleFonts.outfit(fontSize: 10, color: gradeColor, fontWeight: FontWeight.bold),
+            style: GoogleFonts.outfit(
+              fontSize: 10,
+              color: gradeColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -1558,12 +1742,19 @@ class CourseBackgroundPainter extends CustomPainter {
       // Soft hills
       final path = Path()
         ..moveTo(0, size.height * 0.85)
-        ..cubicTo(size.width * 0.3, size.height * 0.65, size.width * 0.7, size.height * 0.95, size.width, size.height * 0.8)
+        ..cubicTo(
+          size.width * 0.3,
+          size.height * 0.65,
+          size.width * 0.7,
+          size.height * 0.95,
+          size.width,
+          size.height * 0.8,
+        )
         ..lineTo(size.width, size.height)
         ..lineTo(0, size.height)
         ..close();
       canvas.drawPath(path, fillPaint);
-      
+
       // Sun
       canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.4), 28, Paint()..color = themeColor.withValues(alpha: 0.08)..style = PaintingStyle.fill);
 
@@ -1578,6 +1769,34 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.14), 5, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.35)..style = PaintingStyle.fill);
       canvas.drawCircle(Offset(size.width * 0.9, size.height * 0.08), 4, Paint()..color = const Color(0xFFEC407A).withValues(alpha: 0.45)..style = PaintingStyle.fill);
 
+      canvas.drawCircle(
+        Offset(size.width * 0.75, size.height * 0.25),
+        4,
+        Paint()
+          ..color = const Color(0xFFEC407A).withOpacity(0.4)
+          ..style = PaintingStyle.fill,
+      );
+      canvas.drawCircle(
+        Offset(size.width * 0.79, size.height * 0.18),
+        3,
+        Paint()
+          ..color = const Color(0xFFEC407A).withOpacity(0.3)
+          ..style = PaintingStyle.fill,
+      );
+      canvas.drawCircle(
+        Offset(size.width * 0.85, size.height * 0.14),
+        5,
+        Paint()
+          ..color = const Color(0xFFEC407A).withOpacity(0.35)
+          ..style = PaintingStyle.fill,
+      );
+      canvas.drawCircle(
+        Offset(size.width * 0.9, size.height * 0.08),
+        4,
+        Paint()
+          ..color = const Color(0xFFEC407A).withOpacity(0.45)
+          ..style = PaintingStyle.fill,
+      );
     } else if (courseId == 'c_ingles') {
       // Landmarks & clock outlines
       final skyline = Path()
@@ -1591,7 +1810,7 @@ class CourseBackgroundPainter extends CustomPainter {
         ..lineTo(55, size.height * 0.75)
         ..lineTo(55, size.height * 0.9);
       canvas.drawPath(skyline, paint..strokeWidth = 1.2);
-      
+
       // London Eye
       final Offset wheelCenter = Offset(size.width * 0.78, size.height * 0.55);
       canvas.drawCircle(wheelCenter, 22, Paint()..color = themeColor.withValues(alpha: 0.06)..style = PaintingStyle.stroke..strokeWidth = 1.5);
@@ -1605,7 +1824,6 @@ class CourseBackgroundPainter extends CustomPainter {
           Paint()..color = themeColor.withValues(alpha: 0.04)..strokeWidth = 1
         );
       }
-
     } else if (courseId == 'c_algebra' || courseId == 'c_trigo') {
       // Grid paper + sine wave
       const double spacing = 14.0;
@@ -1615,7 +1833,7 @@ class CourseBackgroundPainter extends CustomPainter {
       for (double y = 0; y < size.height; y += spacing) {
         canvas.drawLine(Offset(0, y), Offset(size.width, y), Paint()..color = themeColor.withValues(alpha: 0.045)..strokeWidth = 0.5);
       }
-      
+
       // Axes
       canvas.drawLine(Offset(0, size.height * 0.75), Offset(size.width, size.height * 0.75), Paint()..color = themeColor.withValues(alpha: 0.15)..strokeWidth = 1.5);
       canvas.drawLine(Offset(size.width * 0.3, 0), Offset(size.width * 0.3, size.height), Paint()..color = themeColor.withValues(alpha: 0.15)..strokeWidth = 1.5);
@@ -1623,7 +1841,8 @@ class CourseBackgroundPainter extends CustomPainter {
       // Sine Wave
       final wavePath = Path();
       for (double x = 0; x < size.width; x++) {
-        final double y = size.height * 0.75 + 20 * math.sin((x - size.width * 0.3) * 0.035);
+        final double y =
+            size.height * 0.75 + 20 * math.sin((x - size.width * 0.3) * 0.035);
         if (x == 0) {
           wavePath.moveTo(x, y);
         } else {
@@ -1639,7 +1858,7 @@ class CourseBackgroundPainter extends CustomPainter {
       
       canvas.save();
       canvas.translate(center.dx, center.dy);
-      
+
       final orbitPaint = Paint()
         ..color = themeColor.withValues(alpha: 0.08)
         ..style = PaintingStyle.stroke
@@ -1658,17 +1877,53 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 12, Paint()..color = themeColor.withValues(alpha: 0.04)..style = PaintingStyle.stroke..strokeWidth = 1.5);
       canvas.drawCircle(Offset(size.width * 0.18, size.height * 0.35), 2, Paint()..color = themeColor.withValues(alpha: 0.08)..style = PaintingStyle.fill);
 
+      // Particle/Flask float
+      canvas.drawCircle(
+        Offset(size.width * 0.18, size.height * 0.35),
+        12,
+        Paint()
+          ..color = themeColor.withOpacity(0.04)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
+      );
+      canvas.drawCircle(
+        Offset(size.width * 0.18, size.height * 0.35),
+        2,
+        Paint()
+          ..color = themeColor.withOpacity(0.08)
+          ..style = PaintingStyle.fill,
+      );
     } else if (courseId == 'c_literatura') {
       // Opened book silhouette
       final Offset bookCenter = Offset(size.width * 0.8, size.height * 0.55);
       final bookPath = Path()
         ..moveTo(bookCenter.dx, bookCenter.dy + 12)
-        ..quadraticBezierTo(bookCenter.dx - 12, bookCenter.dy - 4, bookCenter.dx - 25, bookCenter.dy)
+        ..quadraticBezierTo(
+          bookCenter.dx - 12,
+          bookCenter.dy - 4,
+          bookCenter.dx - 25,
+          bookCenter.dy,
+        )
         ..lineTo(bookCenter.dx - 25, bookCenter.dy - 12)
-        ..quadraticBezierTo(bookCenter.dx - 12, bookCenter.dy - 16, bookCenter.dx, bookCenter.dy - 4)
-        ..quadraticBezierTo(bookCenter.dx + 12, bookCenter.dy - 16, bookCenter.dx + 25, bookCenter.dy - 12)
+        ..quadraticBezierTo(
+          bookCenter.dx - 12,
+          bookCenter.dy - 16,
+          bookCenter.dx,
+          bookCenter.dy - 4,
+        )
+        ..quadraticBezierTo(
+          bookCenter.dx + 12,
+          bookCenter.dy - 16,
+          bookCenter.dx + 25,
+          bookCenter.dy - 12,
+        )
         ..lineTo(bookCenter.dx + 25, bookCenter.dy)
-        ..quadraticBezierTo(bookCenter.dx + 12, bookCenter.dy - 4, bookCenter.dx, bookCenter.dy + 12)
+        ..quadraticBezierTo(
+          bookCenter.dx + 12,
+          bookCenter.dy - 4,
+          bookCenter.dx,
+          bookCenter.dy + 12,
+        )
         ..close();
       canvas.drawPath(bookPath, fillPaint);
       canvas.drawPath(bookPath, paint..strokeWidth = 1.0);
@@ -1677,9 +1932,13 @@ class CourseBackgroundPainter extends CustomPainter {
 
       final quill = Path()
         ..moveTo(bookCenter.dx + 4, bookCenter.dy - 8)
-        ..quadraticBezierTo(bookCenter.dx + 20, bookCenter.dy - 30, bookCenter.dx + 28, bookCenter.dy - 42);
+        ..quadraticBezierTo(
+          bookCenter.dx + 20,
+          bookCenter.dy - 30,
+          bookCenter.dx + 28,
+          bookCenter.dy - 42,
+        );
       canvas.drawPath(quill, paint..strokeWidth = 1.2);
-
     } else if (courseId == 'c_tech') {
       // Circuit links
       final trace = Path()
@@ -1692,14 +1951,57 @@ class CourseBackgroundPainter extends CustomPainter {
       canvas.drawCircle(Offset(size.width * 0.42, size.height * 0.72), 3.5, Paint()..color = themeColor.withValues(alpha: 0.2)..style = PaintingStyle.fill);
       canvas.drawCircle(Offset(size.width * 0.78, size.height * 0.72), 4.5, Paint()..color = themeColor.withValues(alpha: 0.35)..style = PaintingStyle.fill);
 
+      canvas.drawPath(trace, paint..strokeWidth = 1.2);
+      canvas.drawCircle(
+        Offset(size.width * 0.42, size.height * 0.72),
+        3.5,
+        Paint()
+          ..color = themeColor.withOpacity(0.2)
+          ..style = PaintingStyle.fill,
+      );
+      canvas.drawCircle(
+        Offset(size.width * 0.78, size.height * 0.72),
+        4.5,
+        Paint()
+          ..color = themeColor.withOpacity(0.35)
+          ..style = PaintingStyle.fill,
+      );
     } else {
       // c_tutoria / generic: Hearts
       final heartPath = Path()
         ..moveTo(size.width * 0.78, size.height * 0.5)
-        ..cubicTo(size.width * 0.75, size.height * 0.4, size.width * 0.68, size.height * 0.43, size.width * 0.68, size.height * 0.52)
-        ..cubicTo(size.width * 0.68, size.height * 0.62, size.width * 0.78, size.height * 0.71, size.width * 0.78, size.height * 0.73)
-        ..cubicTo(size.width * 0.78, size.height * 0.73, size.width * 0.88, size.height * 0.62, size.width * 0.88, size.height * 0.52)
-        ..cubicTo(size.width * 0.88, size.height * 0.43, size.width * 0.81, size.height * 0.4, size.width * 0.78, size.height * 0.5)
+        ..cubicTo(
+          size.width * 0.75,
+          size.height * 0.4,
+          size.width * 0.68,
+          size.height * 0.43,
+          size.width * 0.68,
+          size.height * 0.52,
+        )
+        ..cubicTo(
+          size.width * 0.68,
+          size.height * 0.62,
+          size.width * 0.78,
+          size.height * 0.71,
+          size.width * 0.78,
+          size.height * 0.73,
+        )
+        ..cubicTo(
+          size.width * 0.78,
+          size.height * 0.73,
+          size.width * 0.88,
+          size.height * 0.62,
+          size.width * 0.88,
+          size.height * 0.52,
+        )
+        ..cubicTo(
+          size.width * 0.88,
+          size.height * 0.43,
+          size.width * 0.81,
+          size.height * 0.4,
+          size.width * 0.78,
+          size.height * 0.5,
+        )
         ..close();
       canvas.drawPath(heartPath, fillPaint);
       canvas.drawPath(heartPath, paint..strokeWidth = 1.0);
@@ -1729,7 +2031,7 @@ class RightBubbleTrianglePainter extends CustomPainter {
       ..close();
 
     canvas.drawPath(path, paint);
-    
+
     final borderPath = Path()
       ..moveTo(0, 0)
       ..lineTo(size.width, size.height * 0.5)

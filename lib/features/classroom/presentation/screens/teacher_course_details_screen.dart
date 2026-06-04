@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/classroom/presentation/widgets/dragon_painter.dart';
@@ -686,7 +686,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
   // Barra de Pestañas Superior
   Widget _buildTabBar() {
     final tabs = ["Contenido", "Dojo", "Rúbricas", "Picklers"];
-    final icons = [LucideIcons.bookOpen, LucideIcons.sparkles, LucideIcons.clipboardList, LucideIcons.camera];
+    final icons = [LucideIcons.bookOpenText, LucideIcons.sparkles, LucideIcons.clipboardList, LucideIcons.camera];
     
     return Container(
       color: Colors.white,
@@ -981,7 +981,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
     final String title = res['title'] ?? '';
     final bool visible = res['visible'] ?? true;
 
-    IconData typeIcon = LucideIcons.bookOpen;
+    IconData typeIcon = LucideIcons.bookOpenText;
     Color themeColor = const Color(0xFF3B82F6);
     Color bgColor = const Color(0xFFEFF6FF);
 
@@ -1226,7 +1226,7 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
   Widget _buildAddContentBottomSheet(String trimester, int sessionIndex) {
     // Opciones del Bottom Sheet con sus respectivos iconos y colores
     final List<Map<String, dynamic>> options = [
-      {'name': 'Nueva Clase', 'icon': LucideIcons.bookOpen, 'color': const Color(0xFF3B82F6), 'bg': const Color(0xFFEFF6FF)},
+      {'name': 'Nueva Clase', 'icon': LucideIcons.bookOpenText, 'color': const Color(0xFF3B82F6), 'bg': const Color(0xFFEFF6FF)},
       {'name': 'Nueva Tarea', 'icon': LucideIcons.fileText, 'color': const Color(0xFFF59E0B), 'bg': const Color(0xFFFFFBEB)},
       {'name': 'Nueva Actividad', 'icon': LucideIcons.target, 'color': const Color(0xFF10B981), 'bg': const Color(0xFFECFDF5)},
       {'name': 'Nuevo Desafío', 'icon': LucideIcons.trophy, 'color': const Color(0xFF8B5CF6), 'bg': const Color(0xFFF5F3FF)},
@@ -2659,7 +2659,7 @@ class ChinaFlagCircle2 extends StatelessWidget {
             left: size * 0.22,
             top: size * 0.22,
             child: Icon(
-              Icons.star,
+              LucideIcons.star,
               color: const Color(0xFFFFDE00),
               size: size * 0.35,
             ),
@@ -2670,7 +2670,7 @@ class ChinaFlagCircle2 extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.4,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -2682,7 +2682,7 @@ class ChinaFlagCircle2 extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.8,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -2694,7 +2694,7 @@ class ChinaFlagCircle2 extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.0,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -2706,7 +2706,7 @@ class ChinaFlagCircle2 extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.4,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),

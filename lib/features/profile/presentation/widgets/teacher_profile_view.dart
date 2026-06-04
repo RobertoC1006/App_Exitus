@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/core/network/api_endpoints.dart';
@@ -536,7 +536,7 @@ class _TeacherProfileViewState extends State<TeacherProfileView> {
                           color: const Color(0xFF1D2848).withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(LucideIcons.bookOpen, color: Color(0xFF1D2848), size: 16),
+                        child: const Icon(LucideIcons.bookOpenText, color: Color(0xFF1D2848), size: 16),
                       ),
                       title: Text(
                         sub,

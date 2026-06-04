@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../auth/presentation/controllers/auth_controller.dart';
@@ -131,7 +131,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFE2E8F0))),
                 child: ListTile(
                   title: Text(item, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
-                  trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFF94A3B8)),
+                  trailing: const Icon(LucideIcons.chevronRight, size: 18, color: Color(0xFF94A3B8)),
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -608,7 +608,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                             controller: subjectsController,
                             decoration: InputDecoration(
                               hintText: "Ej. Matemática - 5to A, Física - 4to A",
-                              prefixIcon: const Icon(LucideIcons.bookOpen),
+                              prefixIcon: const Icon(LucideIcons.bookOpenText),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
@@ -1122,7 +1122,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                           leading: CircleAvatar(backgroundImage: NetworkImage(course['avatar'])),
                           title: Text(course['title'], style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848))),
                           subtitle: Text("Prof: ${course['teacher']} • ${course['room']}", style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                          trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFF94A3B8)),
+                          trailing: const Icon(LucideIcons.chevronRight, size: 18, color: Color(0xFF94A3B8)),
                           onTap: () {
                             Navigator.pop(context);
                             showModalBottomSheet(
