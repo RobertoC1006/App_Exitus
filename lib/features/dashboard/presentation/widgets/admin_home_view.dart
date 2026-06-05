@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 
 class AdminHomeView extends StatelessWidget {
@@ -100,7 +100,7 @@ class AdminHomeView extends StatelessWidget {
               _buildStatCard(
                 "Aulas Activas",
                 "3 secciones",
-                LucideIcons.bookOpen,
+                LucideIcons.bookOpenText,
                 Colors.amber,
               ),
             ],
@@ -132,7 +132,7 @@ class AdminHomeView extends StatelessWidget {
                 ),
                 const Divider(height: 1, indent: 56, endIndent: 16),
                 _buildActionTile(
-                  icon: LucideIcons.bookOpen,
+                  icon: LucideIcons.bookOpenText,
                   title: "Gestionar Aulas",
                   subtitle: "Visualizar secciones y tutores",
                   color: const Color(0xFF3B82F6),
@@ -211,7 +211,7 @@ class AdminHomeView extends StatelessWidget {
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF002244))),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-      trailing: const Icon(Icons.chevron_right, size: 20, color: Color(0xFF94A3B8)),
+      trailing: const Icon(LucideIcons.chevronRight, size: 20, color: Color(0xFF94A3B8)),
       onTap: onTap,
     );
   }

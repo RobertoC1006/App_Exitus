@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';

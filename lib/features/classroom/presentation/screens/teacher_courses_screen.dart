@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_course_details_screen.dart';
@@ -254,7 +254,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                       width: 110,
                       height: 130,
                       alignment: Alignment.bottomCenter,
-                      child: const Icon(Icons.person, size: 70, color: Colors.blueGrey),
+                      child: const Icon(LucideIcons.user, size: 70, color: Colors.blueGrey),
                     ),
                   ),
                 ),
@@ -520,7 +520,7 @@ class ChinaFlagCircle extends StatelessWidget {
             left: size * 0.22,
             top: size * 0.22,
             child: Icon(
-              Icons.star,
+              LucideIcons.star,
               color: const Color(0xFFFFDE00),
               size: size * 0.35,
             ),
@@ -532,7 +532,7 @@ class ChinaFlagCircle extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.4,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -544,7 +544,7 @@ class ChinaFlagCircle extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.8,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -556,7 +556,7 @@ class ChinaFlagCircle extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.0,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),
@@ -568,7 +568,7 @@ class ChinaFlagCircle extends StatelessWidget {
             child: Transform.rotate(
               angle: 0.4,
               child: Icon(
-                Icons.star,
+                LucideIcons.star,
                 color: const Color(0xFFFFDE00),
                 size: size * 0.10,
               ),

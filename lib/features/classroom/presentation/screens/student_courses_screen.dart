@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
 import 'package:app_exitus/core/network/api_endpoints.dart';
@@ -97,7 +97,7 @@ class _StudentCoursesScreenState extends ConsumerState<StudentCoursesScreen> {
             'themeColor': const Color(0xFF43A047), // Green
             'bgColor': const Color(0xFFE8F5E9),
             'shape': 'speech_book',
-            'icon': LucideIcons.bookOpen,
+            'icon': LucideIcons.bookOpenText,
           },
           {
             'id': 'c_tech',
