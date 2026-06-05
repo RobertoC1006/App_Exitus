@@ -1031,8 +1031,6 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-
-
   Widget _buildTeacherHomeView(
     User teacherUser,
     List<Map<String, dynamic>> teacherCourses,
