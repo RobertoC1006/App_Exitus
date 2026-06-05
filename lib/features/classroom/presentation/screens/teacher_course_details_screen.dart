@@ -331,72 +331,6 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        elevation: 16,
-        padding: EdgeInsets.zero,
-        child: SafeArea(
-          child: SizedBox(
-            height: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
-                _buildBottomNavItem(1, LucideIcons.bell, "Avisos"),
-                // Botón central flotante '+' en dorado/ámbar
-                GestureDetector(
-                  onTap: () => Navigator.pop(context, 99), // Acción de agregar
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEDC620),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x4DEDC620),
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
-                  ),
-                ),
-                _buildBottomNavItem(2, LucideIcons.mail, "Mensajes"),
-                _buildBottomNavItem(3, LucideIcons.user, "Mi perfil"),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(int index, IconData icon, String label) {
-    return InkWell(
-      onTap: () => Navigator.pop(context, index),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: const Color(0xFF94A3B8), size: 20),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF94A3B8),
-                letterSpacing: -0.2,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -1085,12 +1019,16 @@ class _TeacherCourseDetailsScreenState extends State<TeacherCourseDetailsScreen>
                         size: 13,
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        visible ? "Visible para estudiantes" : "Oculta para estudiantes",
-                        style: GoogleFonts.outfit(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                          color: visible ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                      Flexible(
+                        child: Text(
+                          visible ? "Visible para estudiantes" : "Oculta para estudiantes",
+                          style: GoogleFonts.outfit(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                            color: visible ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],

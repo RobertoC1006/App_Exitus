@@ -33,10 +33,21 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   bool _isFABMenuOpen = false;
   bool _isLaunchpadOpen = false;
 
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
   void _onTabChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+    if (_currentIndex == index) {
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   void _handleFABAction(String action) {
@@ -51,8 +62,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     } else if (action == 'qr_attendance') {
       _showQRModal();
     } else if (action == 'digitacion') {
-      Navigator.push(
-        context,
+      _navigatorKeys[_currentIndex].currentState?.push(
         MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
       );
     } else {
@@ -98,13 +108,15 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      useSafeArea: false,
       builder: (context) {
+        final bottomPad = MediaQuery.of(context).padding.bottom;
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomPad),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,7 +152,6 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                   },
                 ),
               )),
-              const SizedBox(height: 10),
             ],
           ),
         );
@@ -154,7 +165,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useSafeArea: false,
       builder: (context) {
+        final bottomPad = MediaQuery.of(context).padding.bottom;
         return Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Container(
@@ -162,7 +175,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPad),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -938,41 +951,76 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       );
     }
 
-    final List<Widget> views = [
-      homeView,
-      SocialFeedView(currentUser: user),
-      InboxMessagesView(currentUser: user, onMessageRead: () => setState(() {})),
-      profileView,
-    ];
-
-
-
     final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          body: SafeArea(
-            child: IndexedStack(
-              index: _currentIndex,
-              children: views,
+    return WillPopScope(
+      onWillPop: () async {
+        final currentNavigator = _navigatorKeys[_currentIndex].currentState;
+        if (currentNavigator != null && currentNavigator.canPop()) {
+          currentNavigator.pop();
+          return false;
+        }
+        return true;
+      },
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: const Color(0xFFF8FAFC),
+            body: SafeArea(
+              child: IndexedStack(
+                index: _currentIndex,
+                children: [
+                  Navigator(
+                    key: _navigatorKeys[0],
+                    onGenerateInitialRoutes: (navigator, initialRoute) => [
+                      MaterialPageRoute(builder: (context) => homeView),
+                    ],
+                  ),
+                  Navigator(
+                    key: _navigatorKeys[1],
+                    onGenerateInitialRoutes: (navigator, initialRoute) => [
+                      MaterialPageRoute(builder: (context) => SocialFeedView(currentUser: user)),
+                    ],
+                  ),
+                  Navigator(
+                    key: _navigatorKeys[2],
+                    onGenerateInitialRoutes: (navigator, initialRoute) => [
+                      MaterialPageRoute(builder: (context) => InboxMessagesView(currentUser: user, onMessageRead: () => setState(() {}))),
+                    ],
+                  ),
+                  Navigator(
+                    key: _navigatorKeys[3],
+                    onGenerateInitialRoutes: (navigator, initialRoute) => [
+                      MaterialPageRoute(builder: (context) => profileView),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isFABMenuOpen = true;
-              });
-            },
-            backgroundColor: user.role == 'student' ? const Color(0xFFF9C824) : const Color(0xFF1D2848),
-            elevation: 8,
-            shape: const CircleBorder(),
-            child: Icon(
-              LucideIcons.plus,
-              color: Colors.white,
-              size: user.role == 'student' ? 28 : 24,
+          floatingActionButton: Transform.translate(
+            offset: const Offset(0, 16),
+            child: Opacity(
+              opacity: _isFABMenuOpen ? 0.0 : 1.0,
+              child: FloatingActionButton(
+                onPressed: _isFABMenuOpen
+                    ? null
+                    : () {
+                        setState(() {
+                          _isFABMenuOpen = true;
+                        });
+                      },
+                backgroundColor: user.role == 'student'
+                    ? const Color(0xFFF9C824)
+                    : const Color(0xFF1D2848),
+                elevation: 8,
+                shape: const CircleBorder(),
+                child: Icon(
+                  LucideIcons.plus,
+                  color: Colors.white,
+                  size: user.role == 'student' ? 28 : 24,
+                ),
+              ),
             ),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -1003,6 +1051,10 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
           Positioned.fill(
             child: FABMenuOverlay(
               user: {'role': user.role},
+              fabColor: user.role == 'student'
+                  ? const Color(0xFFF9C824)
+                  : const Color(0xFF1D2848),
+              fabIconSize: user.role == 'student' ? 28 : 24,
               onClose: () {
                 setState(() {
                   _isFABMenuOpen = false;
@@ -1052,8 +1104,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                     _currentIndex = 2; // Mensajes
                   });
                 } else if (route == 'digitacion') {
-                  Navigator.push(
-                    context,
+                  _navigatorKeys[_currentIndex].currentState?.push(
                     MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
                   );
                 }
@@ -1067,8 +1118,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
             ),
           ),
       ],
-    );
-  }
+    ),
+  );
+}
 
   void _showStudentClassroomBottomSheet(User studentUser, List<Map<String, dynamic>> studentCourses) {
     showModalBottomSheet(

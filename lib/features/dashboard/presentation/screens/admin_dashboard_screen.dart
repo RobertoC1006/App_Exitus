@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:app_exitus/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -327,13 +327,15 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         ),
       ),
 
-      // 2. Botón Flotante Central FAB Docked
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateUserSheet,
-        backgroundColor: const Color(0xFF002244),
-        elevation: 8,
-        shape: const CircleBorder(),
-        child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
+      floatingActionButton: Transform.translate(
+        offset: const Offset(0, 16),
+        child: FloatingActionButton(
+          onPressed: _showCreateUserSheet,
+          backgroundColor: const Color(0xFF002244),
+          elevation: 8,
+          shape: const CircleBorder(),
+          child: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 

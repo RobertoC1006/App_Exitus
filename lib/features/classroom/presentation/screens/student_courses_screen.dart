@@ -369,63 +369,6 @@ class _StudentCoursesScreenState extends ConsumerState<StudentCoursesScreen> {
                 ),
         ],
       ),
-      // 3. Bottom Navigation Bar
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        elevation: 16,
-        padding: EdgeInsets.zero,
-        child: SizedBox(
-          height: 70,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildBottomNavItem(0, LucideIcons.home, "Inicio"),
-              _buildBottomNavItem(1, LucideIcons.megaphone, "Avisos"),
-              GestureDetector(
-                onTap: () => Navigator.pop(context, 99),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF9C824),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(LucideIcons.plus, color: Colors.white, size: 24),
-                ),
-              ),
-              _buildBottomNavItem(2, LucideIcons.briefcase, "Tareas"),
-              _buildBottomNavItem(3, LucideIcons.user, "Perfil"),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(int index, IconData icon, String label) {
-    return InkWell(
-      onTap: () => Navigator.pop(context, index),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: const Color(0xFF94A3B8), size: 20),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF94A3B8),
-                letterSpacing: -0.2,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -115,13 +115,15 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      useSafeArea: false,
       builder: (context) {
+        final bottomPad = MediaQuery.of(context).padding.bottom;
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomPad),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -168,7 +170,6 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                   );
                 },
               ),
-              const SizedBox(height: 10),
             ],
           ),
         );
@@ -182,7 +183,9 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useSafeArea: false,
       builder: (context) {
+        final bottomPad = MediaQuery.of(context).padding.bottom;
         return Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Container(
@@ -190,7 +193,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPad),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -251,7 +254,6 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                   ),
                   child: const Text("PUBLICAR"),
                 ),
-                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -1575,6 +1577,8 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
           Positioned.fill(
             child: FABMenuOverlay(
               user: {'role': 'student'},
+              fabColor: const Color(0xFFF9C824),
+              fabIconSize: 28,
               onClose: () {
                 setState(() {
                   _isFABMenuOpen = false;
