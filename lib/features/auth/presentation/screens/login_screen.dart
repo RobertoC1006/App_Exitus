@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../controllers/auth_controller.dart';
-import '../widgets/school_logo.dart';
+import '../widgets/school_header_card.dart';
+import '../widgets/login_tab_selector.dart';
+import '../widgets/login_text_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -59,344 +62,204 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState is AuthLoading;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // 1. Imagen de Fondo de Pantalla Completa
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/school_background.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // 2. Capa de difuminado y tinte para lograr efecto glassmorphism
-          Container(
-            color: Colors.white.withValues(alpha: 0.4),
-          ),
-          // 3. Contenido Principal Scrollable
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20),
-                    // Logo y Título Institucional
-                    const SchoolLogo(size: 70),
-                    const SizedBox(height: 40),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                
+                // Card con Logo y Nombre del Colegio
+                const Center(
+                  child: SchoolHeaderCard(),
+                ),
+                const SizedBox(height: 28),
 
+                // Títulos
+                Text(
+                  "Acceso al Portal",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0F2C59),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Ingresa tus credenciales para continuar",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    fontSize: 13,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 24),
 
-                              Text(
-                                "Acceso al Colegio Exitus",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF002244),
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
+                // Selector de pestañas
+                LoginTabSelector(
+                  selectedTab: _selectedTab,
+                  onTabChanged: (index) {
+                    setState(() {
+                      _selectedTab = index;
+                    });
+                  },
+                ),
+                const SizedBox(height: 28),
 
-                              // Custom Tab Selector (Replicando la UI del usuario)
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.35),
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    _buildTabItem(0, "Tradicional"),
-                                    _buildTabItem(1, "WhatsApp"),
-                                    _buildTabItem(2, "Código", icon: LucideIcons.qrCode),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 28),
-
-                              // Formulario condicional según Tab seleccionado
-                              if (_selectedTab == 0) ...[
-                                Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Usuario",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF002244),
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextFormField(
-                                        controller: _usernameController,
-                                        enabled: !isLoading,
-                                        decoration: InputDecoration(
-                                          hintText: "Tu usuario",
-                                          prefixIcon: const Icon(LucideIcons.user, size: 20),
-                                          filled: true,
-                                          fillColor: Colors.white.withValues(alpha: 0.35),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: const BorderSide(color: Color(0xFF002244), width: 1.5),
-                                          ),
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
-                                            return 'Ingresa tu usuario';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      const SizedBox(height: 18),
-                                      const Text(
-                                        "Contraseña",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF002244),
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextFormField(
-                                        controller: _passwordController,
-                                        enabled: !isLoading,
-                                        obscureText: true,
-                                        decoration: InputDecoration(
-                                          hintText: "••••••••",
-                                          prefixIcon: const Icon(LucideIcons.lock, size: 20),
-                                          filled: true,
-                                          fillColor: Colors.white.withValues(alpha: 0.35),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                            borderSide: const BorderSide(color: Color(0xFF002244), width: 1.5),
-                                          ),
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Ingresa tu contraseña';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 28),
-                                ElevatedButton(
-                                  onPressed: isLoading ? null : _handleLogin,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF002244),
-                                    disabledBackgroundColor: const Color(0xFF002244).withValues(alpha: 0.6),
-                                  ),
-                                  child: isLoading
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2.5,
-                                          ),
-                                        )
-                                      : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "INGRESAR",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            const Icon(LucideIcons.arrowRight, size: 18, color: Colors.white),
-                                          ],
-                                        ),
-                                ),
-                              ] else ...[
-                                // Vista amigable para métodos de Login alternativos en construcción
-                                Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.orange.withValues(alpha: 0.3),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const Icon(LucideIcons.alertTriangle, size: 40, color: Color(0xFFE5A93B)),
-                                      const SizedBox(height: 12),
-                                      const Text(
-                                        "Acceso en Mantenimiento",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Color(0xFF002244),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      const Text(
-                                        "Este método de acceso está temporalmente en mantenimiento. Por favor, usa el método Tradicional.",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Color(0xFF64748B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                              const SizedBox(height: 20),
-                              GestureDetector(
-                                onTap: () {
-                                  _showInfoDialog(
-                                    context,
-                                    "¿Olvidaste tu contraseña?",
-                                    "Por seguridad institucional, si has olvidado tu contraseña de docente debes comunicarte con el departamento de TI/Administración para realizar el restablecimiento.",
-                                  );
-                                },
-                                child: const Text(
-                                  "¿Olvidaste tu contraseña?",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xFF002244),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showInfoDialog(
-                                        context,
-                                        "Crear cuenta",
-                                        "Las cuentas de los docentes son creadas y gestionadas exclusivamente por el Administrador de la institución.",
-                                      );
-                                    },
-                                    child: const Text(
-                                      "Crear cuenta",
-                                      style: TextStyle(
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                  const Text(" or ", style: TextStyle(color: Color(0xFF64748B))),
-                                  GestureDetector(
-                                    onTap: () {
-                                      _showInfoDialog(
-                                        context,
-                                        "Soporte Exitus",
-                                        "Para soporte técnico, escríbenos a soporte@exitus.edu.pe o comunícate al anexo de TI: 405.",
-                                      );
-                                    },
-                                    child: const Text(
-                                      "Soporte",
-                                      style: TextStyle(
-                                        color: Color(0xFF64748B),
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-
-                    const SizedBox(height: 30),
-                    const Text(
-                      "© 2026 I.E.P. Colegio Exitus - Piura",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF002244),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                // Formulario
+                if (_selectedTab == 0) ...[
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        LoginTextField(
+                          label: "Usuario",
+                          hintText: "Tu usuario",
+                          prefixIcon: LucideIcons.user,
+                          controller: _usernameController,
+                          enabled: !isLoading,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Ingresa tu usuario';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 18),
+                        LoginTextField(
+                          label: "Contraseña",
+                          hintText: "••••••••",
+                          prefixIcon: LucideIcons.lock,
+                          controller: _passwordController,
+                          obscureText: true,
+                          enabled: !isLoading,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ingresa tu contraseña';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                  ),
+                  const SizedBox(height: 28),
 
-  Widget _buildTabItem(int index, String label, {IconData? icon}) {
-    final isSelected = _selectedTab == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _selectedTab = index;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 14,
-                  color: isSelected ? const Color(0xFF002244) : const Color(0xFF64748B),
+                  // Botón de ingresar
+                  ElevatedButton(
+                    onPressed: isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF062446),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text(
+                                "INGRESAR",
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(LucideIcons.arrowRight, size: 16, color: Colors.white),
+                            ],
+                          ),
+                  ),
+                ] else ...[
+                  // Vista alternativo en mantenimiento
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.3),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(LucideIcons.alertTriangle, size: 40, color: Color(0xFFE5A93B)),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Acceso en Mantenimiento",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF0F2C59),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Este método de acceso está temporalmente en mantenimiento. Por favor, usa el método Tradicional.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 28),
+
+                // Link ¿Olvidaste tu contraseña?
+                GestureDetector(
+                  onTap: () {
+                    _showInfoDialog(
+                      context,
+                      "¿Olvidaste tu contraseña?",
+                      "Por seguridad institucional, si has olvidado tu contraseña debes comunicarte con el departamento de TI/Administración para realizar el restablecimiento.",
+                    );
+                  },
+                  child: const Text(
+                    "¿Olvidaste tu contraseña?",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF0F2C59),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(height: 30),
               ],
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? const Color(0xFF002244) : const Color(0xFF64748B),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -409,9 +272,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            const Icon(LucideIcons.info, color: Color(0xFF002244)),
+            const Icon(LucideIcons.info, color: Color(0xFF0F2C59)),
             const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF002244))),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2C59)),
+            ),
           ],
         ),
         content: Text(message),
@@ -419,7 +285,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cerrar", style: TextStyle(color: Color(0xFF002244), fontWeight: FontWeight.bold)),
+            child: const Text(
+              "Cerrar",
+              style: TextStyle(color: Color(0xFF0F2C59), fontWeight: FontWeight.bold),
+            ),
           )
         ],
       ),
