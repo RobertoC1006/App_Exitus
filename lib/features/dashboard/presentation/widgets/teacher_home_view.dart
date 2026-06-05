@@ -12,6 +12,7 @@ import 'package:app_exitus/features/digitacion/presentation/screens/digitacion_d
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_courses_screen.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/mascot_background_shapes.dart';
 import 'package:app_exitus/features/dashboard/presentation/widgets/bounce_on_tap.dart';
+import 'package:app_exitus/features/bitacora/presentation/screens/bitacora_dashboard_screen.dart';
 
 class TeacherHomeView extends ConsumerStatefulWidget {
   final User teacherUser;
@@ -1030,171 +1031,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     );
   }
 
-  void _showBitacorasBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.7,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCBD5E1),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFF0F0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        LucideIcons.clipboard,
-                        color: Color(0xFFE53E3E),
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Bitácoras e Incidencias",
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1D2848),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildBitacoraItem(
-                        "García Pérez, Luis",
-                        "Tardanza recurrente",
-                        "Llegó 15 minutos tarde por tercera vez en la semana.",
-                        "27 May 2026",
-                        true,
-                      ),
-                      _buildBitacoraItem(
-                        "Alvarez Quispe, Jose",
-                        "Felicitación por participación",
-                        "Excelente desempeño en la resolución de problemas en la pizarra.",
-                        "26 May 2026",
-                        false,
-                      ),
-                      _buildBitacoraItem(
-                        "Jimenez Ruiz, Carmen",
-                        "Falta de material",
-                        "No trajo el cuaderno de trabajo ni los útiles requeridos.",
-                        "25 May 2026",
-                        true,
-                      ),
-                      _buildBitacoraItem(
-                        "Huaman Ortiz, Lucía",
-                        "Felicitación por trabajo en equipo",
-                        "Lideró de manera sobresaliente el trabajo de equipo.",
-                        "22 May 2026",
-                        false,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildBitacoraItem(
-    String student,
-    String title,
-    String desc,
-    String date,
-    bool isUrgent,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isUrgent ? const Color(0xFFFFF5F5) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isUrgent ? const Color(0xFFFED7D7) : const Color(0xFFE2E8F0),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                student,
-                style: GoogleFonts.outfit(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1D2848),
-                ),
-              ),
-              Text(
-                date,
-                style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              if (isUrgent) ...[
-                const Icon(
-                  LucideIcons.alertTriangle,
-                  color: Color(0xFFE53E3E),
-                  size: 12,
-                ),
-                const SizedBox(width: 4),
-              ],
-              Text(
-                title,
-                style: GoogleFonts.outfit(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                  color: isUrgent
-                      ? const Color(0xFFC53030)
-                      : const Color(0xFF1D2848),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            desc,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildTeacherHomeView(
     User teacherUser,
@@ -1480,7 +1317,14 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildGridCard(
-                    onTap: _showBitacorasBottomSheet,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BitacoraDashboardScreen(),
+                        ),
+                      );
+                    },
                     icon: LucideIcons.clipboard,
                     iconColor: const Color(0xFFEC407A),
                     iconBg: const Color(0xFFFCE4EC),
