@@ -58,7 +58,7 @@ class _GradingViewState extends State<GradingView> {
                         border: Border.all(color: Colors.grey.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.01),
+                            color: Colors.black.withValues(alpha: 0.01),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           )
@@ -137,7 +137,7 @@ class _GradingViewState extends State<GradingView> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF2E7D32).withOpacity(0.1),
+                                        color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -210,7 +210,7 @@ class _GradingViewState extends State<GradingView> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withOpacity(0.2) : Colors.white,
+                color: isSelected ? Colors.white.withValues(alpha: 0.2) : Colors.white,
                 shape: BoxShape.circle,
               ),
               child: Text(

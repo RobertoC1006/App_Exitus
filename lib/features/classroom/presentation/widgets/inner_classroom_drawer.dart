@@ -54,7 +54,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
     bool evolved = _db.addDojoPoint(student.id);
     _refreshDojo();
 
-    if (evolved) {
+    if (evolved && mounted) {
       String levelStr = "Huevo elemental";
       if (student.points >= 9 && student.points <= 11) levelStr = "Cachorro";
       if (student.points >= 12) levelStr = "Dragón Alado Adulto";
@@ -134,7 +134,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
               border: Border.all(color: const Color(0xFFEDC620), width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1D2848).withOpacity(0.12),
+                  color: const Color(0xFF1D2848).withValues(alpha: 0.12),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -445,7 +445,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
                   const Text("Tipo de Rúbrica", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     style: const TextStyle(fontSize: 12, color: Colors.black),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -508,6 +508,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
 
   void _evaluarRubrica(Rubrica r) async {
     await _audioService.playBellSound();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Competencias cargadas para '${r.title}'. Evaluando a los 33 alumnos."),
@@ -750,7 +751,7 @@ class _InnerClassroomDrawerState extends State<InnerClassroomDrawer> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFA726).withOpacity(0.2),
+              color: const Color(0xFFFFA726).withValues(alpha: 0.2),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),

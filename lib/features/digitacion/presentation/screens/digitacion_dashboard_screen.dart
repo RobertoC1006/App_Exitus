@@ -110,7 +110,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -124,7 +124,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
                   bottom: -10,
                   child: CircleAvatar(
                     radius: 70,
-                    backgroundColor: Colors.white.withOpacity(0.4),
+                    backgroundColor: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
                 // Botón Atrás
@@ -141,7 +141,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -263,7 +263,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFEDC620).withOpacity(0.3),
+                      color: const Color(0xFFEDC620).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -432,7 +432,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
                           border: Border.all(color: const Color(0xFFE2E8F0)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.01),
+                              color: Colors.black.withValues(alpha: 0.01),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -652,7 +652,7 @@ class _DigitacionDashboardScreenState extends State<DigitacionDashboardScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? color.withOpacity(0.12) : Colors.black.withOpacity(0.02),
+              color: isSelected ? color.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.02),
               blurRadius: isSelected ? 12 : 8,
               offset: const Offset(0, 4),
             ),

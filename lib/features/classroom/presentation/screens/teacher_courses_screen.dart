@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
-import 'package:app_exitus/features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_course_details_screen.dart';
 
 class TeacherCoursesScreen extends ConsumerStatefulWidget {
@@ -89,7 +88,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
         ),
       ),
     ).then((value) {
-      if (value != null) {
+      if (value != null && mounted) {
         Navigator.pop(context, value);
       }
     });
@@ -159,7 +158,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -182,7 +181,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -371,7 +370,7 @@ class _TeacherCoursesScreenState extends ConsumerState<TeacherCoursesScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

@@ -101,7 +101,7 @@ class _FABMenuOverlayState extends State<FABMenuOverlay> with SingleTickerProvid
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                 child: Container(
-                  color: const Color(0xFF1D2848).withOpacity(0.25),
+                  color: const Color(0xFF1D2848).withValues(alpha: 0.25),
                 ),
               ),
             ),
@@ -168,7 +168,7 @@ class _FABMenuOverlayState extends State<FABMenuOverlay> with SingleTickerProvid
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF1D2848).withOpacity(0.12),
+                                      color: const Color(0xFF1D2848).withValues(alpha: 0.12),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),

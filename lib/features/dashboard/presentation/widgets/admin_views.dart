@@ -102,7 +102,7 @@ class AdminAulasView extends StatelessWidget {
                   children: (classroom["subjects"] as List<String>).map((subject) {
                     return Chip(
                       label: Text(subject, style: const TextStyle(fontSize: 11, color: Color(0xFF002244), fontWeight: FontWeight.w600)),
-                      backgroundColor: const Color(0xFFE2E8F0).withOpacity(0.5),
+                      backgroundColor: const Color(0xFFE2E8F0).withValues(alpha: 0.5),
                       padding: EdgeInsets.zero,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     );

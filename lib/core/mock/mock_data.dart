@@ -992,13 +992,13 @@ class MockDatabase {
       final currentReaction = post.userReactions[type] ?? false;
       
       // Limpiar otras reacciones para simplificar
-      post.userReactions.keys.forEach((key) {
+      for (var key in post.userReactions.keys) {
         if (key == type) {
           post.userReactions[key] = !currentReaction;
         } else {
           post.userReactions[key] = false;
         }
-      });
+      }
 
       // Recalcular contadores simulados
       if (type == 'likes') post.likes += currentReaction ? -1 : 1;

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -73,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           // 2. Capa de difuminado y tinte para lograr efecto glassmorphism
           Container(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
           ),
           // 3. Contenido Principal Scrollable
           SafeArea(
@@ -106,10 +105,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.35),
+                                  color: Colors.white.withValues(alpha: 0.35),
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                   ),
                                 ),
                                 child: Row(
@@ -145,10 +144,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           hintText: "Tu usuario",
                                           prefixIcon: const Icon(LucideIcons.user, size: 20),
                                           filled: true,
-                                          fillColor: Colors.white.withOpacity(0.35),
+                                          fillColor: Colors.white.withValues(alpha: 0.35),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -180,10 +179,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           hintText: "••••••••",
                                           prefixIcon: const Icon(LucideIcons.lock, size: 20),
                                           filled: true,
-                                          fillColor: Colors.white.withOpacity(0.35),
+                                          fillColor: Colors.white.withValues(alpha: 0.35),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                                            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -205,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   onPressed: isLoading ? null : _handleLogin,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF002244),
-                                    disabledBackgroundColor: const Color(0xFF002244).withOpacity(0.6),
+                                    disabledBackgroundColor: const Color(0xFF002244).withValues(alpha: 0.6),
                                   ),
                                   child: isLoading
                                       ? const SizedBox(
@@ -238,10 +237,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.white.withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.orange.withOpacity(0.3),
+                                      color: Colors.orange.withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: Column(
@@ -371,7 +370,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     )
