@@ -15,6 +15,8 @@ import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_over
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
 import 'package:app_exitus/features/digitacion/presentation/screens/digitacion_dashboard_screen.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/teacher_courses_screen.dart';
+import 'package:app_exitus/features/dashboard/presentation/widgets/mascot_background_shapes.dart';
+import 'package:app_exitus/features/dashboard/presentation/widgets/bounce_on_tap.dart';
 
 class TeacherHomeView extends ConsumerStatefulWidget {
   final User teacherUser;
@@ -1946,7 +1948,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     required Color arrowColor,
     required String assetImage,
   }) {
-    return GestureDetector(
+    return BounceOnTap(
       onTap: onTap,
       child: Container(
         height: 180,
@@ -2026,6 +2028,15 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                     ),
                   ),
                   Positioned(
+                    right: -15,
+                    bottom: -15,
+                    child: MascotBackgroundShapes(
+                      color: iconColor,
+                      width: 110,
+                      height: 110,
+                    ),
+                  ),
+                  Positioned(
                     right: -5,
                     bottom: -5,
                     child: Image.asset(
@@ -2056,7 +2067,7 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
     required Color arrowColor,
     required String assetImage,
   }) {
-    return GestureDetector(
+    return BounceOnTap(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -2128,6 +2139,17 @@ class _TeacherHomeViewState extends ConsumerState<TeacherHomeView> {
                   LucideIcons.arrowRight,
                   color: arrowColor,
                   size: 16,
+                ),
+              ),
+              Positioned(
+                right: -10,
+                bottom: -10,
+                top: 0,
+                width: 130,
+                child: MascotBackgroundShapes(
+                  color: iconColor,
+                  width: 130,
+                  height: 150,
                 ),
               ),
               Positioned(

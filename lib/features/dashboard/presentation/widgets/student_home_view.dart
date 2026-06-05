@@ -15,6 +15,8 @@ import 'package:app_exitus/features/dashboard/presentation/widgets/fab_menu_over
 import 'package:app_exitus/features/dashboard/presentation/widgets/launchpad_overlay.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/student_courses_screen.dart';
 import 'package:app_exitus/features/classroom/presentation/screens/student_dojo_store_screen.dart';
+import 'package:app_exitus/features/dashboard/presentation/widgets/mascot_background_shapes.dart';
+import 'package:app_exitus/features/dashboard/presentation/widgets/bounce_on_tap.dart';
 
 class StudentHomeView extends ConsumerStatefulWidget {
   final User studentUser;
@@ -1485,7 +1487,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
           const SizedBox(height: 24),
 
           // 2. Tarjeta Cursos
-          GestureDetector(
+          BounceOnTap(
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -1584,6 +1586,17 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                       ),
                     ),
                     Positioned(
+                      right: -10,
+                      bottom: -10,
+                      top: 0,
+                      width: 140,
+                      child: MascotBackgroundShapes(
+                        color: const Color(0xFFE5A93B),
+                        width: 140,
+                        height: 170,
+                      ),
+                    ),
+                    Positioned(
                       right: 0,
                       bottom: 0,
                       top: 0,
@@ -1608,7 +1621,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
             child: Row(
               children: [
                 Expanded(
-                  child: GestureDetector(
+                  child: BounceOnTap(
                     onTap: () => _showGradesBottomSheet(studentUser),
                     child: Container(
                       height: 220,
@@ -1680,6 +1693,15 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                               ),
                             ),
                             Positioned(
+                              right: -15,
+                              bottom: -15,
+                              child: MascotBackgroundShapes(
+                                color: const Color(0xFF1E88E5),
+                                width: 110,
+                                height: 110,
+                              ),
+                            ),
+                            Positioned(
                               right: -5,
                               bottom: -5,
                               child: Image.asset(
@@ -1699,7 +1721,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: GestureDetector(
+                  child: BounceOnTap(
                     onTap: _showScheduleSheet,
                     child: Container(
                       height: 220,
@@ -1771,6 +1793,15 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                               ),
                             ),
                             Positioned(
+                              right: -15,
+                              bottom: -15,
+                              child: MascotBackgroundShapes(
+                                color: const Color(0xFFF57C00),
+                                width: 110,
+                                height: 110,
+                              ),
+                            ),
+                            Positioned(
                               right: -5,
                               bottom: -5,
                               child: Image.asset(
@@ -1794,7 +1825,7 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
           const SizedBox(height: 16),
 
           // 4. Tarjeta Tienda Dojo
-          GestureDetector(
+          BounceOnTap(
             onTap: () => _showDojoStoreBottomSheet(studentUser),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -1864,6 +1895,17 @@ class _StudentHomeViewState extends ConsumerState<StudentHomeView> {
                         LucideIcons.arrowRight,
                         color: Color(0xFF0288D1),
                         size: 18,
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: -10,
+                      top: 10,
+                      width: 130,
+                      child: MascotBackgroundShapes(
+                        color: const Color(0xFF0288D1),
+                        width: 130,
+                        height: 150,
                       ),
                     ),
                     Positioned(
