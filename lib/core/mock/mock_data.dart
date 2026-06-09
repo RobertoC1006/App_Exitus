@@ -313,10 +313,20 @@ class MockDatabase {
     _initDigitacionJobs();
     _initRubricas();
     _initAttendanceLogs();
+    _initNurseData();
   }
 
   // Lista de usuarios registrados (Profesores, Administradores y Estudiantes)
   final List<User> users = [
+    const User(
+      id: 'nurse_01',
+      username: 'rosa123',
+      fullName: 'Lic. Rosa',
+      email: 'rosa.enfermeria@exitus.edu.pe',
+      role: 'enfermero',
+      avatarUrl: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?w=150',
+      subjects: [],
+    ),
     const User(
       id: 'teacher_01',
       username: 'profesor123',
@@ -375,6 +385,7 @@ class MockDatabase {
 
   // Contraseñas de usuarios (para simplificar el mock de login)
   final Map<String, String> userPasswords = {
+    'rosa123': '12345678',
     'profesor123': '12345678',
     'admin123': '12345678',
     'luis123': '12345678',
@@ -527,6 +538,84 @@ class MockDatabase {
   final List<AttendanceLog> mateoAttendanceLogs = [];
   final List<AttendanceLog> sofiaAttendanceLogs = [];
   final List<AttendanceLog> teacherAttendanceLogs = [];
+
+  final List<Map<String, dynamic>> nurseWaitingPatients = [];
+  final List<Map<String, dynamic>> nurseStockItems = [];
+  final List<Map<String, dynamic>> nurseAlerts = [];
+  final List<Map<String, dynamic>> nurseAuditLogs = [];
+
+  void _initNurseData() {
+    nurseWaitingPatients.addAll([
+      {
+        'id': 'p1',
+        'name': 'Ana Torres Medina',
+        'grade': '4° B Secundaria',
+        'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100',
+        'reason': 'Dolor de cabeza',
+        'time': 'Hace 2 min',
+        'entryTime': '09:22 a. m.',
+        'dni': '76543211'
+      },
+      {
+        'id': 'p2',
+        'name': 'Diego Ramos León',
+        'grade': '3° C Secundaria',
+        'avatar': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100',
+        'reason': 'Golpe en recreo',
+        'time': 'Hace 1 min',
+        'entryTime': '09:23 a. m.',
+        'dni': '76543212'
+      },
+    ]);
+
+    nurseStockItems.addAll([
+      {'name': 'Paracetamol 500mg', 'qty': 32, 'status': 'Stock OK'},
+      {'name': 'Gasas estériles', 'qty': 15, 'status': 'Stock OK'},
+      {'name': 'Alcohol 70%', 'qty': 7, 'status': 'Stock bajo'},
+      {'name': 'Termómetros', 'qty': 2, 'status': 'Stock crítico'},
+    ]);
+
+    nurseAlerts.addAll([
+      {
+        'id': 'a1',
+        'title': 'Alergia registrada',
+        'student': 'Ana Torres Medina',
+        'detail': 'Penicilina',
+        'time': 'Registrada hoy, 09:15 a. m.'
+      },
+      {
+        'id': 'a2',
+        'title': 'Temperatura elevada',
+        'student': 'Diego Ramos León',
+        'detail': '39.2 °C',
+        'time': 'Hace 8 min'
+      },
+    ]);
+
+    nurseAuditLogs.addAll([
+      {
+        'id': '483',
+        'student': 'Juan Pérez Romero',
+        'date': '05/06/2026',
+        'time': '10:32 a. m.',
+        'status': 'Firmado'
+      },
+      {
+        'id': '482',
+        'student': 'Ana Torres Medina',
+        'date': '05/06/2026',
+        'time': '03:15 p. m.',
+        'status': 'Firmado'
+      },
+      {
+        'id': '481',
+        'student': 'Diego Ramos León',
+        'date': '05/06/2026',
+        'time': '09:05 a. m.',
+        'status': 'Pendiente revisión'
+      },
+    ]);
+  }
 
   void _initDojoStudents() {
     final List<Map<String, dynamic>> raw = [

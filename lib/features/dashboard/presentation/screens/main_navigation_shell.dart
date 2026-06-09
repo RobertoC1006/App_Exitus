@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -19,6 +20,13 @@ import '../widgets/fab_menu_overlay.dart';
 import '../widgets/launchpad_overlay.dart';
 import '../../../digitacion/presentation/screens/digitacion_dashboard_screen.dart';
 import '../../../../features/classroom/presentation/widgets/inner_classroom_drawer.dart';
+import '../widgets/topico/nurse_home_view.dart';
+import '../widgets/topico/library_placeholder_view.dart';
+import '../../../profile/presentation/widgets/nurse_profile_view.dart';
+import '../widgets/topico/admit_patient_screen.dart';
+import '../widgets/topico/expedientes_screen.dart';
+import '../widgets/topico/stock_screen.dart';
+import '../widgets/topico/alerts_screen.dart';
 
 class MainNavigationShell extends ConsumerStatefulWidget {
   const MainNavigationShell({super.key});
@@ -32,6 +40,8 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   int _currentIndex = 0;
   bool _isFABMenuOpen = false;
   bool _isLaunchpadOpen = false;
+  bool _isLoadingRole = false;
+  String _loadingRoleMessage = "";
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
@@ -50,6 +60,28 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     }
   }
 
+  void _handleRoleSwitch(String newRole) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _isLoadingRole = true;
+          _loadingRoleMessage = newRole == 'enfermero'
+              ? "Alineando tus herramientas de salud... ¡Un momento por favor!"
+              : "Preparando el catálogo escolar... ¡Casi listo!";
+        });
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 1800), () async {
+      await ref.read(authControllerProvider.notifier).updateActiveRole(newRole);
+      if (mounted) {
+        setState(() {
+          _isLoadingRole = false;
+        });
+      }
+    });
+  }
+
   void _handleFABAction(String action) {
     if (action == 'portal') {
       setState(() {
@@ -65,6 +97,22 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       _navigatorKeys[_currentIndex].currentState?.push(
         MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
       );
+    } else if (action == 'nurse_admit') {
+      _navigatorKeys[_currentIndex].currentState?.push(
+        MaterialPageRoute(builder: (context) => const AdmitPatientScreen()),
+      ).then((_) => setState(() {}));
+    } else if (action == 'nurse_records') {
+      _navigatorKeys[_currentIndex].currentState?.push(
+        MaterialPageRoute(builder: (context) => const ExpedientesScreen()),
+      ).then((_) => setState(() {}));
+    } else if (action == 'nurse_inventory') {
+      _navigatorKeys[_currentIndex].currentState?.push(
+        MaterialPageRoute(builder: (context) => const StockScreen()),
+      ).then((_) => setState(() {}));
+    } else if (action == 'nurse_alerts') {
+      _navigatorKeys[_currentIndex].currentState?.push(
+        MaterialPageRoute(builder: (context) => const AlertsScreen()),
+      ).then((_) => setState(() {}));
     } else {
       _showSimulatedSubmenu(action);
     }
@@ -926,6 +974,10 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
         teacherCourses: teacherCourses,
         onTabChanged: _onTabChanged,
       );
+    } else if (user.role == 'enfermero') {
+      homeView = const NurseHomeView();
+    } else if (user.role == 'bibliotecario') {
+      homeView = const LibraryPlaceholderView();
     } else {
       homeView = StudentHomeView(
         studentUser: user,
@@ -943,6 +995,12 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       profileView = TeacherProfileView(
         currentUser: user,
         onLogout: _handleLogout,
+      );
+    } else if (user.role == 'enfermero' || user.role == 'bibliotecario') {
+      profileView = NurseProfileView(
+        currentUser: user,
+        onLogout: _handleLogout,
+        onRoleChanged: _handleRoleSwitch,
       );
     } else {
       profileView = StudentProfileView(
@@ -1115,6 +1173,74 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                 });
                 _handleFABAction(submenuId);
               },
+            ),
+          ),
+          
+        if (_isLoadingRole)
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Container(
+                      color: const Color(0xFF1D2848).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Center(
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 16,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  width: 44,
+                                  height: 44,
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF1D2848),
+                                    strokeWidth: 4.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  "CAMBIANDO ROL",
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF94A3B8),
+                                    letterSpacing: 1.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _loadingRoleMessage,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1D2848),
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
       ],

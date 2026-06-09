@@ -44,6 +44,12 @@ class _FABMenuOverlayState extends State<FABMenuOverlay>
     {'id': 'curr',          'label': 'Plan Curricular',     'icon': LucideIcons.briefcase,      'color': const Color(0xFF26C6DA)},
     {'id': 'diary',         'label': 'Bitácoras / Diario',  'icon': LucideIcons.book,           'color': const Color(0xFFAB47BC)},
     {'id': 'my_attendance', 'label': 'Mi Asistencia',       'icon': LucideIcons.calendarCheck2, 'color': const Color(0xFF66BB6A)},
+    
+    // Acciones de Tópico Escolar / Enfermería
+    {'id': 'nurse_admit',     'label': 'Admitir Paciente',    'icon': LucideIcons.userPlus,       'color': const Color(0xFF3B82F6)},
+    {'id': 'nurse_records',   'label': 'Expedientes Clínicos','icon': LucideIcons.fileSpreadsheet, 'color': const Color(0xFF10B981)},
+    {'id': 'nurse_inventory', 'label': 'Inventario Stock',    'icon': LucideIcons.briefcase,       'color': const Color(0xFFF59E0B)},
+    {'id': 'nurse_alerts',    'label': 'Alertas Críticas',    'icon': LucideIcons.bellRing,       'color': const Color(0xFFEF4444)},
   ];
 
   late final List<Map<String, dynamic>> _actions;
@@ -68,6 +74,10 @@ class _FABMenuOverlayState extends State<FABMenuOverlay>
       allowedIds = ['schedule', 'topico', 'psicologia', 'tesoreria', 'my_attendance', 'actia'];
     } else if (role == 'admin') {
       allowedIds = ['post', 'schedule', 'topico', 'psicologia', 'tesoreria', 'qr_attendance', 'actia'];
+    } else if (role == 'enfermero') {
+      allowedIds = ['nurse_admit', 'nurse_records', 'nurse_inventory', 'nurse_alerts'];
+    } else if (role == 'bibliotecario') {
+      allowedIds = ['schedule', 'portal'];
     } else {
       allowedIds = ['schedule', 'portal'];
     }

@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../data/repositories/mock_auth_repository.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -70,6 +72,26 @@ class AuthController extends Notifier<AuthState> {
     state = const AuthLoading();
     await ref.read(authRepositoryProvider).logout();
     state = const AuthUnauthenticated();
+  }
+
+  Future<void> updateActiveRole(String newRole) async {
+    final currentState = state;
+    if (currentState is AuthAuthenticated) {
+      final updatedUser = User(
+        id: currentState.user.id,
+        username: currentState.user.username,
+        fullName: currentState.user.fullName,
+        email: currentState.user.email,
+        role: newRole,
+        avatarUrl: currentState.user.avatarUrl,
+        subjects: currentState.user.subjects,
+      );
+      
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'user_data', value: jsonEncode(updatedUser.toJson()));
+      
+      state = AuthAuthenticated(updatedUser);
+    }
   }
 }
 
