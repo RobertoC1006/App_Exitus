@@ -3,6 +3,15 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 
+// ─── Colors ───────────────────────────────────────────────────────────────────
+const _indigo = Color(0xFF5B4FCF);
+const _indigoLight = Color(0xFFEEEBFF);
+const _textDark = Color(0xFF1A1D2E);
+const _textMid = Color(0xFF6B7280);
+const _textLight = Color(0xFF9CA3AF);
+const _borderColor = Color(0xFFE5E7EB);
+const _bgPage = Color(0xFFF7F8FC);
+
 class AdmitPatientScreen extends StatefulWidget {
   const AdmitPatientScreen({super.key});
 
@@ -12,694 +21,793 @@ class AdmitPatientScreen extends StatefulWidget {
 
 class _AdmitPatientScreenState extends State<AdmitPatientScreen> {
   final MockDatabase _db = MockDatabase();
-  bool _isFormView = true; // true: Form editing (Step 1), false: Review/Submit (Step 2)
+  bool _onReviewStep = false; // false = Datos, true = Registrar
 
-  // Search variables
-  final TextEditingController _searchController = TextEditingController();
-  List<Student> _searchResults = [];
-  Student? _selectedStudent;
+  final TextEditingController _searchCtrl = TextEditingController();
+  final TextEditingController _descCtrl = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
 
-  // Motivo variables
-  String _selectedReason = "";
-  final TextEditingController _descController = TextEditingController();
+  List<Student> _results = [];
+  Student? _selected;
+  String _reason = '';
 
-  final List<Map<String, dynamic>> _reasonsList = [
-    {
-      'label': 'Dolor de cabeza',
-      'color': const Color(0xFF6366F1), // Indigo
-      'selectedBg': const Color(0xFFEEF2FF),
-    },
-    {
-      'label': 'Dolor estomacal',
-      'color': const Color(0xFFEF4444), // Red
-      'selectedBg': const Color(0xFFFEF2F2),
-    },
-    {
-      'label': 'Golpe / Caída',
-      'color': const Color(0xFFF97316), // Orange
-      'selectedBg': const Color(0xFFFFF7ED),
-    },
-    {
-      'label': 'Fiebre',
-      'color': const Color(0xFFEC4899), // Pink
-      'selectedBg': const Color(0xFFFCE7F3),
-    },
-    {
-      'label': 'Malestar general',
-      'color': const Color(0xFFF97316), // Orange
-      'selectedBg': const Color(0xFFFFF7ED),
-    },
-    {
-      'label': 'Otro motivo',
-      'color': const Color(0xFF64748B), // Grey
-      'selectedBg': const Color(0xFFF8FAFC),
-    },
+  static const _reasons = [
+    _Reason(
+      label: 'Dolor de\ncabeza',
+      raw: 'Dolor de cabeza',
+      color: Color(0xFF6366F1),
+      bg: Color(0xFFEEF2FF),
+    ),
+    _Reason(
+      label: 'Dolor\nestomacal',
+      raw: 'Dolor estomacal',
+      color: Color(0xFFEC4899),
+      bg: Color(0xFFFDF2F8),
+    ),
+    _Reason(
+      label: 'Golpe /\nCaída',
+      raw: 'Golpe / Caída',
+      color: Color(0xFFF59E0B),
+      bg: Color(0xFFFFFBEB),
+    ),
+    _Reason(
+      label: 'Fiebre',
+      raw: 'Fiebre',
+      color: Color(0xFFEF4444),
+      bg: Color(0xFFFEF2F2),
+    ),
+    _Reason(
+      label: 'Malestar\ngeneral',
+      raw: 'Malestar general',
+      color: Color(0xFFF97316),
+      bg: Color(0xFFFFF7ED),
+    ),
+    _Reason(
+      label: 'Otro\nmotivo',
+      raw: 'Otro motivo',
+      color: Color(0xFF64748B),
+      bg: Color(0xFFF1F5F9),
+    ),
   ];
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
+    _searchCtrl.addListener(_search);
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _descController.dispose();
+    _searchCtrl.dispose();
+    _descCtrl.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
-  List<Student> _getAllStudentsList() {
-    return [
-      ..._db.students5toA,
-      ..._db.students5toB,
-      Student(
-        id: 's101',
-        fullName: 'Juan Pérez Romero',
-        avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
-      ),
-      Student(
-        id: 's102',
-        fullName: 'Ana Torres Medina',
-        avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-      ),
-      Student(
-        id: 's103',
-        fullName: 'Diego Ramos León',
-        avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
-      ),
-    ];
-  }
+  List<Student> get _allStudents => [
+        ..._db.students5toA,
+        ..._db.students5toB,
+        Student(id: 's101', fullName: 'Juan Pérez Romero', avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'),
+        Student(id: 's102', fullName: 'Ana Torres Medina', avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'),
+        Student(id: 's103', fullName: 'Diego Ramos León', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100'),
+      ];
 
-  String _getStudentGrade(Student student) {
-    if (student.id == 's101') return '4° A Secundaria';
-    if (student.id == 's7' || student.id == 's8' || student.id == 's9' || student.id == 's10') {
-      return '5° B Secundaria';
-    }
+  String _grade(Student s) {
+    if (s.id == 's101') return '4° A Secundaria';
+    if (['s7', 's8', 's9', 's10'].contains(s.id)) return '5° B Secundaria';
     return '5° A Secundaria';
   }
 
-  String _getStudentDni(Student student) {
-    if (student.id == 's101') return '76543210';
-    if (student.id.startsWith('s')) {
-      final sub = student.id.substring(1);
-      return '7654321$sub';
-    }
-    return '76543210';
+  String _dni(Student s) {
+    if (s.id == 's101') return '76543210';
+    return '7654321${s.id.replaceFirst('s', '')}';
   }
 
-  void _onSearchChanged() {
-    if (_selectedStudent != null) return;
-
-    final query = _searchController.text.trim().toLowerCase();
-    final allStudents = _getAllStudentsList();
-
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-      });
-      return;
-    }
-
-    final filtered = allStudents.where((student) {
-      return student.fullName.toLowerCase().contains(query) ||
-          student.id.toLowerCase().contains(query);
-    }).toList();
-
+  void _search() {
+    if (_selected != null) return;
+    final q = _searchCtrl.text.trim().toLowerCase();
     setState(() {
-      _searchResults = filtered;
+      _results = q.isEmpty
+          ? []
+          : _allStudents.where((s) => s.fullName.toLowerCase().contains(q) || s.id.contains(q)).toList();
     });
   }
 
-  void _selectStudent(Student student) {
+  void _pick(Student s) {
     setState(() {
-      _selectedStudent = student;
-      _searchResults = [];
-      _searchController.text = student.fullName;
+      _selected = s;
+      _results = [];
+      _searchCtrl.text = s.fullName;
     });
-    FocusScope.of(context).unfocus();
+    _searchFocus.unfocus();
   }
 
-  void _nextStep() {
-    if (_isFormView) {
-      if (_selectedStudent == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Por favor, busque y seleccione un alumno.")),
-        );
-        return;
-      }
-      if (_selectedReason.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Por favor, seleccione un motivo de consulta.")),
-        );
-        return;
-      }
-      setState(() {
-        _isFormView = false;
+  void _clear() => setState(() {
+        _selected = null;
+        _results = [];
+        _searchCtrl.clear();
       });
+
+  void _onNext() {
+    if (!_onReviewStep) {
+      if (_selected == null) { _snack('Selecciona un alumno.'); return; }
+      if (_reason.isEmpty) { _snack('Selecciona un motivo.'); return; }
+      setState(() => _onReviewStep = true);
     } else {
-      _registerAdmission();
+      _register();
     }
   }
 
-  void _registerAdmission() {
-    if (_selectedStudent == null || _selectedReason.isEmpty) return;
+  void _onBack() {
+    if (_onReviewStep) {
+      setState(() => _onReviewStep = false);
+    } else {
+      Navigator.pop(context);
+    }
+  }
 
-    final newPatient = {
-      'id': 'p_${DateTime.now().millisecondsSinceEpoch}',
-      'name': _selectedStudent!.fullName,
-      'grade': _getStudentGrade(_selectedStudent!),
-      'avatar': _selectedStudent!.avatarUrl,
-      'reason': _selectedReason,
-      'time': 'Hace un momento',
-      'entryTime': _formatCurrentTime(),
-      'dni': _getStudentDni(_selectedStudent!),
-      'description': _descController.text.trim(),
-    };
-
-    // Agregar a la lista de pacientes en espera
-    _db.nurseWaitingPatients.insert(0, newPatient);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(LucideIcons.checkCircle2, color: Colors.white),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                "Alumno ${_selectedStudent!.fullName} admitido con éxito.",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+  void _snack(String msg) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        backgroundColor: const Color(0xFF2E7D32),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      );
 
-    Navigator.pop(context, true); // Retorna true para refrescar la lista
+  void _register() {
+    _db.nurseWaitingPatients.insert(0, {
+      'id': 'p_${DateTime.now().millisecondsSinceEpoch}',
+      'name': _selected!.fullName,
+      'grade': _grade(_selected!),
+      'avatar': _selected!.avatarUrl,
+      'reason': _reason,
+      'time': 'Hace un momento',
+      'entryTime': _nowFormatted(),
+      'dni': _dni(_selected!),
+      'description': _descCtrl.text.trim(),
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Row(children: [
+        const Icon(LucideIcons.checkCircle2, color: Colors.white, size: 18),
+        const SizedBox(width: 8),
+        Expanded(child: Text('${_selected!.fullName} admitido con éxito.', style: const TextStyle(fontWeight: FontWeight.bold))),
+      ]),
+      backgroundColor: const Color(0xFF16A34A),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ));
+    Navigator.pop(context, true);
   }
 
-  String _formatCurrentTime() {
-    final now = DateTime.now();
-    final hour = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
-    final min = now.minute.toString().padLeft(2, '0');
-    final ampm = now.hour >= 12 ? 'p. m.' : 'a. m.';
-    return '$hour:$min $ampm';
+  String _nowFormatted() {
+    final n = DateTime.now();
+    final h = n.hour > 12 ? n.hour - 12 : (n.hour == 0 ? 12 : n.hour);
+    return '$h:${n.minute.toString().padLeft(2, '0')} ${n.hour >= 12 ? 'p.m.' : 'a.m.'}';
   }
+
+  // ────────────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: _bgPage,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1D2848)),
-          onPressed: () {
-            if (!_isFormView) {
-              setState(() {
-                _isFormView = true;
-              });
-            } else {
-              Navigator.pop(context);
-            }
-          },
+          icon: const Icon(LucideIcons.chevronLeft, color: _textDark, size: 22),
+          onPressed: _onBack,
         ),
         title: Text(
-          "Admitir Paciente",
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: const Color(0xFF1D2848)),
+          'Admitir Paciente',
+          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: _textDark),
         ),
         centerTitle: true,
-        elevation: 0,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+          child: Divider(height: 1, color: _borderColor),
         ),
       ),
       body: Column(
         children: [
-          // Indicador de Pasos (2 pasos: Formulario -> Registrar)
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStepIndicator(0, "Datos y Motivo"),
-                _buildStepConnector(),
-                _buildStepIndicator(1, "Registrar"),
-              ],
-            ),
-          ),
-          
+          _StepBar(onReview: _onReviewStep),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: _isFormView ? _buildFormViewContent() : _buildPreviewContent(),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+              child: _onReviewStep ? _buildReview() : _buildForm(),
             ),
           ),
-
-          // Footer de Navegación
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (!_isFormView) ...[
-                  OutlinedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isFormView = true;
-                      });
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF1D2848),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text("Atrás", style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _nextStep,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: !_isFormView ? const Color(0xFF2E7D32) : const Color(0xFF4F46E5),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          !_isFormView ? "REGISTRAR INGRESO" : "Siguiente",
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          !_isFormView ? LucideIcons.check : LucideIcons.arrowRight,
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildFooter(),
         ],
       ),
     );
   }
 
-  Widget _buildStepIndicator(int stepIndex, String title) {
-    bool isActive = false;
-    bool isCompleted = false;
+  // ── STEP 1: Datos ────────────────────────────────────────────────────────────
 
-    if (_isFormView) {
-      if (stepIndex == 0) {
-        isActive = true;
-      }
-    } else {
-      if (stepIndex == 0) {
-        isCompleted = true;
-      } else if (stepIndex == 1) {
-        isActive = true;
-      }
-    }
+  Widget _buildForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── Search label ──
+        _SectionLabel('Buscar Alumno'),
+        const SizedBox(height: 8),
 
-    Color color = const Color(0xFF94A3B8);
-    Widget icon = Text(
-      "${stepIndex + 1}",
-      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+        // ── Search field ──
+        _SearchField(
+          controller: _searchCtrl,
+          focusNode: _searchFocus,
+          hasValue: _selected != null || _searchCtrl.text.isNotEmpty,
+          onClear: _clear,
+        ),
+
+        // ── Dropdown results ──
+        if (_selected == null && _results.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          _SearchDropdown(students: _results, gradeOf: _grade, onTap: _pick),
+        ],
+
+        // ── Found student card ──
+        if (_selected != null) ...[
+          const SizedBox(height: 18),
+          _FoundLabel(),
+          const SizedBox(height: 8),
+          _StudentCard(student: _selected!, grade: _grade(_selected!), dni: _dni(_selected!)),
+        ],
+
+        // ── Reasons ──
+        const SizedBox(height: 24),
+        _SectionLabel('Seleccione el motivo'),
+        const SizedBox(height: 12),
+        _ReasonsGrid(
+          reasons: _reasons,
+          selected: _reason,
+          onSelect: (r) => setState(() => _reason = r),
+        ),
+
+        // ── Description ──
+        const SizedBox(height: 20),
+        _SectionLabel('Descripción breve (opcional)'),
+        const SizedBox(height: 8),
+        _DescField(controller: _descCtrl),
+      ],
+    );
+  }
+
+  // ── STEP 2: Registrar ────────────────────────────────────────────────────────
+
+  Widget _buildReview() {
+    final reasonData = _reasons.firstWhere(
+      (r) => r.raw == _reason,
+      orElse: () => _reasons.last,
     );
 
-    if (isActive) {
-      color = const Color(0xFF4F46E5);
-    } else if (isCompleted) {
-      color = const Color(0xFF2E7D32);
-      icon = const Icon(LucideIcons.check, color: Colors.white, size: 12);
-    }
-
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: icon,
-        ),
-        const SizedBox(width: 6),
         Text(
-          title,
-          style: GoogleFonts.outfit(
-            fontSize: 12.5,
-            fontWeight: isActive || isCompleted ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? const Color(0xFF4F46E5) : const Color(0xFF64748B),
+          'Confirma los datos antes de registrar',
+          style: GoogleFonts.outfit(fontSize: 13.5, color: _textMid, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: _borderColor),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 8))],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              _StudentCard(student: _selected!, grade: _grade(_selected!), dni: _dni(_selected!)),
+              const SizedBox(height: 20),
+              const Divider(height: 1, color: Color(0xFFF3F4F6)),
+              const SizedBox(height: 16),
+              _ReviewRow(
+                icon: LucideIcons.stethoscope,
+                label: 'Motivo',
+                value: _reason,
+                color: reasonData.color,
+              ),
+              const SizedBox(height: 12),
+              _ReviewRow(
+                icon: LucideIcons.calendarDays,
+                label: 'Fecha de ingreso',
+                value: _todayLabel(),
+                color: const Color(0xFF3B82F6),
+              ),
+              const SizedBox(height: 12),
+              _ReviewRow(
+                icon: LucideIcons.clock,
+                label: 'Hora estimada',
+                value: _nowFormatted(),
+                color: const Color(0xFFF59E0B),
+              ),
+              if (_descCtrl.text.trim().isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                const SizedBox(height: 14),
+                _ObsBlock(text: _descCtrl.text.trim()),
+              ],
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStepConnector() {
-    final isCompleted = !_isFormView;
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        height: 2,
-        color: isCompleted ? const Color(0xFF2E7D32) : const Color(0xFFE2E8F0),
+  String _todayLabel() {
+    final n = DateTime.now();
+    return 'Hoy (${n.day.toString().padLeft(2,'0')}/${n.month.toString().padLeft(2,'0')}/${n.year})';
+  }
+
+  // ── Footer ───────────────────────────────────────────────────────────────────
+
+  Widget _buildFooter() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: _borderColor)),
+      ),
+      child: Row(
+        children: [
+          if (_onReviewStep) ...[
+            _BackButton(onTap: _onBack),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: _NextButton(
+              label: _onReviewStep ? 'Registrar Ingreso' : 'Siguiente',
+              icon: _onReviewStep ? LucideIcons.check : LucideIcons.arrowRight,
+              color: _onReviewStep ? const Color(0xFF16A34A) : _indigo,
+              onTap: _onNext,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Step Bar ─────────────────────────────────────────────────────────────────
+
+class _StepBar extends StatelessWidget {
+  final bool onReview;
+  const _StepBar({required this.onReview});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
+      child: Row(
+        children: [
+          _dot(0, 'Datos', onReview),
+          Expanded(child: _line(onReview)),
+          _dot(1, 'Registrar', onReview),
+        ],
       ),
     );
   }
 
-  Widget _buildFormViewContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          "Buscar Alumno",
-          style: GoogleFonts.outfit(fontSize: 14.5, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: "Buscar por nombre o DNI...",
-            suffixIcon: _selectedStudent != null || _searchController.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(LucideIcons.x, size: 18, color: Color(0xFF64748B)),
-                    onPressed: () {
-                      setState(() {
-                        _searchController.clear();
-                        _selectedStudent = null;
-                        _searchResults = [];
-                      });
-                    },
-                  )
-                : const Icon(LucideIcons.search, size: 18, color: Color(0xFF64748B)),
-            filled: true,
-            fillColor: Colors.white,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 1.5),
-            ),
-          ),
-        ),
-        
-        // Search dropdown results
-        if (_selectedStudent == null && _searchResults.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Container(
-            constraints: const BoxConstraints(maxHeight: 200),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: _searchResults.length,
-              separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-              itemBuilder: (context, index) {
-                final student = _searchResults[index];
-                return ListTile(
-                  leading: CircleAvatar(
-                    radius: 18,
-                    backgroundImage: NetworkImage(student.avatarUrl),
-                  ),
-                  title: Text(
-                    student.fullName,
-                    style: GoogleFonts.outfit(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-                  ),
-                  subtitle: Text(
-                    _getStudentGrade(student),
-                    style: GoogleFonts.inter(fontSize: 10.5, color: const Color(0xFF64748B)),
-                  ),
-                  onTap: () => _selectStudent(student),
-                );
-              },
-            ),
-          ),
-        ],
-        
-        if (_selectedStudent != null) ...[
-          const SizedBox(height: 16),
-          Text(
-            "Alumno encontrado",
-            style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF4F46E5)),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundImage: NetworkImage(_selectedStudent!.avatarUrl),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _selectedStudent!.fullName,
-                          style: GoogleFonts.outfit(fontSize: 14.5, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _getStudentGrade(_selectedStudent!),
-                          style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF64748B), fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          "DNI: ${_getStudentDni(_selectedStudent!)}",
-                          style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF10B981),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(LucideIcons.check, color: Colors.white, size: 14),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+  Widget _dot(int index, String label, bool reviewActive) {
+    final isDone = index == 0 && reviewActive;
+    final isActive = (index == 0 && !reviewActive) || (index == 1 && reviewActive);
 
-        const SizedBox(height: 16),
-        Text(
-          "Seleccione el motivo",
-          style: GoogleFonts.outfit(fontSize: 14.5, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
-        const SizedBox(height: 10),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 1.05,
+    final dotColor = isDone
+        ? const Color(0xFF16A34A)
+        : isActive
+            ? _indigo
+            : const Color(0xFFD1D5DB);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: dotColor,
+            shape: BoxShape.circle,
+            boxShadow: isActive
+                ? [BoxShadow(color: _indigo.withValues(alpha: 0.35), blurRadius: 8, offset: const Offset(0, 3))]
+                : [],
           ),
-          itemCount: _reasonsList.length,
-          itemBuilder: (context, index) {
-            final reason = _reasonsList[index];
-            final isSelected = _selectedReason == reason['label'];
-            return InkWell(
-              onTap: () {
-                setState(() {
-                  _selectedReason = reason['label'];
-                });
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFF5F3FF) : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
-                    width: isSelected ? 1.5 : 1.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1D2848).withValues(alpha: 0.015),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+          alignment: Alignment.center,
+          child: isDone
+              ? const Icon(LucideIcons.check, color: Colors.white, size: 13)
+              : Text(
+                  '${index + 1}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        const SizedBox(width: 7),
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 13,
+            fontWeight: isActive || isDone ? FontWeight.bold : FontWeight.normal,
+            color: isActive
+                ? _indigo
+                : isDone
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF9CA3AF),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _line(bool reviewActive) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      height: 2,
+      decoration: BoxDecoration(
+        color: reviewActive ? const Color(0xFF16A34A) : const Color(0xFFE5E7EB),
+        borderRadius: BorderRadius.circular(1),
+      ),
+    );
+  }
+}
+
+// ─── Section label ────────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) => Text(
+        text,
+        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: _textDark),
+      );
+}
+
+// ─── Search field ─────────────────────────────────────────────────────────────
+
+class _SearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool hasValue;
+  final VoidCallback onClear;
+
+  const _SearchField({
+    required this.controller,
+    required this.focusNode,
+    required this.hasValue,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      style: GoogleFonts.inter(fontSize: 13.5, color: _textDark),
+      decoration: InputDecoration(
+        hintText: 'Buscar por nombre o DNI...',
+        hintStyle: GoogleFonts.inter(fontSize: 13.5, color: _textLight),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        suffixIcon: hasValue
+            ? IconButton(
+                icon: const Icon(LucideIcons.x, size: 18, color: _textLight),
+                onPressed: onClear,
+              )
+            : const Padding(
+                padding: EdgeInsets.only(right: 14),
+                child: Icon(LucideIcons.search, size: 20, color: _textLight),
+              ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _indigo, width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Search dropdown ──────────────────────────────────────────────────────────
+
+class _SearchDropdown extends StatelessWidget {
+  final List<Student> students;
+  final String Function(Student) gradeOf;
+  final void Function(Student) onTap;
+
+  const _SearchDropdown({required this.students, required this.gradeOf, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 210),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _borderColor),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 8))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: students.length,
+          separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          itemBuilder: (_, i) {
+            final s = students[i];
+            return InkWell(
+              onTap: () => onTap(s),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(
                   children: [
-                    _buildReasonIcon(reason['label'], reason['color'], isSelected),
-                    const SizedBox(height: 10),
-                    Text(
-                      reason['label'],
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1D2848),
+                    CircleAvatar(radius: 20, backgroundImage: NetworkImage(s.avatarUrl)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(s.fullName,
+                              style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: _textDark)),
+                          Text(gradeOf(s),
+                              style: GoogleFonts.inter(fontSize: 11, color: _textMid)),
+                        ],
                       ),
                     ),
+                    const Icon(LucideIcons.chevronRight, size: 16, color: _textLight),
                   ],
                 ),
               ),
             );
           },
         ),
-        const SizedBox(height: 16),
-        Text(
-          "Descripción breve (opcional)",
-          style: GoogleFonts.outfit(fontSize: 14.5, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
+      ),
+    );
+  }
+}
+
+// ─── Found label ──────────────────────────────────────────────────────────────
+
+class _FoundLabel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 16,
+          decoration: BoxDecoration(color: _indigo, borderRadius: BorderRadius.circular(2)),
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _descController,
-          maxLines: 3,
-          maxLength: 150,
-          style: const TextStyle(fontSize: 12.5),
-          decoration: InputDecoration(
-            hintText: "Escribe aquí los detalles...",
-            counterStyle: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8)),
-            filled: true,
-            fillColor: Colors.white,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 1.5),
-            ),
-          ),
+        const SizedBox(width: 8),
+        Text(
+          'Alumno encontrado',
+          style: GoogleFonts.outfit(fontSize: 13.5, fontWeight: FontWeight.bold, color: _indigo),
         ),
       ],
     );
   }
+}
 
-  Widget _buildPreviewContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          "Resumen de Admisión",
-          style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFFE2E8F0)),
+// ─── Student card ─────────────────────────────────────────────────────────────
+
+class _StudentCard extends StatelessWidget {
+  final Student student;
+  final String grade;
+  final String dni;
+
+  const _StudentCard({required this.student, required this.grade, required this.dni});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEF2FF), width: 1.5),
+        boxShadow: [
+          BoxShadow(color: _indigo.withValues(alpha: 0.07), blurRadius: 16, offset: const Offset(0, 6)),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          // Avatar with ring
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: _indigoLight, width: 2.5),
+            ),
+            child: CircleAvatar(radius: 26, backgroundImage: NetworkImage(student.avatarUrl)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+          const SizedBox(width: 14),
+          Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundImage: NetworkImage(_selectedStudent!.avatarUrl),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _selectedStudent!.fullName,
-                            style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _getStudentGrade(_selectedStudent!),
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                Text(
+                  student.fullName,
+                  style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: _textDark),
                 ),
-                const SizedBox(height: 20),
-                const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                const SizedBox(height: 16),
-                
-                _buildSummaryRow(LucideIcons.activity, "Motivo", _selectedReason, const Color(0xFFEF4444)),
-                const SizedBox(height: 12),
-                _buildSummaryRow(LucideIcons.calendar, "Fecha de ingreso", "Hoy (05/06/2026)", const Color(0xFF3B82F6)),
-                const SizedBox(height: 12),
-                _buildSummaryRow(LucideIcons.clock, "Hora estimada", _formatCurrentTime(), const Color(0xFFF59E0B)),
-                
-                if (_descController.text.trim().isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  const SizedBox(height: 16),
-                  CrossAxisAlignmentColumn(
-                    label: "Detalles / Observaciones",
-                    content: _descController.text.trim(),
-                  ),
-                ],
+                const SizedBox(height: 3),
+                Text(grade, style: GoogleFonts.inter(fontSize: 12, color: _textMid, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 2),
+                Text('DNI: $dni', style: GoogleFonts.inter(fontSize: 11.5, color: _textLight)),
               ],
             ),
           ),
-        ),
-      ],
+          Container(
+            width: 30,
+            height: 30,
+            decoration: const BoxDecoration(color: Color(0xFF16A34A), shape: BoxShape.circle),
+            child: const Icon(LucideIcons.check, color: Colors.white, size: 16),
+          ),
+        ],
+      ),
     );
   }
+}
 
-  Widget _buildSummaryRow(IconData icon, String label, String value, Color color) {
+// ─── Reasons grid ─────────────────────────────────────────────────────────────
+
+class _ReasonsGrid extends StatelessWidget {
+  final List<_Reason> reasons;
+  final String selected;
+  final void Function(String) onSelect;
+
+  const _ReasonsGrid({required this.reasons, required this.selected, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 0.95,
+      ),
+      itemCount: reasons.length,
+      itemBuilder: (_, i) => _ReasonCard(
+        reason: reasons[i],
+        isSelected: selected == reasons[i].raw,
+        onTap: () => onSelect(reasons[i].raw),
+      ),
+    );
+  }
+}
+
+class _ReasonCard extends StatelessWidget {
+  final _Reason reason;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ReasonCard({required this.reason, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: isSelected ? reason.bg : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? reason.color : _borderColor,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: reason.color.withValues(alpha: 0.22), blurRadius: 14, offset: const Offset(0, 5))]
+              : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon with colored circle background
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: reason.color.withValues(alpha: isSelected ? 0.15 : 0.09),
+                shape: BoxShape.circle,
+              ),
+              child: Center(child: _ReasonIcon(label: reason.raw, color: reason.color, size: 26)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              reason.label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? reason.color : _textDark,
+                height: 1.25,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Description field ────────────────────────────────────────────────────────
+
+class _DescField extends StatelessWidget {
+  final TextEditingController controller;
+  const _DescField({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      maxLines: 3,
+      maxLength: 150,
+      style: GoogleFonts.inter(fontSize: 13.5, color: _textDark),
+      decoration: InputDecoration(
+        hintText: 'Escribe aquí los detalles...',
+        hintStyle: GoogleFonts.inter(fontSize: 13.5, color: _textLight),
+        counterStyle: GoogleFonts.inter(fontSize: 11, color: _textLight),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(14),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _indigo, width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Review row ───────────────────────────────────────────────────────────────
+
+class _ReviewRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _ReviewRow({required this.icon, required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 10),
-        Text(
-          "$label: ",
-          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: Icon(icon, size: 16, color: color),
         ),
+        const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1D2848)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 1),
+              Text(label, style: GoogleFonts.inter(fontSize: 11, color: _textLight, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 2),
+              Text(value, style: GoogleFonts.outfit(fontSize: 13.5, fontWeight: FontWeight.bold, color: _textDark)),
+            ],
           ),
         ),
       ],
@@ -707,15 +815,11 @@ class _AdmitPatientScreenState extends State<AdmitPatientScreen> {
   }
 }
 
-class CrossAxisAlignmentColumn extends StatelessWidget {
-  final String label;
-  final String content;
+// ─── Obs block ────────────────────────────────────────────────────────────────
 
-  const CrossAxisAlignmentColumn({
-    super.key,
-    required this.label,
-    required this.content,
-  });
+class _ObsBlock extends StatelessWidget {
+  final String text;
+  const _ObsBlock({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -723,257 +827,303 @@ class CrossAxisAlignmentColumn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          label.toUpperCase(),
-          style: GoogleFonts.outfit(
-            fontSize: 9.5,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF94A3B8),
-            letterSpacing: 0.5,
-          ),
+          'OBSERVACIONES',
+          style: GoogleFonts.outfit(fontSize: 9.5, fontWeight: FontWeight.w800, color: _textLight, letterSpacing: 0.7),
         ),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: const Color(0xFFF9FAFB),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: _borderColor),
           ),
-          child: Text(
-            content,
-            style: const TextStyle(fontSize: 11, height: 1.4, color: Color(0xFF1D2848)),
-          ),
+          child: Text(text, style: GoogleFonts.inter(fontSize: 12.5, height: 1.5, color: _textDark)),
         ),
       ],
     );
   }
 }
 
-// ================= Custom Icons for Motives =================
+// ─── Footer buttons ───────────────────────────────────────────────────────────
 
-class StomachIcon extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const StomachIcon({
-    super.key,
-    required this.color,
-    this.size = 24.0,
-  });
+class _BackButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _BackButton({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _StomachPainter(color: color),
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: _textDark,
+        side: const BorderSide(color: _borderColor),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: Text('Atrás', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14)),
+    );
+  }
+}
+
+class _NextButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _NextButton({required this.label, required this.icon, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 0,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15.5)),
+          const SizedBox(width: 8),
+          Icon(icon, size: 18),
+        ],
       ),
     );
   }
+}
+
+// ─── Reason data model ────────────────────────────────────────────────────────
+
+class _Reason {
+  final String label; // display (with \n)
+  final String raw;   // logic key
+  final Color color;
+  final Color bg;
+
+  const _Reason({required this.label, required this.raw, required this.color, required this.bg});
+}
+
+// ─── Reason icon widget ───────────────────────────────────────────────────────
+
+class _ReasonIcon extends StatelessWidget {
+  final String label;
+  final Color color;
+  final double size;
+
+  const _ReasonIcon({required this.label, required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    switch (label) {
+      case 'Dolor de cabeza':
+        return Icon(LucideIcons.brain, color: color, size: size);
+      case 'Dolor estomacal':
+        return _StomachIcon(color: color, size: size);
+      case 'Golpe / Caída':
+        return _BandageIcon(color: color, size: size);
+      case 'Fiebre':
+        return Transform.rotate(
+          angle: -0.4,
+          child: Icon(LucideIcons.thermometer, color: color, size: size),
+        );
+      case 'Malestar general':
+        return _SickFaceIcon(color: color, size: size);
+      default:
+        return _DotsCircleIcon(color: color, size: size);
+    }
+  }
+}
+
+// ─── Custom painters ──────────────────────────────────────────────────────────
+
+class _StomachIcon extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _StomachIcon({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) =>
+      SizedBox(width: size, height: size, child: CustomPaint(painter: _StomachPainter(color)));
 }
 
 class _StomachPainter extends CustomPainter {
   final Color color;
-
-  _StomachPainter({required this.color});
+  _StomachPainter(this.color);
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+  void paint(Canvas canvas, Size s) {
+    final p = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    final w = size.width;
-    final h = size.height;
-
-    // We draw the esophagus (top tube)
-    path.moveTo(w * 0.45, h * 0.1);
-    path.lineTo(w * 0.45, h * 0.22);
-
-    // Left bulge (greater curvature)
-    path.cubicTo(
-      w * 0.15, h * 0.22,
-      w * 0.05, h * 0.75,
-      w * 0.45, h * 0.85,
+    final w = s.width;
+    final h = s.height;
+    canvas.drawPath(
+      Path()
+        ..moveTo(w * .45, h * .08)
+        ..lineTo(w * .45, h * .22)
+        ..cubicTo(w * .13, h * .22, w * .04, h * .76, w * .44, h * .86)
+        ..cubicTo(w * .65, h * .91, w * .86, h * .75, w * .81, h * .54)
+        ..lineTo(w * .68, h * .51)
+        ..cubicTo(w * .62, h * .62, w * .55, h * .47, w * .55, h * .22)
+        ..lineTo(w * .55, h * .08),
+      p,
     );
-
-    // Duodenum exit (bottom right)
-    path.cubicTo(
-      w * 0.65, h * 0.9,
-      w * 0.85, h * 0.75,
-      w * 0.8, h * 0.55,
-    );
-    path.lineTo(w * 0.68, h * 0.52);
-
-    // Lesser curvature (inner right curve)
-    path.cubicTo(
-      w * 0.62, h * 0.62,
-      w * 0.55, h * 0.48,
-      w * 0.55, h * 0.22,
-    );
-    path.lineTo(w * 0.55, h * 0.1);
-
-    canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class CrossedBandageIcon extends StatelessWidget {
+class _BandageIcon extends StatelessWidget {
   final Color color;
   final double size;
-
-  const CrossedBandageIcon({
-    super.key,
-    required this.color,
-    required this.size,
-  });
+  const _BandageIcon({required this.color, required this.size});
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _CrossedBandagePainter(color: color),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      SizedBox(width: size, height: size, child: CustomPaint(painter: _BandagePainter(color)));
 }
 
-class _CrossedBandagePainter extends CustomPainter {
+class _BandagePainter extends CustomPainter {
   final Color color;
-
-  _CrossedBandagePainter({required this.color});
+  _BandagePainter(this.color);
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+  void paint(Canvas canvas, Size s) {
+    final stroke = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
+      ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
-
-    final w = size.width;
-    final h = size.height;
-
-    final paintPad = Paint()
-      ..color = color.withValues(alpha: 0.5)
+    final thin = Paint()
+      ..color = color.withValues(alpha: 0.55)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
+      ..strokeWidth = 1.1;
+    final w = s.width;
+    final h = s.height;
 
-    // First bandage (rotated -45 deg)
-    canvas.save();
-    canvas.translate(w / 2, h / 2);
-    canvas.rotate(-0.785); // -45 deg in rad
-    final rrect1 = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: Offset.zero, width: w * 0.8, height: h * 0.24),
-      Radius.circular(w * 0.08),
-    );
-    canvas.drawRRect(rrect1, paint);
-    canvas.drawLine(Offset(-w * 0.12, -h * 0.12), Offset(-w * 0.12, h * 0.12), paintPad);
-    canvas.drawLine(Offset(w * 0.12, -h * 0.12), Offset(w * 0.12, h * 0.12), paintPad);
-    canvas.restore();
-
-    // Second bandage (rotated 45 deg)
-    canvas.save();
-    canvas.translate(w / 2, h / 2);
-    canvas.rotate(0.785); // 45 deg in rad
-    final rrect2 = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: Offset.zero, width: w * 0.8, height: h * 0.24),
-      Radius.circular(w * 0.08),
-    );
-    canvas.drawRRect(rrect2, paint);
-    canvas.drawLine(Offset(-w * 0.12, -h * 0.12), Offset(-w * 0.12, h * 0.12), paintPad);
-    canvas.drawLine(Offset(w * 0.12, -h * 0.12), Offset(w * 0.12, h * 0.12), paintPad);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class MoreCircleIcon extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const MoreCircleIcon({
-    super.key,
-    required this.color,
-    required this.size,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _MoreCirclePainter(color: color),
-      ),
-    );
-  }
-}
-
-class _MoreCirclePainter extends CustomPainter {
-  final Color color;
-
-  _MoreCirclePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    final w = size.width;
-    final h = size.height;
-
-    // Draw outer circle
-    canvas.drawCircle(Offset(w / 2, h / 2), w * 0.4, paint);
-
-    // Draw three dots in the center
-    final dotPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(Offset(w * 0.35, h / 2), w * 0.05, dotPaint);
-    canvas.drawCircle(Offset(w / 2, h / 2), w * 0.05, dotPaint);
-    canvas.drawCircle(Offset(w * 0.65, h / 2), w * 0.05, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// Icon helper builder
-Widget _buildReasonIcon(String label, Color color, bool isSelected) {
-  final iconColor = isSelected ? const Color(0xFF4F46E5) : color;
-  const double iconSize = 32.0;
-
-  switch (label) {
-    case 'Dolor de cabeza':
-      return Icon(LucideIcons.brain, color: iconColor, size: iconSize);
-    case 'Dolor estomacal':
-      return StomachIcon(color: iconColor, size: iconSize);
-    case 'Golpe / Caída':
-      return CrossedBandageIcon(color: iconColor, size: iconSize);
-    case 'Fiebre':
-      return Transform.rotate(
-        angle: -0.4,
-        child: Icon(LucideIcons.thermometer, color: iconColor, size: iconSize),
+    for (final angle in [-0.8, 0.8]) {
+      canvas.save();
+      canvas.translate(w / 2, h / 2);
+      canvas.rotate(angle);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: Offset.zero, width: w * .82, height: h * .26),
+          Radius.circular(w * .08),
+        ),
+        stroke,
       );
-    case 'Malestar general':
-      return Icon(LucideIcons.frown, color: iconColor, size: iconSize);
-    case 'Otro motivo':
-      return MoreCircleIcon(color: iconColor, size: iconSize);
-    default:
-      return Icon(LucideIcons.helpCircle, color: iconColor, size: iconSize);
+      canvas.drawLine(Offset(-w * .13, -h * .13), Offset(-w * .13, h * .13), thin);
+      canvas.drawLine(Offset(w * .13, -h * .13), Offset(w * .13, h * .13), thin);
+      canvas.restore();
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Sick face: emoji-style face with X eyes
+class _SickFaceIcon extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _SickFaceIcon({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) =>
+      SizedBox(width: size, height: size, child: CustomPaint(painter: _SickFacePainter(color)));
+}
+
+class _SickFacePainter extends CustomPainter {
+  final Color color;
+  _SickFacePainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    final w = s.width;
+    final h = s.height;
+    final cx = w / 2;
+    final cy = h / 2;
+
+    // Outer circle (filled lightly)
+    canvas.drawCircle(
+      Offset(cx, cy),
+      w * .44,
+      Paint()..color = color.withValues(alpha: 0.18)..style = PaintingStyle.fill,
+    );
+    canvas.drawCircle(
+      Offset(cx, cy),
+      w * .44,
+      Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2.0,
+    );
+
+    // X eyes
+    final eyePaint = Paint()
+      ..color = color
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round;
+    const r = 0.07;
+    // left eye X
+    canvas.drawLine(Offset(cx - w * .2 - w * r, cy - h * .12 - h * r), Offset(cx - w * .2 + w * r, cy - h * .12 + h * r), eyePaint);
+    canvas.drawLine(Offset(cx - w * .2 + w * r, cy - h * .12 - h * r), Offset(cx - w * .2 - w * r, cy - h * .12 + h * r), eyePaint);
+    // right eye X
+    canvas.drawLine(Offset(cx + w * .2 - w * r, cy - h * .12 - h * r), Offset(cx + w * .2 + w * r, cy - h * .12 + h * r), eyePaint);
+    canvas.drawLine(Offset(cx + w * .2 + w * r, cy - h * .12 - h * r), Offset(cx + w * .2 - w * r, cy - h * .12 + h * r), eyePaint);
+
+    // Wavy/sad mouth
+    final mouthPath = Path();
+    mouthPath.moveTo(cx - w * .2, cy + h * .12);
+    mouthPath.cubicTo(cx - w * .08, cy + h * .22, cx + w * .08, cy + h * .22, cx + w * .2, cy + h * .12);
+    canvas.drawPath(
+      mouthPath,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _DotsCircleIcon extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _DotsCircleIcon({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) =>
+      SizedBox(width: size, height: size, child: CustomPaint(painter: _DotsCirclePainter(color)));
+}
+
+class _DotsCirclePainter extends CustomPainter {
+  final Color color;
+  _DotsCirclePainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    final w = s.width;
+    final h = s.height;
+    canvas.drawCircle(
+      Offset(w / 2, h / 2),
+      w * .42,
+      Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2.0,
+    );
+    final dot = Paint()..color = color..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(w * .35, h / 2), w * .055, dot);
+    canvas.drawCircle(Offset(w / 2, h / 2), w * .055, dot);
+    canvas.drawCircle(Offset(w * .65, h / 2), w * .055, dot);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
