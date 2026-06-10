@@ -81,3 +81,35 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(() {
   return AuthController();
 });
+
+class ActiveRoleNotifier extends Notifier<String> {
+  @override
+  String build() {
+    final authState = ref.watch(authControllerProvider);
+    if (authState is AuthAuthenticated) {
+      return authState.user.role;
+    }
+    return 'student';
+  }
+
+  void setRole(String newRole) {
+    state = newRole;
+  }
+}
+
+final activeRoleProvider = NotifierProvider<ActiveRoleNotifier, String>(() {
+  return ActiveRoleNotifier();
+});
+
+class NavigationIndexNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void changeIndex(int index) {
+    state = index;
+  }
+}
+
+final navigationIndexProvider = NotifierProvider<NavigationIndexNotifier, int>(() {
+  return NavigationIndexNotifier();
+});

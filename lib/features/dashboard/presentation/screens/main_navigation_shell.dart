@@ -9,7 +9,6 @@ import '../../../../core/mock/mock_data.dart';
 import '../../../social_feed/presentation/widgets/social_feed_view.dart';
 import '../../../messages/presentation/widgets/inbox_messages_view.dart';
 import '../../../profile/presentation/widgets/student_profile_view.dart';
-import '../../../profile/presentation/widgets/teacher_profile_view.dart';
 import '../widgets/student_home_view.dart';
 import '../widgets/teacher_home_view.dart';
 import '../widgets/admin_home_view.dart';
@@ -17,6 +16,7 @@ import '../widgets/admin_profile_view.dart';
 import '../widgets/admin_views.dart';
 import '../widgets/fab_menu_overlay.dart';
 import '../widgets/launchpad_overlay.dart';
+import '../widgets/staff_role_dashboard.dart';
 import '../../../digitacion/presentation/screens/digitacion_dashboard_screen.dart';
 import '../../../../features/classroom/presentation/widgets/inner_classroom_drawer.dart';
 
@@ -209,23 +209,21 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                       final currentAuthState = ref.read(authControllerProvider);
                       final String userFullName = currentAuthState is AuthAuthenticated ? currentAuthState.user.fullName : "Usuario Exitus";
                       final String userAvatar = currentAuthState is AuthAuthenticated ? currentAuthState.user.avatarUrl : "https://images.unsplash.com/photo-1597586124394-fbd6ef244026?w=150";
-                      final String userRole = currentAuthState is AuthAuthenticated ? currentAuthState.user.role : "student";
+                      final String activeRole = ref.read(activeRoleProvider);
 
                       final newPost = SocialPost(
                         id: _db.getSocialPosts().length + 1,
                         publisher: userFullName,
                         avatar: userAvatar,
                         time: 'Hace un momento',
-                        tag: userRole == 'admin' ? 'Administrador' : (userRole == 'teacher' ? 'Docente' : 'Estudiante'),
+                        tag: activeRole == 'admin' ? 'Administrador' : (activeRole == 'teacher' ? 'Docente' : (activeRole == 'student' ? 'Estudiante' : activeRole[0].toUpperCase() + activeRole.substring(1))),
                         content: text,
                         userReactions: {'likes': false, 'loves': false, 'bravos': false, 'insights': false, 'haha': false, 'sad': false},
                         comments: [],
                       );
                       _db.getSocialPosts().insert(0, newPost);
                       Navigator.pop(context);
-                      setState(() {
-                        _currentIndex = 1; // Redirigir a Muro
-                      });
+                      ref.read(navigationIndexProvider.notifier).changeIndex(1); // Redirigir a Muro
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Publicado en el muro con éxito.")),
                       );
@@ -251,8 +249,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     final currentAuthState = ref.read(authControllerProvider);
     if (currentAuthState is! AuthAuthenticated) return;
     final user = currentAuthState.user;
+    final activeRole = ref.read(activeRoleProvider);
 
-    final schedule = user.role == 'teacher'
+    final schedule = activeRole == 'teacher'
         ? _db.teacherSchedule
         : (user.username.contains('sofia') ? _db.sofiaSchedule : _db.mateoSchedule);
 
@@ -777,10 +776,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   }
 
   Widget _buildBottomNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
-    final currentAuthState = ref.watch(authControllerProvider);
-    final String userRole = currentAuthState is AuthAuthenticated ? currentAuthState.user.role : "student";
+    final String activeRole = ref.watch(activeRoleProvider);
     final isSelected = _currentIndex == index;
-    final activeColor = userRole == 'student' ? const Color(0xFFF9C824) : const Color(0xFF1D2848);
+    final activeColor = activeRole == 'student' ? const Color(0xFFF9C824) : const Color(0xFF1D2848);
     final color = isSelected ? activeColor : const Color(0xFF94A3B8);
 
     return InkWell(
@@ -869,11 +867,20 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(navigationIndexProvider, (previous, next) {
+      if (_currentIndex != next) {
+        setState(() {
+          _currentIndex = next;
+        });
+      }
+    });
+
     final currentAuthState = ref.watch(authControllerProvider);
     if (currentAuthState is! AuthAuthenticated) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final user = currentAuthState.user;
+    final activeRole = ref.watch(activeRoleProvider);
 
     final List<Map<String, dynamic>> studentCourses = user.username.contains('sofia')
         ? [
@@ -909,7 +916,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     }).toList();
 
     Widget homeView;
-    if (user.role == 'admin') {
+    if (activeRole == 'admin') {
       homeView = AdminHomeView(
         onTabChanged: (index) {
           if (index == 1) {
@@ -920,29 +927,29 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
         },
         onRegisterUserPressed: _showCreateUserSheet,
       );
-    } else if (user.role == 'teacher') {
+    } else if (activeRole == 'teacher') {
       homeView = TeacherHomeView(
         teacherUser: user,
         teacherCourses: teacherCourses,
         onTabChanged: _onTabChanged,
       );
-    } else {
+    } else if (activeRole == 'student') {
       homeView = StudentHomeView(
         studentUser: user,
         studentCourses: studentCourses,
         onTabChanged: _onTabChanged,
       );
+    } else {
+      homeView = StaffRoleDashboard(
+        role: activeRole,
+        user: user,
+      );
     }
 
     Widget profileView;
-    if (user.role == 'admin') {
+    if (activeRole == 'admin' && user.role == 'admin') {
       profileView = AdminProfileView(
         onRefreshRequested: () => setState(() {}),
-      );
-    } else if (user.role == 'teacher') {
-      profileView = TeacherProfileView(
-        currentUser: user,
-        onLogout: _handleLogout,
       );
     } else {
       profileView = StudentProfileView(
@@ -1010,7 +1017,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                           _isFABMenuOpen = true;
                         });
                       },
-                backgroundColor: user.role == 'student'
+                backgroundColor: activeRole == 'student'
                     ? const Color(0xFFF9C824)
                     : const Color(0xFF1D2848),
                 elevation: 8,
@@ -1018,7 +1025,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                 child: Icon(
                   LucideIcons.plus,
                   color: Colors.white,
-                  size: user.role == 'student' ? 28 : 24,
+                  size: activeRole == 'student' ? 28 : 24,
                 ),
               ),
             ),
@@ -1050,11 +1057,11 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
         if (_isFABMenuOpen)
           Positioned.fill(
             child: FABMenuOverlay(
-              user: {'role': user.role},
-              fabColor: user.role == 'student'
+              user: {'role': activeRole},
+              fabColor: activeRole == 'student'
                   ? const Color(0xFFF9C824)
                   : const Color(0xFF1D2848),
-              fabIconSize: user.role == 'student' ? 28 : 24,
+              fabIconSize: activeRole == 'student' ? 28 : 24,
               onClose: () {
                 setState(() {
                   _isFABMenuOpen = false;
@@ -1067,7 +1074,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
         if (_isLaunchpadOpen)
           Positioned.fill(
             child: LaunchpadOverlay(
-              user: {'role': user.role},
+              user: {'role': activeRole},
               onClose: () {
                 setState(() {
                   _isLaunchpadOpen = false;
@@ -1078,9 +1085,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                   _isLaunchpadOpen = false;
                 });
                 if (route == 'classroom') {
-                  if (user.role == 'student') {
+                  if (activeRole == 'student') {
                     _showStudentClassroomBottomSheet(user, studentCourses);
-                  } else if (user.role == 'teacher') {
+                  } else if (activeRole == 'teacher') {
                     if (teacherCourses.isNotEmpty) {
                       showModalBottomSheet(
                         context: context,
@@ -1100,9 +1107,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                     }
                   }
                 } else if (route == 'messages') {
-                  setState(() {
-                    _currentIndex = 2; // Mensajes
-                  });
+                  ref.read(navigationIndexProvider.notifier).changeIndex(2); // Mensajes
                 } else if (route == 'digitacion') {
                   _navigatorKeys[_currentIndex].currentState?.push(
                     MaterialPageRoute(builder: (context) => const DigitacionDashboardScreen()),
