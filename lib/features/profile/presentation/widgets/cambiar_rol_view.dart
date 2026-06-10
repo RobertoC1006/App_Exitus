@@ -263,7 +263,7 @@ class _CambiarRolViewState extends ConsumerState<CambiarRolView> {
                                 "Elige el rol con el que quieres trabajar ahora.",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: const Color(0xFFB78A00).withOpacity(0.85),
+                                  color: const Color(0xFFB78A00).withValues(alpha: 0.85),
                                   fontWeight: FontWeight.w500,
                                   height: 1.3,
                                 ),
@@ -304,7 +304,7 @@ class _CambiarRolViewState extends ConsumerState<CambiarRolView> {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? const Color(0xFFEDC620).withOpacity(0.15)
+                                            ? const Color(0xFFEDC620).withValues(alpha: 0.15)
                                             : const Color(0xFFF1F5F9),
                                         borderRadius: BorderRadius.circular(10),
                                       ),

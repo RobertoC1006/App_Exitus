@@ -10,6 +10,7 @@ import '../../../../core/mock/mock_data.dart';
 import '../../../social_feed/presentation/widgets/social_feed_view.dart';
 import '../../../messages/presentation/widgets/inbox_messages_view.dart';
 import '../../../profile/presentation/widgets/student_profile_view.dart';
+import '../../../profile/presentation/widgets/teacher_profile_view.dart';
 import '../widgets/student_home_view.dart';
 import '../widgets/teacher_home_view.dart';
 import '../widgets/admin_home_view.dart';
@@ -985,7 +986,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       homeView = const NurseHomeView();
     } else if (user.role == 'bibliotecario') {
       homeView = const LibraryPlaceholderView();
-    } else {
+    } else if (activeRole == 'student') {
       homeView = StudentHomeView(
         studentUser: user,
         studentCourses: studentCourses,
@@ -1023,14 +1024,17 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
 
     final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         final currentNavigator = _navigatorKeys[_currentIndex].currentState;
         if (currentNavigator != null && currentNavigator.canPop()) {
           currentNavigator.pop();
-          return false;
+        } else {
+          // If no more routes to pop, maybe exit the app? 
+          // For now just do nothing or we could use SystemNavigator.pop()
         }
-        return true;
       },
       child: Stack(
         children: [

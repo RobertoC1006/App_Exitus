@@ -143,7 +143,7 @@ class ExitusProfileView extends ConsumerWidget {
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1D2848).withOpacity(0.08),
+                              color: const Color(0xFF1D2848).withValues(alpha: 0.08),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
@@ -194,7 +194,7 @@ class ExitusProfileView extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2196F3).withOpacity(0.1),
+                      color: const Color(0xFF2196F3).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

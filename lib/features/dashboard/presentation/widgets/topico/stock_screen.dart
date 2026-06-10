@@ -21,6 +21,7 @@ class _StockScreenState extends State<StockScreen> {
         return const BarcodeScannerSimulationDialog();
       },
     ).then((scannedItemName) {
+      if (!mounted) return;
       if (scannedItemName != null && scannedItemName is String) {
         // Increment stock
         setState(() {

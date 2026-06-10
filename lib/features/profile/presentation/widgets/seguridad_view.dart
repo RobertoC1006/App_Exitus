@@ -187,7 +187,7 @@ class _SeguridadViewState extends State<SeguridadView> {
                             "Cambia tu contraseña periódicamente.",
                             style: TextStyle(
                               fontSize: 10.5,
-                              color: const Color(0xFF2E7D32).withOpacity(0.8),
+                              color: const Color(0xFF2E7D32).withValues(alpha: 0.8),
                               fontWeight: FontWeight.w500,
                               height: 1.3,
                             ),

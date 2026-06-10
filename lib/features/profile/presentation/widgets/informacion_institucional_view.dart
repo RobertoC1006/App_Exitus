@@ -77,7 +77,7 @@ class InformacionInstitucionalView extends StatelessWidget {
                         width: 55,
                         height: 55,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1D2848).withOpacity(0.1),
+                          color: const Color(0xFF1D2848).withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(LucideIcons.shield, size: 28, color: Color(0xFF1D2848)),

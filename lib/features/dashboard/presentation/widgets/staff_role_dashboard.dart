@@ -168,12 +168,12 @@ class StaffRoleDashboard extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [roleColor.withOpacity(0.08), roleColor.withOpacity(0.02)],
+                  colors: [roleColor.withValues(alpha: 0.08), roleColor.withValues(alpha: 0.02)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: roleColor.withOpacity(0.2)),
+                border: Border.all(color: roleColor.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -242,7 +242,7 @@ class StaffRoleDashboard extends StatelessWidget {
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -275,7 +275,7 @@ class StaffRoleDashboard extends StatelessWidget {
                           metric['desc'],
                           style: TextStyle(
                             fontSize: 8,
-                            color: roleColor.withOpacity(0.8),
+                            color: roleColor.withValues(alpha: 0.8),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -330,7 +330,7 @@ class StaffRoleDashboard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: roleColor.withOpacity(0.1),
+                            color: roleColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(action['icon'], size: 18, color: roleColor),
