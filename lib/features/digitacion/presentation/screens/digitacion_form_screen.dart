@@ -5,6 +5,16 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:app_exitus/core/mock/mock_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// ─── Design Tokens ───────────────────────────────────────────────────────────
+const _kPrimary    = Color(0xFF6C4EF2); // Purple-indigo (mockup principal)
+const _kPrimaryBg  = Color(0xFFF3EFFF); // Tint suave
+const _kDark       = Color(0xFF1D2848);
+const _kMuted      = Color(0xFF94A3B8);
+const _kSurface    = Color(0xFFF8FAFC);
+const _kBorder     = Color(0xFFE8ECEF);
+const _kSuccess    = Color(0xFF22C55E);
+const _kErrorRed   = Color(0xFFD32F2F);
+
 class DigitacionFormScreen extends StatefulWidget {
   final PrintRequest? request;
   final VoidCallback onSaved;
@@ -15,33 +25,38 @@ class DigitacionFormScreen extends StatefulWidget {
   State<DigitacionFormScreen> createState() => _DigitacionFormScreenState();
 }
 
-class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
+class _DigitacionFormScreenState extends State<DigitacionFormScreen>
+    with TickerProviderStateMixin {
   final MockDatabase _db = MockDatabase();
-  
+
   int _currentStep = 1; // 1: Documento, 2: Producción, 3: Destino, 4: Entrega
 
-  // Paso 1: Detalles del documento
+  // Animación de entrada del contenido al cambiar de paso
+  late AnimationController _slideCtrl;
+  late Animation<Offset> _slideAnim;
+  late Animation<double> _fadeAnim;
+
+  // Paso 1
   late TextEditingController _titleController;
   late TextEditingController _descController;
   String _uploadedFileName = '';
   double _uploadedFileSizeMB = 0.0;
 
-  // Paso 2: Especificaciones de producción
-  String _colorMode = 'b/n'; // 'b/n', 'color'
-  String _paperSize = 'A4'; // 'A4', 'Oficio', 'Otro'
+  // Paso 2
+  String _colorMode = 'b/n';
+  String _paperSize = 'A4';
 
-  // Paso 3: Destino del material
+  // Paso 3
   String _selectedNivel = 'Secundaria';
   String _selectedGrado = '4°';
   String _selectedSeccion = 'A';
   late TextEditingController _copiesController;
 
-  // Paso 4: Logística de entrega
+  // Paso 4
   late TextEditingController _limitDateController;
-  String _selectedFinish = 'Suelto'; // 'Anillado', 'Engrapado', 'Suelto'
+  String _selectedFinish = 'Suelto';
   late TextEditingController _obsController;
 
-  // Opciones de Dropdowns
   final List<String> _niveles = ['Inicial', 'Primaria', 'Secundaria'];
   final Map<String, List<String>> _gradosPorNivel = {
     'Inicial': ['3 años', '4 años', '5 años'],
@@ -53,6 +68,18 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
   @override
   void initState() {
     super.initState();
+
+    _slideCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+    );
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0.08, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideCtrl, curve: Curves.easeOut));
+    _fadeAnim = CurvedAnimation(parent: _slideCtrl, curve: Curves.easeOut);
+    _slideCtrl.forward();
+
     _titleController = TextEditingController(text: widget.request?.title ?? '');
     _descController = TextEditingController(text: widget.request?.description ?? '');
     _copiesController = TextEditingController(
@@ -60,7 +87,8 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
           ? widget.request!.classrooms.first.copies.toString()
           : '35',
     );
-    _limitDateController = TextEditingController(text: widget.request?.limitDate ?? '25 / 05 / 2024');
+    _limitDateController =
+        TextEditingController(text: widget.request?.limitDate ?? '25 / 05 / 2024');
     _obsController = TextEditingController(text: widget.request?.instructions ?? '');
 
     if (widget.request != null) {
@@ -70,10 +98,8 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
       _uploadedFileSizeMB = 2.4;
       _selectedFinish = widget.request!.finish;
 
-      // Intentar parsear el aula de destino
       if (widget.request!.classrooms.isNotEmpty) {
         final targetName = widget.request!.classrooms.first.name;
-        // Ej: "4° Secundaria A"
         for (var n in _niveles) {
           if (targetName.contains(n)) {
             _selectedNivel = n;
@@ -101,6 +127,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
 
   @override
   void dispose() {
+    _slideCtrl.dispose();
     _titleController.dispose();
     _descController.dispose();
     _copiesController.dispose();
@@ -109,15 +136,20 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     super.dispose();
   }
 
+  // ─── Helpers ───────────────────────────────────────────────────────────────
+
   void _pickMockFile() {
     setState(() {
-      _uploadedFileName = "Examen_${_titleController.text.isNotEmpty ? _titleController.text.trim().replaceAll(' ', '_') : 'Material'}.pdf";
+      _uploadedFileName =
+          "Examen_${_titleController.text.isNotEmpty ? _titleController.text.trim().replaceAll(' ', '_') : 'Material'}.pdf";
       _uploadedFileSizeMB = Random().nextDouble() * 5 + 1.2;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Archivo adjuntado con éxito: $_uploadedFileName"),
-        backgroundColor: const Color(0xFF1E88E5),
+        content: Text("Archivo adjuntado: $_uploadedFileName"),
+        backgroundColor: _kPrimary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -132,9 +164,9 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1D2848),
+              primary: _kPrimary,
               onPrimary: Colors.white,
-              onSurface: Color(0xFF1D2848),
+              onSurface: _kDark,
             ),
           ),
           child: child!,
@@ -152,51 +184,54 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     }
   }
 
+  void _animateStepTransition(VoidCallback action) {
+    _slideCtrl.reset();
+    action();
+    _slideCtrl.forward();
+  }
+
   void _nextStep() {
     if (_currentStep == 1) {
       if (_titleController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("El título del documento es obligatorio."), backgroundColor: Color(0xFFD32F2F)),
-        );
+        _showError("El título del documento es obligatorio.");
         return;
       }
       if (_uploadedFileName.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Debe adjuntar un archivo PDF."), backgroundColor: Color(0xFFD32F2F)),
-        );
+        _showError("Debe adjuntar un archivo PDF.");
         return;
       }
     } else if (_currentStep == 3) {
       final copies = int.tryParse(_copiesController.text) ?? 0;
       if (copies <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("La cantidad de ejemplares debe ser mayor a 0."), backgroundColor: Color(0xFFD32F2F)),
-        );
+        _showError("La cantidad de ejemplares debe ser mayor a 0.");
         return;
       }
     }
-
     if (_currentStep < 4) {
-      setState(() {
-        _currentStep++;
-      });
+      _animateStepTransition(() => setState(() => _currentStep++));
     }
   }
 
   void _prevStep() {
     if (_currentStep > 1) {
-      setState(() {
-        _currentStep--;
-      });
+      _animateStepTransition(() => setState(() => _currentStep--));
     }
   }
 
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: _kErrorRed,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   void _saveForm() {
-    // Validar el paso 4
     if (_limitDateController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("La fecha límite es obligatoria."), backgroundColor: Color(0xFFD32F2F)),
-      );
+      _showError("La fecha límite es obligatoria.");
       return;
     }
 
@@ -205,16 +240,10 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     final limitDate = _limitDateController.text.trim();
     final instructions = _obsController.text.trim();
     final copies = int.tryParse(_copiesController.text) ?? 35;
-
-    // Crear el nombre del aula destino concatenado
-    // Ej: "4° Secundaria A"
     final targetClassroom = "$_selectedGrado $_selectedNivel $_selectedSeccion";
-    final classroomTargets = [
-      PrintClassroomTarget(name: targetClassroom, copies: copies)
-    ];
+    final classroomTargets = [PrintClassroomTarget(name: targetClassroom, copies: copies)];
 
     if (widget.request != null) {
-      // Editar
       final updated = PrintRequest(
         id: widget.request!.id,
         ticketNumber: widget.request!.ticketNumber,
@@ -235,11 +264,12 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Solicitud #${widget.request!.ticketNumber} guardada con éxito"),
-          backgroundColor: const Color(0xFF2E7D32),
+          backgroundColor: _kSuccess,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     } else {
-      // Crear
       final nextId = _db.getPrintRequests().isEmpty
           ? 1048
           : _db.getPrintRequests().map((j) => j.id).reduce(max) + 1;
@@ -251,7 +281,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
         title: title,
         description: description,
         requester: "Nicole Sulay Alburqueque Arevalo",
-        date: "01 Jun 2026", // Fecha simulada actual
+        date: "01 Jun 2026",
         colorMode: _colorMode,
         paperSize: _paperSize,
         status: "pending",
@@ -261,36 +291,30 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
         instructions: instructions,
         finish: _selectedFinish,
       );
-
       _db.addPrintRequest(newReq);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Solicitud #$ticketNum creada correctamente"),
-          backgroundColor: const Color(0xFF2E7D32),
+          backgroundColor: _kSuccess,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
 
-      // Simulación de Luis Gonzaga: 6 segundos de delay
       Timer(const Duration(seconds: 6), () {
         final newMsgId = 'msg_lg_${Random().nextInt(10000)}';
-        
         final mockMsg = InboxMessage(
           id: newMsgId,
           sender: "Luis Gonzaga",
           subject: "[Digitación] Solicitud #$ticketNum Registrada",
           date: "Hoy",
-          snippet: "Confirmación de recepción de ticket #$ticketNum para impresiones...",
-          content: "Hola Nicole,\n\nHemos recibido correctamente su solicitud de digitación #$ticketNum para el documento \"$title\". El trabajo ha sido asignado al centro de producción con estado PENDIENTE.\n\nDetalles:\n- Curso/Sección: $targetClassroom\n- Copias: $copies\n- Modo: ${_colorMode == 'b/n' ? 'Blanco y negro' : 'A color'} ($_paperSize)\n- Acabado: $_selectedFinish\n- Fecha límite requerida: $limitDate\n\nAtentamente,\nLuis Gonzaga - Coordinación de Producción.",
+          snippet: "Confirmación de recepción de ticket #$ticketNum...",
+          content:
+              "Hola Nicole,\n\nHemos recibido correctamente su solicitud de digitación #$ticketNum para el documento \"$title\". El trabajo ha sido asignado al centro de producción con estado PENDIENTE.\n\nDetalles:\n- Curso/Sección: $targetClassroom\n- Copias: $copies\n- Modo: ${_colorMode == 'b/n' ? 'Blanco y negro' : 'A color'} ($_paperSize)\n- Acabado: $_selectedFinish\n- Fecha límite requerida: $limitDate\n\nAtentamente,\nLuis Gonzaga - Coordinación de Producción.",
           unread: true,
           urgent: false,
         );
-
         _db.adminMessages.insert(0, mockMsg);
-
-        // Notificación flotante
-        if (Navigator.of(context).canPop()) {
-          // Si estamos en la app
-        }
       });
     }
 
@@ -298,61 +322,33 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     Navigator.pop(context);
   }
 
+  // ─── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: IconButton(
-            icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1D2848), size: 18),
-            onPressed: () => Navigator.pop(context),
-            padding: EdgeInsets.zero,
-          ),
-        ),
-        title: Text(
-          "Nueva solicitud",
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1D2848),
-          ),
-        ),
-        centerTitle: true,
-      ),
+      appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 12),
-            // 1. Indicador de Progreso Superior
             _buildProgressIndicator(),
-            const SizedBox(height: 16),
-            const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-            // 2. Contenido del paso actual
+            const SizedBox(height: 4),
+            Container(height: 1, color: _kBorder.withValues(alpha: 0.6)),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: _buildStepContent(),
+              child: SlideTransition(
+                position: _slideAnim,
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    child: _buildStepContent(),
+                  ),
+                ),
               ),
             ),
-
-            // 3. Botones de Navegación Inferiores
             _buildNavigationButtons(),
           ],
         ),
@@ -360,24 +356,66 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     );
   }
 
-  // Widget para construir el indicador de progreso (Step Tracker)
+  // ─── AppBar ────────────────────────────────────────────────────────────────
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: _kSurface,
+          shape: BoxShape.circle,
+          border: Border.all(color: _kBorder),
+        ),
+        child: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft, color: _kDark, size: 18),
+          onPressed: () => Navigator.pop(context),
+          padding: EdgeInsets.zero,
+          tooltip: 'Volver',
+        ),
+      ),
+      title: Text(
+        "Nueva solicitud",
+        style: GoogleFonts.outfit(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: _kDark,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  // ─── Progress Stepper (Mockup Style) ──────────────────────────────────────
+
   Widget _buildProgressIndicator() {
+    final steps = ['Documento', 'Producción', 'Destino', 'Entrega'];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              _buildStepNode(1, "Documento"),
-              _buildStepLine(1),
-              _buildStepNode(2, "Producción"),
-              _buildStepLine(2),
-              _buildStepNode(3, "Destino"),
-              _buildStepLine(3),
-              _buildStepNode(4, "Entrega"),
-            ],
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: List.generate(steps.length * 2 - 1, (i) {
+          if (i.isOdd) {
+            // Línea conectora
+            final afterStep = (i ~/ 2) + 1;
+            final isCompleted = _currentStep > afterStep;
+            return Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                height: 3,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: isCompleted ? _kPrimary : _kBorder,
+                ),
+              ),
+            );
+          }
+          final step = (i ~/ 2) + 1;
+          return _buildStepNode(step, steps[step - 1]);
+        }),
       ),
     );
   }
@@ -386,66 +424,63 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     final isActive = _currentStep == step;
     final isCompleted = _currentStep > step;
 
-    return Expanded(
-      child: Column(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: isCompleted
-                  ? const Color(0xFF1E88E5)
-                  : (isActive ? const Color(0xFF1D2848) : const Color(0xFFF1F5F9)),
-              shape: BoxShape.circle,
-              border: isCompleted
-                  ? null
-                  : Border.all(
-                      color: isActive ? const Color(0xFF1D2848) : const Color(0xFFE2E8F0),
-                      width: 1.5,
-                    ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut,
+          width: isActive ? 34 : 28,
+          height: isActive ? 34 : 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isCompleted
+                ? _kPrimary
+                : (isActive ? _kPrimary : Colors.white),
+            border: Border.all(
+              color: isCompleted || isActive ? _kPrimary : _kBorder,
+              width: isActive ? 2.5 : 1.5,
             ),
-            alignment: Alignment.center,
-            child: isCompleted
-                ? const Icon(LucideIcons.check, color: Colors.white, size: 14)
-                : Text(
-                    "$step",
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isActive ? Colors.white : const Color(0xFF94A3B8),
-                    ),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: _kPrimary.withValues(alpha: 0.30),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    )
+                  ]
+                : [],
+          ),
+          alignment: Alignment.center,
+          child: isCompleted
+              ? const Icon(LucideIcons.check, color: Colors.white, size: 14)
+              : Text(
+                  "$step",
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isActive ? Colors.white : _kMuted,
                   ),
+                ),
+        ),
+        const SizedBox(height: 5),
+        AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: GoogleFonts.outfit(
+            fontSize: 10,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+            color: isActive
+                ? _kPrimary
+                : (isCompleted ? _kPrimary.withValues(alpha: 0.6) : _kMuted),
           ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: GoogleFonts.outfit(
-              fontSize: 10,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-              color: isActive
-                  ? const Color(0xFF1D2848)
-                  : (isCompleted ? const Color(0xFF1E88E5) : const Color(0xFF94A3B8)),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+          child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+      ],
     );
   }
 
-  Widget _buildStepLine(int afterStep) {
-    final isCompleted = _currentStep > afterStep;
-    return Container(
-      width: 18,
-      height: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      color: isCompleted ? const Color(0xFF1E88E5) : const Color(0xFFE2E8F0),
-    );
-  }
+  // ─── Step Content Router ───────────────────────────────────────────────────
 
-  // Renderizar el contenido según el paso actual
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 1:
@@ -461,259 +496,281 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     }
   }
 
-  // Paso 1: Detalles del documento
-  Widget _buildStep1() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  // ─── Step Header Widget ────────────────────────────────────────────────────
+
+  Widget _buildStepHeader(String title, String subtitle, IconData icon, Color color) {
+    return Row(
       children: [
-        Text(
-          "Detalles del documento",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1D2848),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
           ),
+          child: Icon(icon, color: color, size: 22),
         ),
-        const SizedBox(height: 20),
-
-        // Campo Título
-        Row(
-          children: [
-            Text(
-              "Título del documento",
-              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-            ),
-            const Text(" *", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _titleController,
-          style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1D2848)),
-          decoration: InputDecoration(
-            hintText: "Ej. Examen de Álgebra - Trimestre II",
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1.5),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Carga de Archivo PDF
-        Row(
-          children: [
-            Text(
-              "Archivo",
-              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-            ),
-            const Text(" *", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _pickMockFile,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _uploadedFileName.isNotEmpty ? const Color(0xFF1E88E5) : const Color(0xFFCBD5E1),
-                style: BorderStyle.solid,
-                width: 1.5,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: _kDark,
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                const Icon(
-                  LucideIcons.uploadCloud,
-                  size: 36,
-                  color: Color(0xFF1E88E5),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  _uploadedFileName.isNotEmpty ? _uploadedFileName : "Sube tu archivo (PDF)",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1D2848),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _uploadedFileName.isNotEmpty
-                      ? "${_uploadedFileSizeMB.toStringAsFixed(1)} MB"
-                      : "Máx. 20 MB",
-                  style: GoogleFonts.outfit(fontSize: 11, color: const Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E88E5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    "Elegir archivo",
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Campo Descripción
-        Text(
-          "Descripción o contenido",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _descController,
-          maxLines: 4,
-          style: GoogleFonts.outfit(fontSize: 12.5, color: const Color(0xFF1D2848)),
-          decoration: InputDecoration(
-            hintText: "Describe brevemente el contenido del documento...",
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1.5),
-            ),
+              Text(
+                subtitle,
+                style: GoogleFonts.outfit(fontSize: 11.5, color: _kMuted),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  // Paso 2: Especificaciones de producción
+  // ─── Paso 1: Detalles del documento ────────────────────────────────────────
+
+  Widget _buildStep1() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildStepHeader(
+          "Detalles del documento",
+          "Agrega el título y el archivo a imprimir",
+          LucideIcons.fileText,
+          _kPrimary,
+        ),
+        const SizedBox(height: 24),
+
+        _buildLabel("Título del documento", required: true),
+        const SizedBox(height: 6),
+        _buildTextField(
+          controller: _titleController,
+          hint: "Ej. Examen de Álgebra - Trimestre II",
+          prefixIcon: LucideIcons.pencil,
+        ),
+        const SizedBox(height: 20),
+
+        _buildLabel("Archivo PDF", required: true),
+        const SizedBox(height: 8),
+        _buildFileUploadCard(),
+        const SizedBox(height: 20),
+
+        _buildLabel("Descripción o contenido"),
+        const SizedBox(height: 6),
+        _buildTextField(
+          controller: _descController,
+          hint: "Describe brevemente el contenido del documento...",
+          maxLines: 4,
+          prefixIcon: LucideIcons.alignLeft,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFileUploadCard() {
+    final hasFile = _uploadedFileName.isNotEmpty;
+    return GestureDetector(
+      onTap: _pickMockFile,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+        decoration: BoxDecoration(
+          color: hasFile ? _kPrimaryBg : _kSurface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: hasFile ? _kPrimary : _kBorder,
+            width: hasFile ? 1.8 : 1.2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: hasFile ? _kPrimary.withValues(alpha: 0.12) : Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: hasFile
+                        ? _kPrimary.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                  )
+                ],
+              ),
+              child: Icon(
+                hasFile ? LucideIcons.fileCheck2 : LucideIcons.uploadCloud,
+                size: 30,
+                color: hasFile ? _kPrimary : _kMuted,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              hasFile ? _uploadedFileName : "Sube tu archivo (PDF)",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: hasFile ? _kPrimary : _kDark,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hasFile ? "${_uploadedFileSizeMB.toStringAsFixed(1)} MB" : "Máx. 20 MB",
+              style: GoogleFonts.outfit(fontSize: 11, color: _kMuted),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF7C5FF5), _kPrimary],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: _kPrimary.withValues(alpha: 0.30),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ],
+              ),
+              child: Text(
+                hasFile ? "Cambiar archivo" : "Elegir archivo",
+                style: GoogleFonts.outfit(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Paso 2: Especificaciones de producción ────────────────────────────────
+
   Widget _buildStep2() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        _buildStepHeader(
           "Especificaciones de producción",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1D2848),
-          ),
+          "Elige el tipo de impresión y tamaño",
+          LucideIcons.printer,
+          const Color(0xFF0284C7),
         ),
         const SizedBox(height: 24),
 
-        // Tipo de Impresión
-        Text(
-          "Tipo de impresión",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Tipo de impresión"),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
-              child: _buildProductionCard(
+              child: _buildColorModeCard(
                 label: "Blanco y negro",
                 value: "b/n",
-                isSelected: _colorMode == 'b/n',
-                icon: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1D2848),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE2E8F0),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () => setState(() => _colorMode = 'b/n'),
+                icon: _buildBWIcon(),
+                accentColor: const Color(0xFF475569),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildProductionCard(
+              child: _buildColorModeCard(
                 label: "A color",
                 value: "color",
-                isSelected: _colorMode == 'color',
-                icon: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(width: 14, height: 14, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
-                    const SizedBox(width: 2),
-                    Container(width: 14, height: 14, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
-                    const SizedBox(width: 2),
-                    Container(width: 14, height: 14, decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle)),
-                  ],
-                ),
-                onTap: () => setState(() => _colorMode = 'color'),
+                icon: _buildColorIcon(),
+                accentColor: const Color(0xFF7C3AED),
               ),
             ),
           ],
         ),
         const SizedBox(height: 24),
 
-        // Tamaño del papel
-        Text(
-          "Tamaño del papel",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Tamaño del papel"),
+        const SizedBox(height: 10),
+        _buildPaperRadioOption("A4 (21 × 29.7 cm)", "A4"),
         const SizedBox(height: 8),
-        _buildPaperRadioOption("A4 (21 x 29.7 cm)", "A4"),
-        const SizedBox(height: 8),
-        _buildPaperRadioOption("Oficio (21.6 x 33 cm)", "Oficio"),
+        _buildPaperRadioOption("Oficio (21.6 × 33 cm)", "Oficio"),
         const SizedBox(height: 8),
         _buildPaperRadioOption("Otro tamaño", "Otro"),
       ],
     );
   }
 
-  Widget _buildProductionCard({
+  Widget _buildBWIcon() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: const BoxDecoration(color: Color(0xFF1D2848), shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: _kBorder),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColorIcon() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 14, height: 14, decoration: const BoxDecoration(color: Color(0xFFEF4444), shape: BoxShape.circle)),
+        const SizedBox(width: 3),
+        Container(width: 14, height: 14, decoration: const BoxDecoration(color: Color(0xFF22C55E), shape: BoxShape.circle)),
+        const SizedBox(width: 3),
+        Container(width: 14, height: 14, decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle)),
+      ],
+    );
+  }
+
+  Widget _buildColorModeCard({
     required String label,
     required String value,
-    required bool isSelected,
     required Widget icon,
-    required VoidCallback onTap,
+    required Color accentColor,
   }) {
+    final isSelected = _colorMode == value;
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => setState(() => _colorMode = value),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF1F5F9) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? accentColor.withValues(alpha: 0.08) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFFE2E8F0),
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? accentColor : _kBorder,
+            width: isSelected ? 2.0 : 1.2,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
         ),
         child: Column(
           children: [
@@ -721,12 +778,21 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
             const SizedBox(height: 12),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 12.5,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1D2848),
+                color: isSelected ? accentColor : _kDark,
               ),
             ),
+            if (isSelected) ...[
+              const SizedBox(height: 6),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: accentColor, shape: BoxShape.circle),
+              ),
+            ],
           ],
         ),
       ),
@@ -735,24 +801,36 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
 
   Widget _buildPaperRadioOption(String label, String value) {
     final isSelected = _paperSize == value;
-    return InkWell(
+    return GestureDetector(
       onTap: () => setState(() => _paperSize = value),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? _kPrimaryBg : Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFFE2E8F0),
+            color: isSelected ? _kPrimary : _kBorder,
+            width: isSelected ? 1.8 : 1.2,
           ),
-          color: isSelected ? const Color(0xFFF0F9FF) : Colors.white,
         ),
         child: Row(
           children: [
-            Icon(
-              isSelected ? LucideIcons.checkCircle2 : LucideIcons.circle,
-              color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFF94A3B8),
-              size: 18,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? _kPrimary : Colors.white,
+                border: Border.all(
+                  color: isSelected ? _kPrimary : _kMuted,
+                  width: 1.8,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.circle, color: Colors.white, size: 8)
+                  : null,
             ),
             const SizedBox(width: 12),
             Text(
@@ -760,7 +838,7 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
               style: GoogleFonts.outfit(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: const Color(0xFF1D2848),
+                color: isSelected ? _kPrimary : _kDark,
               ),
             ),
           ],
@@ -769,28 +847,22 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     );
   }
 
-  // Paso 3: Destino del material
+  // ─── Paso 3: Destino del material ─────────────────────────────────────────
+
   Widget _buildStep3() {
     final listGrados = _gradosPorNivel[_selectedNivel] ?? [];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        _buildStepHeader(
           "Destino del material",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1D2848),
-          ),
+          "Indica el aula y la cantidad de ejemplares",
+          LucideIcons.school,
+          const Color(0xFF16A34A),
         ),
         const SizedBox(height: 24),
 
-        // Nivel / Ciclo
-        Text(
-          "Nivel / Ciclo",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Nivel / Ciclo"),
         const SizedBox(height: 6),
         _buildDropdown(_selectedNivel, _niveles, (val) {
           if (val != null) {
@@ -802,205 +874,103 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
         }),
         const SizedBox(height: 16),
 
-        // Grado
-        Text(
-          "Grado",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Grado"),
         const SizedBox(height: 6),
         _buildDropdown(_selectedGrado, listGrados, (val) {
-          if (val != null) {
-            setState(() {
-              _selectedGrado = val;
-            });
-          }
+          if (val != null) setState(() => _selectedGrado = val);
         }),
         const SizedBox(height: 16),
 
-        // Sección
-        Text(
-          "Sección",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Sección"),
         const SizedBox(height: 6),
         _buildDropdown(_selectedSeccion, _secciones, (val) {
-          if (val != null) {
-            setState(() {
-              _selectedSeccion = val;
-            });
-          }
+          if (val != null) setState(() => _selectedSeccion = val);
         }),
         const SizedBox(height: 20),
 
-        // Ejemplares requeridos
-        Row(
-          children: [
-            Text(
-              "Ejemplares requeridos",
-              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-            ),
-            const Text(" *", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
-        ),
+        _buildLabel("Ejemplares requeridos", required: true),
         const SizedBox(height: 6),
-        TextFormField(
+        _buildTextField(
           controller: _copiesController,
+          hint: "Ej. 35",
+          suffixText: "ejemplares",
           keyboardType: TextInputType.number,
-          style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1D2848), fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            hintText: "Ej. 35",
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-            suffixText: "ejemplares",
-            suffixStyle: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF64748B)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1.5),
-            ),
-          ),
+          prefixIcon: LucideIcons.copy,
         ),
       ],
     );
   }
 
-  Widget _buildDropdown(String value, List<String> items, ValueChanged<String?> onChanged) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1D2848), fontWeight: FontWeight.w600),
-          icon: const Icon(LucideIcons.chevronDown, color: Color(0xFF94A3B8), size: 16),
-          items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
+  // ─── Paso 4: Logística de entrega ─────────────────────────────────────────
 
-  // Paso 4: Logística de entrega
   Widget _buildStep4() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        _buildStepHeader(
           "Logística de entrega",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1D2848),
-          ),
+          "Fecha límite y tipo de acabado final",
+          LucideIcons.package,
+          const Color(0xFFD97706),
         ),
         const SizedBox(height: 24),
 
-        // Fecha límite requerida
-        Row(
-          children: [
-            Text(
-              "Fecha límite requerida",
-              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-            ),
-            const Text(" *", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          ],
-        ),
+        _buildLabel("Fecha límite requerida", required: true),
         const SizedBox(height: 6),
-        TextFormField(
-          controller: _limitDateController,
-          readOnly: true,
+        GestureDetector(
           onTap: _selectDate,
-          style: GoogleFonts.outfit(fontSize: 13, color: const Color(0xFF1D2848), fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            hintText: "Seleccionar fecha límite",
-            prefixIcon: const Icon(LucideIcons.calendar, color: Color(0xFF94A3B8), size: 16),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1.5),
+          child: AbsorbPointer(
+            child: _buildTextField(
+              controller: _limitDateController,
+              hint: "Seleccionar fecha límite",
+              prefixIcon: LucideIcons.calendar,
+              readOnly: true,
             ),
           ),
         ),
         const SizedBox(height: 24),
 
-        // Instrucciones especiales / Acabado
-        Text(
-          "Instrucciones especiales / Acabado",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Instrucciones especiales / Acabado"),
         const SizedBox(height: 10),
         Row(
           children: [
             Expanded(
               child: _buildFinishCard(
                 label: "Anillado",
-                isSelected: _selectedFinish == 'Anillado',
+                value: "Anillado",
                 icon: LucideIcons.bookOpen,
-                onTap: () => setState(() => _selectedFinish = 'Anillado'),
+                color: const Color(0xFF7C3AED),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _buildFinishCard(
                 label: "Engrapado",
-                isSelected: _selectedFinish == 'Engrapado',
+                value: "Engrapado",
                 icon: LucideIcons.folderOpen,
-                onTap: () => setState(() => _selectedFinish = 'Engrapado'),
+                color: const Color(0xFF0284C7),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _buildFinishCard(
                 label: "Suelto",
-                isSelected: _selectedFinish == 'Suelto',
+                value: "Suelto",
                 icon: LucideIcons.fileText,
-                onTap: () => setState(() => _selectedFinish = 'Suelto'),
+                color: const Color(0xFF16A34A),
               ),
             ),
           ],
         ),
         const SizedBox(height: 24),
 
-        // Observaciones adicionales
-        Text(
-          "Observaciones adicionales",
-          style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1D2848)),
-        ),
+        _buildLabel("Observaciones adicionales"),
         const SizedBox(height: 6),
-        TextFormField(
+        _buildTextField(
           controller: _obsController,
+          hint: "Ej. Entregar en secretaría, engrapar por grupos de 2 hojas...",
           maxLines: 4,
-          style: GoogleFonts.outfit(fontSize: 12.5, color: const Color(0xFF1D2848)),
-          decoration: InputDecoration(
-            hintText: "Ej. Entregar en secretaría, engrapar por grupos de 2 hojas, etc.",
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1.5),
-            ),
-          ),
+          prefixIcon: LucideIcons.messageSquare,
         ),
       ],
     );
@@ -1008,37 +978,56 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
 
   Widget _buildFinishCard({
     required String label,
-    required bool isSelected,
+    required String value,
     required IconData icon,
-    required VoidCallback onTap,
+    required Color color,
   }) {
+    final isSelected = _selectedFinish == value;
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => setState(() => _selectedFinish = value),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF1F5F9) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? color.withValues(alpha: 0.09) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFFE2E8F0),
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color : _kBorder,
+            width: isSelected ? 2.0 : 1.2,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.18),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [],
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF1E88E5) : const Color(0xFF94A3B8),
-              size: 20,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected ? color.withValues(alpha: 0.15) : _kSurface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? color : _kMuted,
+                size: 20,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 11.5,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1D2848),
+                color: isSelected ? color : _kDark,
               ),
             ),
           ],
@@ -1047,16 +1036,107 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
     );
   }
 
-  // Widget para construir los botones de navegación en la parte inferior
+  // ─── Shared Widgets ────────────────────────────────────────────────────────
+
+  Widget _buildLabel(String text, {bool required = false}) {
+    return Row(
+      children: [
+        Text(
+          text,
+          style: GoogleFonts.outfit(
+            fontSize: 12.5,
+            fontWeight: FontWeight.bold,
+            color: _kDark,
+          ),
+        ),
+        if (required)
+          const Text(
+            " *",
+            style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+    String? suffixText,
+    IconData? prefixIcon,
+    bool readOnly = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      readOnly: readOnly,
+      style: GoogleFonts.outfit(fontSize: 13, color: _kDark, fontWeight: FontWeight.w600),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: GoogleFonts.outfit(fontSize: 13, color: _kMuted, fontWeight: FontWeight.normal),
+        suffixText: suffixText,
+        suffixStyle: GoogleFonts.outfit(fontSize: 12, color: _kMuted),
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, size: 16, color: _kMuted)
+            : null,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: prefixIcon != null ? 4 : 14,
+          vertical: 13,
+        ),
+        filled: true,
+        fillColor: _kSurface,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _kBorder, width: 1.2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _kPrimary, width: 1.8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown(String value, List<String> items, ValueChanged<String?> onChanged) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: _kSurface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _kBorder, width: 1.2),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          style: GoogleFonts.outfit(
+            fontSize: 13,
+            color: _kDark,
+            fontWeight: FontWeight.w600,
+          ),
+          icon: const Icon(LucideIcons.chevronDown, color: _kMuted, size: 16),
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  // ─── Navigation Buttons ────────────────────────────────────────────────────
+
   Widget _buildNavigationButtons() {
     final isFirstStep = _currentStep == 1;
     final isLastStep = _currentStep == 4;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+        border: Border(top: BorderSide(color: _kBorder, width: 1)),
       ),
       child: Row(
         children: [
@@ -1066,8 +1146,9 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
                 onPressed: _prevStep,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  side: const BorderSide(color: _kBorder, width: 1.2),
+                  foregroundColor: _kDark,
                 ),
                 child: Text(
                   "Atrás",
@@ -1083,35 +1164,68 @@ class _DigitacionFormScreenState extends State<DigitacionFormScreen> {
           ],
           Expanded(
             flex: 2,
-            child: ElevatedButton(
-              onPressed: isLastStep ? _saveForm : _nextStep,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isLastStep ? const Color(0xFFEDC620) : const Color(0xFF1E88E5),
-                foregroundColor: isLastStep ? const Color(0xFF1D2848) : Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    isLastStep ? "Revisar y enviar" : "Siguiente",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13.5,
+            child: _buildPrimaryButton(
+              label: isLastStep ? "Revisar y enviar" : "Siguiente",
+              icon: isLastStep ? LucideIcons.send : LucideIcons.chevronRight,
+              onTap: isLastStep ? _saveForm : _nextStep,
+              gradient: isLastStep
+                  ? const LinearGradient(
+                      colors: [Color(0xFFEDC620), Color(0xFFD4A017)],
+                    )
+                  : const LinearGradient(
+                      colors: [Color(0xFF7C5FF5), _kPrimary],
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    isLastStep ? LucideIcons.send : LucideIcons.chevronRight,
-                    size: 14,
-                  ),
-                ],
-              ),
+              labelColor: isLastStep ? _kDark : Colors.white,
+              iconColor: isLastStep ? _kDark : Colors.white,
+              shadowColor: isLastStep
+                  ? const Color(0xFFEDC620)
+                  : _kPrimary,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+    required Gradient gradient,
+    required Color labelColor,
+    required Color iconColor,
+    required Color shadowColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        decoration: BoxDecoration(
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor.withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: labelColor,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(icon, size: 15, color: iconColor),
+          ],
+        ),
       ),
     );
   }
