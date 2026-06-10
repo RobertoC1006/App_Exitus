@@ -915,49 +915,6 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       };
     }).toList();
 
-    Widget homeView;
-    if (activeRole == 'admin') {
-      homeView = AdminHomeView(
-        onTabChanged: (index) {
-          if (index == 1) {
-            _showAdminAulasBottomSheet(context);
-          } else if (index == 2) {
-            _showAdminAttendanceBottomSheet(context);
-          }
-        },
-        onRegisterUserPressed: _showCreateUserSheet,
-      );
-    } else if (activeRole == 'teacher') {
-      homeView = TeacherHomeView(
-        teacherUser: user,
-        teacherCourses: teacherCourses,
-        onTabChanged: _onTabChanged,
-      );
-    } else if (activeRole == 'student') {
-      homeView = StudentHomeView(
-        studentUser: user,
-        studentCourses: studentCourses,
-        onTabChanged: _onTabChanged,
-      );
-    } else {
-      homeView = StaffRoleDashboard(
-        role: activeRole,
-        user: user,
-      );
-    }
-
-    Widget profileView;
-    if (activeRole == 'admin' && user.role == 'admin') {
-      profileView = AdminProfileView(
-        onRefreshRequested: () => setState(() {}),
-      );
-    } else {
-      profileView = StudentProfileView(
-        currentUser: user,
-        onLogout: _handleLogout,
-      );
-    }
-
     final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
 
     return WillPopScope(
@@ -980,7 +937,17 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                   Navigator(
                     key: _navigatorKeys[0],
                     onGenerateInitialRoutes: (navigator, initialRoute) => [
-                      MaterialPageRoute(builder: (context) => homeView),
+                      MaterialPageRoute(
+                        builder: (context) => ExitusHomeSwitcher(
+                          user: user,
+                          studentCourses: studentCourses,
+                          teacherCourses: teacherCourses,
+                          onTabChanged: _onTabChanged,
+                          onRegisterUserPressed: _showCreateUserSheet,
+                          onShowAdminAulas: () => _showAdminAulasBottomSheet(context),
+                          onShowAdminAttendance: () => _showAdminAttendanceBottomSheet(context),
+                        ),
+                      ),
                     ],
                   ),
                   Navigator(
@@ -998,7 +965,13 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                   Navigator(
                     key: _navigatorKeys[3],
                     onGenerateInitialRoutes: (navigator, initialRoute) => [
-                      MaterialPageRoute(builder: (context) => profileView),
+                      MaterialPageRoute(
+                        builder: (context) => ExitusProfileSwitcher(
+                          user: user,
+                          onLogout: _handleLogout,
+                          onRefreshRequested: () => setState(() {}),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -1211,3 +1184,89 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     );
   }
 }
+
+class ExitusHomeSwitcher extends ConsumerWidget {
+  final User user;
+  final List<Map<String, dynamic>> studentCourses;
+  final List<Map<String, dynamic>> teacherCourses;
+  final Function(int) onTabChanged;
+  final VoidCallback onRegisterUserPressed;
+  final VoidCallback onShowAdminAulas;
+  final VoidCallback onShowAdminAttendance;
+
+  const ExitusHomeSwitcher({
+    super.key,
+    required this.user,
+    required this.studentCourses,
+    required this.teacherCourses,
+    required this.onTabChanged,
+    required this.onRegisterUserPressed,
+    required this.onShowAdminAulas,
+    required this.onShowAdminAttendance,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeRole = ref.watch(activeRoleProvider);
+
+    if (activeRole == 'admin') {
+      return AdminHomeView(
+        onTabChanged: (index) {
+          if (index == 1) {
+            onShowAdminAulas();
+          } else if (index == 2) {
+            onShowAdminAttendance();
+          }
+        },
+        onRegisterUserPressed: onRegisterUserPressed,
+      );
+    } else if (activeRole == 'teacher') {
+      return TeacherHomeView(
+        teacherUser: user,
+        teacherCourses: teacherCourses,
+        onTabChanged: onTabChanged,
+      );
+    } else if (activeRole == 'student') {
+      return StudentHomeView(
+        studentUser: user,
+        studentCourses: studentCourses,
+        onTabChanged: onTabChanged,
+      );
+    } else {
+      return StaffRoleDashboard(
+        role: activeRole,
+        user: user,
+      );
+    }
+  }
+}
+
+class ExitusProfileSwitcher extends ConsumerWidget {
+  final User user;
+  final VoidCallback onLogout;
+  final VoidCallback onRefreshRequested;
+
+  const ExitusProfileSwitcher({
+    super.key,
+    required this.user,
+    required this.onLogout,
+    required this.onRefreshRequested,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeRole = ref.watch(activeRoleProvider);
+
+    if (activeRole == 'admin' && user.role == 'admin') {
+      return AdminProfileView(
+        onRefreshRequested: onRefreshRequested,
+      );
+    } else {
+      return StudentProfileView(
+        currentUser: user,
+        onLogout: onLogout,
+      );
+    }
+  }
+}
+
