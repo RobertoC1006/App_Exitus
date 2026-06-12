@@ -158,6 +158,7 @@ class _InventarioTopicoScreenState extends State<InventarioTopicoScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: "Medicamento / Insumo",
                       border: OutlineInputBorder(),
@@ -165,7 +166,11 @@ class _InventarioTopicoScreenState extends State<InventarioTopicoScreen> {
                     items: _inventory.map((item) {
                       return DropdownMenuItem<String>(
                         value: item['name'],
-                        child: Text(item['name'], style: const TextStyle(fontSize: 12)),
+                        child: Text(
+                          item['name'],
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       );
                     }).toList(),
                     onChanged: (val) => selectedItemName = val,
@@ -311,18 +316,19 @@ class _InventarioTopicoScreenState extends State<InventarioTopicoScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: category,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: "Categoría",
                       border: OutlineInputBorder(),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Analgésicos', child: Text('Analgésicos')),
-                      DropdownMenuItem(value: 'Antiinflamatorios', child: Text('Antiinflamatorios')),
-                      DropdownMenuItem(value: 'Antiespasmódicos', child: Text('Antiespasmódicos')),
-                      DropdownMenuItem(value: 'Respiratorio', child: Text('Respiratorio')),
-                      DropdownMenuItem(value: 'Material Curación', child: Text('Material de Curación')),
-                      DropdownMenuItem(value: 'Soluciones', child: Text('Soluciones')),
-                      DropdownMenuItem(value: 'Otros', child: Text('Otros')),
+                      DropdownMenuItem(value: 'Analgésicos', child: Text('Analgésicos', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Antiinflamatorios', child: Text('Antiinflamatorios', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Antiespasmódicos', child: Text('Antiespasmódicos', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Respiratorio', child: Text('Respiratorio', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Material Curación', child: Text('Material de Curación', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Soluciones', child: Text('Soluciones', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Otros', child: Text('Otros', overflow: TextOverflow.ellipsis)),
                     ],
                     onChanged: (val) {
                       if (val != null) category = val;
@@ -331,16 +337,17 @@ class _InventarioTopicoScreenState extends State<InventarioTopicoScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: unit,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: "Unidad de Medida",
                       border: OutlineInputBorder(),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Tabletas', child: Text('Tabletas')),
-                      DropdownMenuItem(value: 'Frascos', child: Text('Frascos')),
-                      DropdownMenuItem(value: 'Sobres', child: Text('Sobres')),
-                      DropdownMenuItem(value: 'Tubos', child: Text('Tubos / Pomadas')),
-                      DropdownMenuItem(value: 'Unidades', child: Text('Unidades')),
+                      DropdownMenuItem(value: 'Tabletas', child: Text('Tabletas', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Frascos', child: Text('Frascos', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Sobres', child: Text('Sobres', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Tubos', child: Text('Tubos / Pomadas', overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(value: 'Unidades', child: Text('Unidades', overflow: TextOverflow.ellipsis)),
                     ],
                     onChanged: (val) {
                       if (val != null) unit = val;

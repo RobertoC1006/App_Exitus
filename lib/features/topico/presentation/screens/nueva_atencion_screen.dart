@@ -281,6 +281,7 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                               )
                             : DropdownButtonFormField<String>(
                                 initialValue: _selectedPatientName,
+                                isExpanded: true,
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -290,6 +291,7 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                                     value: p['name'],
                                     child: Text(
                                       "${p['name']} (DNI: ${p['dni']})",
+                                      overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500),
                                     ),
                                   );
@@ -527,7 +529,11 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                                 items: _medicationInventory.map((m) {
                                   return DropdownMenuItem<String>(
                                     value: m['name'],
-                                    child: Text(m['name'], style: const TextStyle(fontSize: 12)),
+                                    child: Text(
+                                      m['name'],
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (val) {
@@ -639,14 +645,15 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
                           initialValue: _classification,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: "Clasificación Atención",
                             border: OutlineInputBorder(),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'Ambulatoria', child: Text('Ambulatoria (Leve)')),
-                            DropdownMenuItem(value: 'Derivación', child: Text('Derivación a Domicilio')),
-                            DropdownMenuItem(value: 'Emergencia', child: Text('Emergencia Médica (Grave)')),
+                            DropdownMenuItem(value: 'Ambulatoria', child: Text('Ambulatoria (Leve)', overflow: TextOverflow.ellipsis)),
+                            DropdownMenuItem(value: 'Derivación', child: Text('Derivación a Domicilio', overflow: TextOverflow.ellipsis)),
+                            DropdownMenuItem(value: 'Emergencia', child: Text('Emergencia Médica (Grave)', overflow: TextOverflow.ellipsis)),
                           ],
                           onChanged: (val) {
                             if (val != null) {
@@ -666,15 +673,16 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
                           initialValue: _destiny,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: "Destino Final",
                             border: OutlineInputBorder(),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'Alta (Retorno a aula)', child: Text('Alta (Retorno a aula)')),
-                            DropdownMenuItem(value: 'Reposo temporal en camilla', child: Text('Reposo temporal en camilla')),
-                            DropdownMenuItem(value: 'Derivado a domicilio', child: Text('Derivado a domicilio')),
-                            DropdownMenuItem(value: 'Traslado a clínica/hospital', child: Text('Traslado a clínica/hospital')),
+                            DropdownMenuItem(value: 'Alta (Retorno a aula)', child: Text('Alta (Retorno a aula)', overflow: TextOverflow.ellipsis)),
+                            DropdownMenuItem(value: 'Reposo temporal en camilla', child: Text('Reposo temporal en camilla', overflow: TextOverflow.ellipsis)),
+                            DropdownMenuItem(value: 'Derivado a domicilio', child: Text('Derivado a domicilio', overflow: TextOverflow.ellipsis)),
+                            DropdownMenuItem(value: 'Traslado a clínica/hospital', child: Text('Traslado a clínica/hospital', overflow: TextOverflow.ellipsis)),
                           ],
                           onChanged: (val) {
                             if (val != null) setState(() => _destiny = val);
