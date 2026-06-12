@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app_exitus/features/auth/domain/entities/user.dart';
+import 'package:app_exitus/features/topico/presentation/screens/topico_dashboard_screen.dart';
+
 
 class StaffRoleDashboard extends StatelessWidget {
   final String role;
@@ -128,6 +130,10 @@ class StaffRoleDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (role == 'topico') {
+      return TopicoDashboardScreen(currentUser: user);
+    }
+    
     final String roleName = _getRoleDisplayName(role);
     final Color roleColor = _getRoleColor(role);
     final metrics = _getMetrics(role);
