@@ -324,7 +324,7 @@ class MockDatabase {
       fullName: 'Lic. Rosa',
       email: 'rosa.enfermeria@exitus.edu.pe',
       role: 'enfermero',
-      avatarUrl: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?w=150',
+      avatarUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150',
       subjects: [],
     ),
     const User(

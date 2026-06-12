@@ -18,11 +18,20 @@ class _InboxMessagesViewState extends State<InboxMessagesView> {
   final MockDatabase _db = MockDatabase();
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  List<InboxMessage>? _cachedMessages;
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant InboxMessagesView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentUser.id != widget.currentUser.id) {
+      _cachedMessages = null;
+    }
   }
 
   void _showReplyToast(String message, bool isError) {
@@ -51,7 +60,9 @@ class _InboxMessagesViewState extends State<InboxMessagesView> {
     if (widget.onMessageRead != null) {
       widget.onMessageRead!();
     }
-    setState(() {});
+    setState(() {
+      _cachedMessages = null;
+    });
 
     final replyController = TextEditingController();
     bool isReplying = false;
@@ -263,7 +274,8 @@ class _InboxMessagesViewState extends State<InboxMessagesView> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = _db.getMessagesForUser(widget.currentUser.id);
+    _cachedMessages ??= _db.getMessagesForUser(widget.currentUser.id);
+    final messages = _cachedMessages!;
     final filtered = messages.where((msg) {
       final query = _searchQuery.toLowerCase();
       return msg.sender.toLowerCase().contains(query) ||

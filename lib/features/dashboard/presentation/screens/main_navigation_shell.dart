@@ -10,7 +10,6 @@ import '../../../../core/mock/mock_data.dart';
 import '../../../social_feed/presentation/widgets/social_feed_view.dart';
 import '../../../messages/presentation/widgets/inbox_messages_view.dart';
 import '../../../profile/presentation/widgets/student_profile_view.dart';
-import '../../../profile/presentation/widgets/teacher_profile_view.dart';
 import '../widgets/student_home_view.dart';
 import '../widgets/teacher_home_view.dart';
 import '../widgets/admin_home_view.dart';
@@ -21,9 +20,6 @@ import '../widgets/launchpad_overlay.dart';
 import '../widgets/staff_role_dashboard.dart';
 import '../../../digitacion/presentation/screens/digitacion_dashboard_screen.dart';
 import '../../../../features/classroom/presentation/widgets/inner_classroom_drawer.dart';
-import '../widgets/topico/nurse_home_view.dart';
-import '../widgets/topico/library_placeholder_view.dart';
-import '../../../profile/presentation/widgets/nurse_profile_view.dart';
 import '../widgets/topico/admit_patient_screen.dart';
 import '../widgets/topico/expedientes_screen.dart';
 import '../widgets/topico/stock_screen.dart';
@@ -43,6 +39,8 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   bool _isLaunchpadOpen = false;
   bool _isLoadingRole = false;
   String _loadingRoleMessage = "";
+  int? _cachedUnreadCount;
+  String? _cachedUserId;
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
@@ -61,7 +59,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
     }
   }
 
-  void _handleRoleSwitch(String newRole) {
+  void handleRoleSwitch(String newRole) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -78,6 +76,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       if (mounted) {
         setState(() {
           _isLoadingRole = false;
+          _cachedUnreadCount = null;
         });
       }
     });
@@ -964,7 +963,11 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
       };
     }).toList();
 
-    final unreadMessages = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
+    if (_cachedUserId != user.id || _cachedUnreadCount == null) {
+      _cachedUserId = user.id;
+      _cachedUnreadCount = _db.getMessagesForUser(user.id).where((m) => m.unread).length;
+    }
+    final unreadMessages = _cachedUnreadCount!;
 
     return PopScope(
       canPop: false,
@@ -1011,7 +1014,16 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                   Navigator(
                     key: _navigatorKeys[2],
                     onGenerateInitialRoutes: (navigator, initialRoute) => [
-                      MaterialPageRoute(builder: (context) => InboxMessagesView(currentUser: user, onMessageRead: () => setState(() {}))),
+                      MaterialPageRoute(
+                        builder: (context) => InboxMessagesView(
+                          currentUser: user,
+                          onMessageRead: () {
+                            setState(() {
+                              _cachedUnreadCount = null;
+                            });
+                          },
+                        ),
+                      ),
                     ],
                   ),
                   Navigator(
@@ -1021,7 +1033,11 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
                         builder: (context) => ExitusProfileSwitcher(
                           user: user,
                           onLogout: _handleLogout,
-                          onRefreshRequested: () => setState(() {}),
+                          onRefreshRequested: () {
+                            setState(() {
+                              _cachedUnreadCount = null;
+                            });
+                          },
                         ),
                       ),
                     ],
