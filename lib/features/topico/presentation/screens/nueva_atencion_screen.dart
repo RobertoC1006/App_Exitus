@@ -554,14 +554,19 @@ class _NuevaAtencionScreenState extends State<NuevaAtencionScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: _addMedication,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0EA5E9),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                padding: const EdgeInsets.all(12),
+                            SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: _addMedication,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0EA5E9),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size.zero,
+                                ),
+                                child: const Icon(LucideIcons.plus, color: Colors.white, size: 18),
                               ),
-                              child: const Icon(LucideIcons.plus, color: Colors.white, size: 18),
                             ),
                           ],
                         ),
